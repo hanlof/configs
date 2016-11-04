@@ -38,15 +38,11 @@ int main(int argc, int * argv[]) {
   char * buf_start = alloc_ptr + 2;
   char * cur_line_start = buf_start;
   char * cur_line_end = buf_start;
-  char * prev_line_start = buf_start;
   char * prev_line_end = buf_start;
   char * buf_end;
   int i, j;
   int tot = 0;
   i = read(0, buf_start, 4096);
-  cur_line_start = buf_start;
-  cur_line_end = buf_start;
-  buf_end = buf_start + i;
   cur_line_start = buf_start;
   cur_line_end = buf_start;
   buf_end = buf_start + i;
@@ -70,14 +66,13 @@ int main(int argc, int * argv[]) {
             exit(0);
           }
           buf_end += i;
-          //break;
         }
       }
       char * r = compare_path(prev_line_end, cur_line_end); // r becomes a pointer to the last slash
       if (r > cur_line_start) {
         char lf = '\n';
-        char * red = "\e[31m";
-        char * normal = "\e[0m";
+        //char * red = "\e[31m";
+        //char * normal = "\e[0m";
 
    //     write(1, red, 5);
         write(1, cur_line_start, (int)(r - cur_line_start)+1);
@@ -86,7 +81,6 @@ int main(int argc, int * argv[]) {
    //     printf(">>%i,%x<<\n", r-cur_line_start,r);
       }
       write(1, cur_line_start, (cur_line_end - cur_line_start));
-      prev_line_start = cur_line_start;
       prev_line_end = cur_line_end;
       cur_line_start = cur_line_end;
      // printf("%x %x\n", cur_line_end, buf_end);
