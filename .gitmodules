@@ -1,3 +1,6 @@
 [submodule "external/dmenu"]
 	path = external/dmenu
 	url = http://git.suckless.org/dmenu
+[submodule "external/vim-fugitive"]
+	path = external/vim-fugitive
+	url = https://github.com/tpope/vim-fugitive
