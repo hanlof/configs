@@ -6,16 +6,15 @@ char * compare_path(char * p, char * c)
 {
 //  printf("%x %x\n", p, c);
 //  printf(">>%10s<<\n", p);
-  p--;
-  c--;
-  p--;
-  c--;
-  while (*p != '/' && *p != '\n') {
+  p -= 2;
+  c -= 2;
+
+  while (*p != '/' && *p != '\n')
     p--;
-  }
-  while (*c != '/' && *c != '\n') {
+
+  while (*c != '/' && *c != '\n')
     c--;
-  }
+
 //  printf("%x %x\n", p, c);
 //  printf(">>%10s<<\n", p);
   char * tmp = c;
@@ -30,18 +29,18 @@ char * compare_path(char * p, char * c)
   return tmp;
 }
 
+#define ALLOCSIZE 0x800000
+
 int main(int argc, int * argv[]) {
-  int allocsize = 0x800000;
-  char * alloc_ptr = malloc(allocsize);
-  *alloc_ptr = '\n'; // put newline as a mark at the beginning of the buffer. it will simplify the compare function.
-  *(alloc_ptr + 1) = '\n'; // put newline as a mark at the beginning of the buffer. it will simplify the compare function.
-  char * buf_start = alloc_ptr + 2;
+  char * buf_start = malloc(ALLOCSIZE);
+
+  buf_start[0] = buf_start[1] = '\n';
+  buf_start += 2;
   char * cur_line_start = buf_start;
   char * cur_line_end = buf_start;
   char * prev_line_end = buf_start;
   char * buf_end;
-  int i, j;
-  int tot = 0;
+  int i;
   i = read(0, buf_start, 4096);
   cur_line_start = buf_start;
   cur_line_end = buf_start;
@@ -88,7 +87,5 @@ int main(int argc, int * argv[]) {
     i = read(0, buf_end, 4096);
     buf_end += i;
 
-//    printf("\n\n<<<<<<<<<<<<<<<<<<< %i\n\n", tot);
   }
- // printf("%i\n", tot);
 }
