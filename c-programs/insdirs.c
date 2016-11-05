@@ -30,17 +30,14 @@ char * compare_path(char * p, char * c)
 int main(int argc, int * argv[]) {
   char * buf_start = malloc(ALLOCSIZE);
 
+  // put newline as a mark at the beginning of the buffer. it will simplify the compare function.
   buf_start[0] = buf_start[1] = '\n';
   buf_start += 2;
   char * cur_line_start = buf_start;
   char * cur_line_end = buf_start;
-  char * prev_line_end = buf_start;
-  char * buf_end;
   int i;
   i = read(0, buf_start, 4096);
-  cur_line_start = buf_start;
-  cur_line_end = buf_start;
-  buf_end = buf_start + i;
+  char * buf_end = buf_start + i;
   while (1) {
     if (i == 0) {
       break;
@@ -55,18 +52,17 @@ int main(int argc, int * argv[]) {
           buf_end += i;
         }
       }
-      char * r = compare_path(prev_line_end, cur_line_end); // r becomes a pointer to the last slash
+      // cur_line_start is pretty much the same as previous line end
+      char * r = compare_path(cur_line_start, cur_line_end); // r becomes a pointer to the last slash
       if (r > cur_line_start) {
         char lf = '\n';
         write(1, cur_line_start, (int)(r - cur_line_start)+1);
         write(1, &lf, 1);
       }
       write(1, cur_line_start, (cur_line_end - cur_line_start));
-      prev_line_end = cur_line_end;
       cur_line_start = cur_line_end;
     }
     i = read(0, buf_end, 4096);
     buf_end += i;
-
   }
 }
