@@ -39,11 +39,15 @@ int main(int argc, int * argv[]) {
 				break;
 			}
 			read_ptr += i;
-		} else if (*ptr == '\n') {
+		}
+
+		if (*ptr == '\n') {
 			if (compare_path(prev_last_slash, last_slash)) {
-				i = write(1, write_ptr, (int)(ptr - write_ptr));
+				i = write(1, write_ptr, (int)(eol - write_ptr + 1));
+				write(1, sol, last_slash - sol + 1);
+				write(1, "\n", 1);
 				// FIXME: handle write() returning less than wanted number of bytes
-				write_ptr = ptr;
+				write_ptr = eol + 1;
 			}
 			prev_last_slash = last_slash;
 			prev_eol = eol;
