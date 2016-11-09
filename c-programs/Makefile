@@ -6,5 +6,5 @@ dumptags: dumptags.c readtags.h
 insdirs: insdirs.c
 	$(CC) -g -o insdirs insdirs.c
 
-insdirs2: insdirs2.c
-	$(CC) -g -o insdirs2 insdirs2.c
+insdirs2: insdirs2.c Makefile
+	$(CC) -Wmaybe-uninitialized -Wuninitialized -Wall -g -o insdirs2 insdirs2.c
