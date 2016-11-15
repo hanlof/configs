@@ -6,19 +6,16 @@
 #define ALLOCSIZE 0x800000
 #define READSIZE 0x0e
 
-char * compare_path(char * p, char * c)
+int compare_path(char * p, char * c)
 {
-  char * tmp = c;
-
   while (*p == *c) {
     if (*c == '\n') {
       return 0;
     }
     p--;
     c--;
-
   }
-  return tmp;
+  return 1;
 }
 
 int main(int argc, char * argv[]) {
@@ -27,7 +24,6 @@ int main(int argc, char * argv[]) {
 	*read_ptr++ = '\n';
 	char * last_slash = read_ptr;
 	char * prev_last_slash = read_ptr;
-	char * eol = read_ptr;
 	char * sol = read_ptr;
 
 	char * ptr = read_ptr;
@@ -35,7 +31,8 @@ int main(int argc, char * argv[]) {
 	int i;
 	while (1) {
 		if (ptr == read_ptr) {
-			i = read(0, read_ptr, READSIZE);
+			i = read(STDIN_FILENO, read_ptr, READSIZE);
+			// XXX take care of negative return value
 			if (0 == i) {
 				break;
 			}
@@ -44,15 +41,17 @@ int main(int argc, char * argv[]) {
 
 		if (*ptr == '\n') {
 			if (compare_path(prev_last_slash, last_slash)) {
-				i = write(1, write_ptr, (int)(eol - write_ptr + 1));
-				write(1, sol, last_slash - sol + 1);
-				write(1, "\n", 1);
+				i = write(STDOUT_FILENO, write_ptr, (int)(sol - write_ptr));
+				char tmp = last_slash[1];
+				last_slash[1] = '\n';
+				write(STDOUT_FILENO, sol, last_slash - sol + 2);
+				last_slash[1] = tmp;
+				//write(STDOUT_FILENO, "\n", 1);
 				// FIXME: handle write() returning less than wanted number of bytes
-				write_ptr = eol + 1;
+				write_ptr = sol;
 			}
 			prev_last_slash = last_slash;
 			sol = ptr + 1;
-			eol = ptr;
 		} else if (*ptr == '/') {
 			last_slash = ptr;
 		}
@@ -60,7 +59,7 @@ int main(int argc, char * argv[]) {
 		ptr++;
 	}
 
-	i = write(1, write_ptr, (int)(ptr - write_ptr));
+	i = write(STDOUT_FILENO, write_ptr, (int)(ptr - write_ptr));
 
 	return 0;
 }
