@@ -5,6 +5,8 @@ import re
 import subprocess
 
 try:
+  print ""
+  up = "%c[A" % 27
   tot_systime = 0.0
   tot_usertime = 0.0
   samples = 0
@@ -17,10 +19,7 @@ try:
     samples = samples + 1
     tot_systime = tot_systime + systime
     tot_usertime = tot_usertime + usertime
-    
-    print "avg %.3f %.3f" % (tot_systime / samples, tot_usertime / samples)
-    up = "%c[A" % 27
-    print up,
+    print up + "avg %.3f %.3f" % (tot_systime / samples, tot_usertime / samples)
 except KeyboardInterrupt as k:
   print "Stopped after %i iterations" % samples
   sys.exit(1)
