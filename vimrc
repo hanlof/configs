@@ -13,14 +13,15 @@ set showcmd
 "cexpr system('ssh gerrit.site.se -p 29418 gerrit query --comments --patch-sets commit:`git show --pretty=%H --no-patch --no-notes --no-abbrev`')
 
 " never use tabs. insert spaces
-set expandtab
+"set noexpandtab
 " big steps when tabbing (2 is too small difference from using spaces)
-set softtabstop=4
+"set softtabstop=4
 " i want 2 spaces to be the standard indentation
-set shiftwidth=2
+"set shiftwidth=2
 " tabs are 8 characters. make them visible by coloring them in .gvimrc
-set tabstop=8
 
+" define tab stuff in language specific files like after/ftplugin/c.vim etc
+set tabstop=8
 set backspace=2
 
 set splitright
@@ -207,7 +208,7 @@ if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
 
-au! BufEnter * call g:SetColorOnBuffer()
+"au! BufEnter * call g:SetColorOnBuffer()
 
 function g:SetColorOnBuffer()
   let GitTop = g:GitTopLevel(fnamemodify(expand('%'), ':p:s?[\/]$??'))
