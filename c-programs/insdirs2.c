@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <limits.h>
 
-#define ALLOCSIZE 0x2800000
+#define ALLOCSIZE 0x800000
 //#define READSIZE 0x8000
 
 int compare_path(char * p, char * c)
@@ -20,12 +20,11 @@ int compare_path(char * p, char * c)
 }
 
 int main(int argc, char * argv[]) {
-	int READSIZE = getpagesize();
+	int READSIZE = 2 * getpagesize();
 	char * read_ptr = malloc(ALLOCSIZE);
-	*read_ptr++ = '\n';
 	char * alloc_ptr = read_ptr;
-	// XXX do we need readsize plus two pathmax as margin? do proper calculation
-	char * watermark = alloc_ptr + ALLOCSIZE - READSIZE - PATH_MAX - PATH_MAX;
+	*read_ptr++ = '\n';
+	char * cycle_marker = alloc_ptr + ALLOCSIZE - READSIZE;
 	char * last_slash = read_ptr;
 	char * prev_last_slash = read_ptr;
 	char * start_of_line = read_ptr;
@@ -35,8 +34,15 @@ int main(int argc, char * argv[]) {
 	char tmp;
 	while (1) {
 		if (ptr == read_ptr) {
-			if (read_ptr >= watermark) {
-
+			if (read_ptr >= cycle_marker) {
+				// first write so writeptr is updated
+				// then copy stuff to beginning of buffer and updaye pointers
+				//  ! prev_last_slash does need to be copied. this means pathmax times two need to be copied
+				//  ! we should have sanity check on allocsize so we dont need to cycle the buffer too often
+				//  ! compare buffer cycling to just reallocing
+				//  ! also compare with a really small buffer and wrapping pointers
+				//  ! also just for fun investigate malloc time for big and small buffers
+				fprintf(stderr, "%x %x\n", ptr, alloc_ptr + ALLOCSIZE);
 			}
 			i = read(STDIN_FILENO, read_ptr, READSIZE);
 			// XXX take care of negative return value
@@ -62,7 +68,6 @@ int main(int argc, char * argv[]) {
 		} else if (*ptr == '/') {
 			last_slash = ptr;
 		}
-
 		ptr++;
 	}
 
