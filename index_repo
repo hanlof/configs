@@ -19,16 +19,20 @@ PAT=("${FILEPATTERNS[@]/#/${GITTOP}/}")
 GIT_COMMIT=`git show-ref -s HEAD`
 #echo File pattern: "${PAT[@]}"
 
+# TODO add support for git submodules
+
+# TODO check if cscope exists
 # cscope
 #time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
 time git ls-files "${PAT[@]}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
 echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
 
+# TODO check for correct version of ctags
 # ctags
 TMPDIR=`mktemp -d ${GITTOP}/ctags_indexing.XXXXXXXX`
 cd ${TMPDIR}
 /bin/rm -f ${GITTOP}/.git/tags
-time git ls-files "${PAT[@]}" | /app/vbuild/RHEL6-x86_64/ctags/5.8/bin/ctags --langmap=c:.c.sig -L - -o - > ${GITTOP}/.git/tags
+time git ls-files "${PAT[@]}" | ctags --langmap=c:.c.sig -L - -o - > ${GITTOP}/.git/tags
 echo ${GIT_COMMIT} > ${GITTOP}/.git/ctags.githash
 
 # clean up

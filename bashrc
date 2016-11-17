@@ -48,7 +48,7 @@ ft()
     echo "Enter a git repo first."
     return 1
   fi
-  tagname=$(/home/hans/bin/readtags2 -t ${s}/.git/tags -l | /home/hans/dmenu/dmenu-4.5/dmenu -sb purple -i -l 50 -p ">" 2> /dev/null)
+  tagname=$(~/configs/c-programs/dumptags -t ${s}/.git/tags -l | ~/dmenu-4.5/dmenu -sb purple -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$tagname" ]; then return; fi
 
   gvim --cmd set\ tags+=${s}/.git/tags -t ${tagname}
@@ -61,7 +61,7 @@ ff()
     echo "Enter a git repo first."
     return 1
   fi
-  fname=$(git ls-files --full-name ${s} | /home/hans/dmenu/dmenu-4.5/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${s} | ~/dmenu-4.5/dmenu -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
   gvim ${s}/${fname}
