@@ -10,6 +10,7 @@
 // experiment: compare buffer cycling to just reallocing
 // experiment: compare this approach (allocate several megabytes) with a really small buffer and constantly wrapping pointers
 // just for fun: investigate malloc time for big and small buffers
+// answer: seems to be pretty constant time regardless of buffer size!
 
 #define ALLOCSIZE 0x800000
 
@@ -25,7 +26,34 @@ int compare_path(char * p, char * c)
 	return 1;
 }
 
+struct args {
+	int allocsize;
+	int readsize;
+};
+
+void parse_args(int argc, char * argv[], struct args * a)
+{
+	int o;
+	while (-1 != (o = getopt(argc, argv, "r:a:"))) {
+		if ('a' == o) {
+			printf("a encountered\n");
+		} else if ('r' == o) {
+			printf("r encountered\n");
+		} else {
+			printf("wtf %i\n", o);
+			exit(1);
+		}
+	}
+	return NULL;
+}
+
 int main(int argc, char * argv[]) {
+	struct args params = {
+		.readsize = getpagesize();
+		.allocsize = 0x800000;
+	}
+	parse_args(argc, argv, &params);
+
 	int readsize = 2 * getpagesize();
 	char * alloc_ptr = malloc(ALLOCSIZE);
 	char * read_ptr = alloc_ptr; // marks where next read should happen (we have not read data past this point)
@@ -37,7 +65,7 @@ int main(int argc, char * argv[]) {
 	char * cycle_marker = alloc_ptr + ALLOCSIZE - readsize; // marks where to wrap around (cycle) the buffer
 	int i; // temp integer for syscall return values
 	char tmp; // temp storage for when we temporarily insert '\n' into buffer and need to save original character
-	
+
 	*read_ptr++ = '\n'; // put EOL marker at start of buffer to simplify compare_path() implementation
 	while (1) {
 		if (ptr == read_ptr) {
