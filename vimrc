@@ -40,7 +40,8 @@ filetype on
 filetype plugin on
 filetype indent on
 
-set cino=l1
+" vims defaults are mostly sane but for switch cases we must let it know whats correct
+set cinoptions=l1
 
 " syntax plugin options!
 let g:is_bash = 1
