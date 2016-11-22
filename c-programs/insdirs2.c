@@ -26,32 +26,40 @@ int compare_path(char * p, char * c)
 	return 1;
 }
 
-struct args {
+struct params {
 	int allocsize;
 	int readsize;
 };
 
-void parse_args(int argc, char * argv[], struct args * a)
+void parse_args(int argc, char * argv[], struct params * par)
 {
 	int o;
+	int i;
+	char * t;
 	while (-1 != (o = getopt(argc, argv, "r:a:"))) {
+		int * whatopt = NULL;
 		if ('a' == o) {
-			printf("a encountered\n");
+			whatopt = &par->allocsize;
 		} else if ('r' == o) {
-			printf("r encountered\n");
+			whatopt = &par->readsize;
 		} else {
 			printf("wtf %i\n", o);
 			exit(1);
 		}
+		if (NULL != whatopt) {
+			i = strtol(optarg, &t, 0);
+			printf("optarg: %s / %i\n", optarg, i);
+			printf("t: %s\n", t);
+			printf("whatopt = %08x\n", (void *)whatopt - (void *)par);
+		}
 	}
-	return NULL;
 }
 
 int main(int argc, char * argv[]) {
-	struct args params = {
-		.readsize = getpagesize();
-		.allocsize = 0x800000;
-	}
+	struct params params = {
+		.readsize = getpagesize(),
+		.allocsize = 0x800000,
+	};
 	parse_args(argc, argv, &params);
 
 	int readsize = 2 * getpagesize();
