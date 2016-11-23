@@ -20,6 +20,9 @@ set showcmd
 "set shiftwidth=2
 " tabs are 8 characters. make them visible by coloring them in .gvimrc
 
+highlight TrailingSpace ctermbg=red guibg=#ff0000
+
+
 " define tab stuff in language specific files like after/ftplugin/c.vim etc
 set tabstop=8
 set backspace=2
@@ -92,10 +95,9 @@ map <Leader>G :tab split +:Ggrep\ <cword><CR>
 map <Leader>g :tab split +:Ggrep\\\ 
 
 map <F3> :call DmenuOpen("edit")<CR>
-map <S-F3> :call DmenuOpen("tabe")<CR>
+map <S-F3> :call DmenuOpen("split")<CR>
+map <C-F3> :call DmenuOpen("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
-map <F3> :call DmenuOpen("sp")<CR>
-map g<F3> :call DmenuOpen("tabe")<CR>
 
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
@@ -142,7 +144,7 @@ endfunction
 " Find a file and pass it to cmd
 function! DmenuOpen(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("git ls-files --full-name " . top . " | ~/dmenu/dmenu-4.5/dmenu -i -l 50 -p " . a:cmd)
+  let fname = system("git ls-files --full-name " . top . " | ~/dmenu-4.5/dmenu -i -l 50 -p " . a:cmd)
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
