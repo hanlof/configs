@@ -37,7 +37,7 @@ int main(int argc, char * argv[]) {
 	char * cycle_marker = alloc_ptr + ALLOCSIZE - readsize; // marks where to wrap around (cycle) the buffer
 	int i; // temp integer for syscall return values
 	char tmp; // temp storage for when we temporarily insert '\n' into buffer and need to save original character
-	
+
 	*read_ptr++ = '\n'; // put EOL marker at start of buffer to simplify compare_path() implementation
 	while (1) {
 		if (ptr == read_ptr) {
