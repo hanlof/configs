@@ -1,4 +1,4 @@
-all: dumptags
+all: dumptags insdirs2 insdirs
 
 dumptags: dumptags.c readtags.h
 	$(CC) -I. $(DEFS) $(CFLAGS) $(LDFLAGS) -o $@ dumptags.c
