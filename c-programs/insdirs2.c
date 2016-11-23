@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <limits.h>
+#include <ctype.h>
 
 // lets add: configurable alloc size and read size (to simplify performance investigation)
 //           given that, we need should have sanity check on allocsize versus readsize
@@ -10,7 +11,7 @@
 // experiment: compare buffer cycling to just reallocing
 // experiment: compare this approach (allocate several megabytes) with a really small buffer and constantly wrapping pointers
 // just for fun: investigate malloc time for big and small buffers
-// answer: seems to be pretty constant time regardless of buffer size!
+//               -> answer: seems to be pretty constant time regardless of buffer size!
 
 #define ALLOCSIZE 0x800000
 
@@ -46,11 +47,37 @@ void parse_args(int argc, char * argv[], struct params * par)
 			printf("wtf %i\n", o);
 			exit(1);
 		}
+
 		if (NULL != whatopt) {
 			i = strtol(optarg, &t, 0);
+			if (NULL != t) {
+				if ('\0' != t[1]) {
+					printf("bad number: %s\n", optarg);
+					exit(1);
+				} else {
+					switch (tolower(t[0])) {
+						case 'p': { // pagesize
+							i *= getpagesize();
+							break;
+						}
+						case 'k': { // kilobyte
+							i *= 1024;
+							break;
+						}
+						case 'm': {
+							i *= 1024 * 1024;
+							break;
+						}
+						default: {
+							printf("bad suffix: %s\n", optarg);
+							exit(1);
+						}
+					}
+				}
+			}
 			printf("optarg: %s / %i\n", optarg, i);
 			printf("t: %s\n", t);
-			printf("whatopt = %08x\n", (void *)whatopt - (void *)par);
+			*whatopt = i;
 		}
 	}
 }
