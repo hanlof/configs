@@ -48,9 +48,10 @@ void parse_args(int argc, char * argv[], struct params * par)
 
 		if (NULL != whatopt) {
 			i = strtol(optarg, &t, 0);
-			if (NULL != t) {
+			if ('\0' != *t) {
 				if ('\0' != t[1]) {
-					printf("bad number: %s\n", optarg);
+					printf("bad number: >%s<\n", optarg);
+					printf("         t: >%s<\n", t);
 					exit(1);
 				} else {
 					switch (tolower(t[0])) {
