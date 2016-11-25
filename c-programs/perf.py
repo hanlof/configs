@@ -5,10 +5,43 @@ import re
 import subprocess
 import resource
 import os
+import time
 
 if len(sys.argv) < 2:
     print("what do you want to run?")
     sys.exit(0)
+
+command = " ".join(sys.argv[1:])
+old_mtime = os.stat(sys.argv[1]).st_mtime
+
+def wait_for_file(f):
+    back = "%c[5D" % 27
+    ani=[".....",
+         "o....",
+         "Oo...",
+         "oOo..",
+         ".oOo.",
+         "..oOo",
+         "...oO",
+         "....o", ]
+    anistep = 0
+    sys.stdout.write("%s is gone. waiting for it to come back ....." % f)
+    sys.stdout.flush()
+    mtime = None
+    while mtime is None:
+        try:
+            stat=os.stat(sys.argv[1])
+            mtime=stat.st_mtime
+        except OSError as e:
+            time.sleep(0.1)
+            sys.stdout.write(back)
+            anistep += 1
+            anistep &= 7
+            sys.stdout.write(ani[anistep])
+            sys.stdout.flush()
+            continue
+    print " Got it!"
+    return mtime
 
 try:
   print ""
@@ -27,10 +60,27 @@ try:
 #    usertime = float(m.group(2))
 #    realtime = float(m.group(3))
     res_before=resource.getrusage(resource.RUSAGE_CHILDREN)
-    i=os.system(sys.argv[1])
-    if i != 0:
+    try:
+        mtime=os.stat(sys.argv[1]).st_mtime
+    except OSError as e:
+        mtime=wait_for_file(sys.argv[1])
+    if mtime != old_mtime:
+        print sys.argv[1] + " changed!\n"
+        old_mtime = mtime
+        tot_systime = 0.0
+        tot_usertime = 0.0
+        tot_realtime = 0.0
+        samples = 0
+    i=os.system(command)
+    status, sig = (i >> 8, i & 255)
+    if sig != 0:
         print "Stopped after %i iterations" % samples
+        print "sig:%d status:%d" % (sig, status)
         sys.exit(1)
+    if status >= 126:
+        print "failed to execute. trying again..."
+        time.sleep(0.5)
+        continue
     res_after=resource.getrusage(resource.RUSAGE_CHILDREN)
     systime = res_after.ru_stime - res_before.ru_stime
     usertime = res_after.ru_utime - res_before.ru_utime
