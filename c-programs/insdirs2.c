@@ -91,7 +91,6 @@ int main(int argc, char * argv[]) {
 	};
 	parse_args(argc, argv, &params);
 
-	int readsize = params.readsize;
 	char * alloc_ptr = malloc(params.allocsize);
 	char * read_ptr = alloc_ptr; // marks where next read should happen (we have not read data past this point)
 	char * write_ptr = read_ptr; // marks what we have written to stdout so far/what we should write next
@@ -99,7 +98,7 @@ int main(int argc, char * argv[]) {
 	char * last_slash = read_ptr;    // marks the last '/' found so far
 	char * prev_last_slash = read_ptr; // marks the last slash in previous line
 	char * ptr = read_ptr; // current position in the buffer
-	char * cycle_marker = alloc_ptr + params.allocsize - readsize; // marks where to wrap around (cycle) the buffer
+	char * cycle_marker = alloc_ptr + params.allocsize - params.readsize; // marks where to wrap around (cycle) the buffer
 	int i; // temp integer for syscall return values
 	char tmp; // temp storage for when we temporarily insert '\n' into buffer and need to save original character
 
@@ -113,7 +112,7 @@ int main(int argc, char * argv[]) {
 
 				fprintf(stderr, "%p %p\n", ptr, alloc_ptr + params.allocsize);
 			}
-			i = read(STDIN_FILENO, read_ptr, readsize);
+			i = read(STDIN_FILENO, read_ptr, params.readsize);
 			// XXX take care of negative return value
 			if (0 == i) {
 				break;
