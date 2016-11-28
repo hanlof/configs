@@ -30,6 +30,32 @@ struct params {
 	int readsize;
 };
 
+int get_multiplier(char * t, char * optarg) {
+	if ('\0' != t[1]) {
+		printf("bad number: %s\n", optarg);
+		exit(1);
+	} else {
+		switch (tolower(t[0])) {
+			case 'p': { // pagesize
+				return getpagesize();
+				break;
+			}
+			case 'k': { // kilobyte
+				return 1024;
+				break;
+			}
+			case 'm': {
+				return 1024 * 1024;
+				break;
+			}
+			default: {
+				printf("bad suffix: %s\n", optarg);
+				exit(1);
+			}
+		}
+	}
+}
+
 void parse_args(int argc, char * argv[], struct params * par)
 {
 	int o;
@@ -42,40 +68,17 @@ void parse_args(int argc, char * argv[], struct params * par)
 		} else if ('r' == o) {
 			whatopt = &par->readsize;
 		} else {
-			printf("wtf %i\n", o);
-			exit(1);
+			// dont need to print the option. getopt() already does this
+			//printf("bad option: %c\n", optopt);
+			exit(1); // TODO: print help
 		}
 
 		if (NULL != whatopt) {
 			i = strtol(optarg, &t, 0);
 			if ('\0' != *t) {
-				if ('\0' != t[1]) {
-					printf("bad number: >%s<\n", optarg);
-					printf("         t: >%s<\n", t);
-					exit(1);
-				} else {
-					switch (tolower(t[0])) {
-						case 'p': { // pagesize
-							i *= getpagesize();
-							break;
-						}
-						case 'k': { // kilobyte
-							i *= 1024;
-							break;
-						}
-						case 'm': {
-							i *= 1024 * 1024;
-							break;
-						}
-						default: {
-							printf("bad suffix: %s\n", optarg);
-							exit(1);
-						}
-					}
-				}
+				i *= get_multiplier(t, optarg);
 			}
 			printf("optarg: %s / %i\n", optarg, i);
-			printf("t: %s\n", t);
 			*whatopt = i;
 		}
 	}
