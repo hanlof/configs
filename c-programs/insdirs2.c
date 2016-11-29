@@ -93,6 +93,7 @@ int main(int argc, char * argv[]) {
 
 	char * alloc_ptr = malloc(params.allocsize);
 	char * read_ptr = alloc_ptr; // marks where next read should happen (we have not read data past this point)
+	*read_ptr++ = '\n'; // put EOL marker at start of buffer to simplify compare_path() implementation
 	char * write_ptr = read_ptr; // marks what we have written to stdout so far/what we should write next
 	char * start_of_line = read_ptr; // marks the start of last line of input
 	char * last_slash = read_ptr;    // marks the last '/' found so far
@@ -102,7 +103,6 @@ int main(int argc, char * argv[]) {
 	int i; // temp integer for syscall return values
 	char tmp; // temp storage for when we temporarily insert '\n' into buffer and need to save original character
 
-	*read_ptr++ = '\n'; // put EOL marker at start of buffer to simplify compare_path() implementation
 	while (1) {
 		if (ptr == read_ptr) {
 			if (read_ptr >= cycle_marker) {
@@ -122,7 +122,7 @@ int main(int argc, char * argv[]) {
 
 		if (*ptr == '\n') {
 			if (compare_path(prev_last_slash, last_slash)) {
-				tmp = last_slash[1]; // last_slash[1] is always inside the allocated space because we cycle read_size before the end
+				tmp = last_slash[1]; // last_slash[1] is always inside the allocated space because we cycle way before the end
 				last_slash[1] = '\n';
 				i = write(STDOUT_FILENO, write_ptr, (int)(last_slash - write_ptr + 2));
 				last_slash[1] = tmp;
