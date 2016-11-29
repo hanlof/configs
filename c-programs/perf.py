@@ -7,6 +7,12 @@ import resource
 import os
 import time
 
+# TODO add parameter for quitting after N iterations or after M seconds or after stabilized value
+# TODO eliminate os.system() it spaws an extra /bin/sh and we want to avoid that
+# TODO measure real time for total time instead of adding user time and system time
+# TODO print other statistics from the stat structure
+# TODO store stuff in database. or make a wrapper that does that??
+#  --- will need to think about parameters into the executed program and how to store them properly in tables or whatever
 if len(sys.argv) < 2:
     print("what do you want to run?")
     sys.exit(0)

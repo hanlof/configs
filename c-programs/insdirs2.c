@@ -5,13 +5,15 @@
 #include <limits.h>
 #include <ctype.h>
 
-// lets add: configurable alloc size and read size (to simplify performance investigation)
-//           given that, we need should have sanity check on allocsize versus readsize
-//           so we dont need to cycle the buffer too often
+// do sanity check on input params
+// - alloc size > PATH_MAX
+// - alloc size > 4 * read_size or something like that
+// maybe use mmap instead of malloc/read?
+// - investigate performance
+// - also investigate memory consumtion for mmap or huge file
+// - maybe its possible to rememmap during execution
 // experiment: compare buffer cycling to just reallocing
 // experiment: compare this approach (allocate several megabytes) with a really small buffer and constantly wrapping pointers
-// just for fun: investigate malloc time for big and small buffers
-//               -> answer: seems to be pretty constant time regardless of buffer size!
 
 int compare_path(char * p, char * c)
 {
@@ -78,18 +80,20 @@ void parse_args(int argc, char * argv[], struct params * par)
 			if ('\0' != *t) {
 				i *= get_multiplier(t, optarg);
 			}
-			printf("optarg: %s / %i\n", optarg, i);
+	//		printf("optarg: %s / %i\n", optarg, i);
 			*whatopt = i;
 		}
 	}
 }
 
+#define MAX(a, b) ( (a > b) ? (a) : (b) )
 int main(int argc, char * argv[]) {
 	struct params params = {
 		.readsize = getpagesize(),
-		.allocsize = 0x800000,
+		.allocsize = 8 * MAX(PATH_MAX, getpagesize()),
 	};
 	parse_args(argc, argv, &params);
+	//check_args(&params);
 
 	char * alloc_ptr = malloc(params.allocsize);
 	char * cycle_marker = alloc_ptr + params.allocsize - params.readsize; // marks where to wrap around (cycle) the buffer
@@ -97,7 +101,7 @@ int main(int argc, char * argv[]) {
 	*read_ptr++ = '\n'; // put EOL marker at start of buffer to simplify compare_path() implementation
 	char * write_ptr = read_ptr; // marks what we have written to stdout so far/what we should write next
 	char * start_of_line = read_ptr; // marks the start of last line of input
-	char * last_slash = read_ptr;    // marks the last '/' found so far
+	char * last_slash = read_ptr;	 // marks the last '/' found so far
 	char * prev_last_slash = read_ptr; // marks the last slash in previous line
 	int i; // temp integer for syscall return values
 	char tmp; // temp storage for when we temporarily insert '\n' into buffer and need to save original character
