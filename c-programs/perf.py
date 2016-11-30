@@ -7,12 +7,14 @@ import resource
 import os
 import time
 
+# DONE eliminate os.system() it spaws an extra /bin/sh and we want to avoid that. 
+# DONE measure real time for total time instead of adding user time and system time
 # TODO add parameter for quitting after N iterations or after M seconds or after stabilized value
-# TODO eliminate os.system() it spaws an extra /bin/sh and we want to avoid that
-# TODO measure real time for total time instead of adding user time and system time
+# TODO add parameter for infile/outfile
 # TODO print other statistics from the stat structure
 # TODO store stuff in database. or make a wrapper that does that??
 #  --- will need to think about parameters into the executed program and how to store them properly in tables or whatever
+# TODO handle all the different performance measurements in a generic way. make it easier to add measuring points
 if len(sys.argv) < 2:
     print("what do you want to run?")
     sys.exit(0)
@@ -49,22 +51,16 @@ def wait_for_file(f):
     print " Got it!"
     return mtime
 
+FNULL = open("/dev/null", 'wb')
 try:
   print ""
   up = "%c[A" % 27
   tot_systime = 0.0
   tot_usertime = 0.0
   tot_realtime = 0.0
+  tot_cputime = 0.0
   samples = 0
   while True:
-#    (_, out) = subprocess.Popen(["bash", "-c", "TIMEFORMAT=S%3S\" U%3U \"R%3R; time ./insdirs2 -a 40m -r 4p < all-files > /dev/null"], stderr=subprocess.PIPE).communicate()  
-#    m=re.match("S([0123456789.]+) U([0123456789.]+) R([0123456789.]+)", out)
-#    if m is None:
-#        print "wtf> %s" % out
-#        sys.exit()
-#    systime = float(m.group(1))
-#    usertime = float(m.group(2))
-#    realtime = float(m.group(3))
     res_before=resource.getrusage(resource.RUSAGE_CHILDREN)
     try:
         mtime=os.stat(sys.argv[1]).st_mtime
@@ -76,9 +72,18 @@ try:
         tot_systime = 0.0
         tot_usertime = 0.0
         tot_realtime = 0.0
+        tot_cputime = 0.0
         samples = 0
-    i=os.system(command)
+    #i=os.system(command)
+    FIN = open("./all-files", 'rwb')
+    before=time.time()
+    p=subprocess.Popen(sys.argv[1:], stdin=FIN, stdout=FNULL)
+    i=p.wait()
+    after=time.time()
+    FIN.close()
     status, sig = (i >> 8, i & 255)
+    status = 0
+    sig = 0
     if sig != 0:
         print "Stopped after %i iterations" % samples
         print "sig:%d status:%d" % (sig, status)
@@ -87,15 +92,20 @@ try:
         print "failed to execute. trying again..."
         time.sleep(0.5)
         continue
+    elif status > 0:
+        print "program returned %d" % status
+        sys.exit(1)
     res_after=resource.getrusage(resource.RUSAGE_CHILDREN)
     systime = res_after.ru_stime - res_before.ru_stime
     usertime = res_after.ru_utime - res_before.ru_utime
-    realtime = systime + usertime
+    realtime = after - before
+    cputime = systime + usertime
     samples = samples + 1
     tot_systime = tot_systime + systime
     tot_usertime = tot_usertime + usertime
     tot_realtime = tot_realtime + realtime
-    print up + "avg %.3f %.3f %.3f" % (tot_systime / samples, tot_usertime / samples, tot_realtime / samples)
+    tot_cputime = tot_cputime + cputime
+    print up + "%d - %.1f %.1f %.1f %.1f" % (samples, 1000 * tot_systime / samples, 1000 * tot_usertime / samples, 1000 * tot_realtime / samples, 100 * tot_cputime / tot_realtime)
 except KeyboardInterrupt as k:
   print "Stopped after %i iterations" % samples
   sys.exit(1)
