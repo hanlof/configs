@@ -35,7 +35,7 @@ struct params {
 int get_multiplier(char * t, char * optarg) {
 	if ('\0' != t[1]) {
 		printf("bad number: %s\n", optarg);
-		exit(1);
+		exit(1); // TODO: print help
 	} else {
 		switch (tolower(t[0])) {
 			case 'p': { // pagesize
@@ -52,7 +52,7 @@ int get_multiplier(char * t, char * optarg) {
 			}
 			default: {
 				printf("bad suffix: %s\n", optarg);
-				exit(1);
+				exit(1); // TODO: print help
 			}
 		}
 	}
@@ -70,8 +70,7 @@ void parse_args(int argc, char * argv[], struct params * par)
 		} else if ('r' == o) {
 			whatopt = &par->readsize;
 		} else {
-			// dont need to print the option. getopt() already does this
-			//printf("bad option: %c\n", optopt);
+			// We dont need to print the bad option. getopt() does it automatically
 			exit(1); // TODO: print help
 		}
 
@@ -111,20 +110,20 @@ int main(int argc, char * argv[]) {
 		if (ptr == read_ptr) {
 			if (read_ptr >= cycle_marker) {
 				// first output to stdout so that write_ptr is not too far behind
-                                i = write(STDOUT_FILENO, write_ptr, start_of_line - write_ptr);
-                                write_ptr = start_of_line;
-				// then copy stuff to beginning of buffer and update pointers
-                                memcpy(alloc_ptr, read_ptr - 2 * PATH_MAX, 2 * PATH_MAX);
-                                read_ptr = alloc_ptr + 2 * PATH_MAX;
-                                int diff = ptr - read_ptr;
-                                write_ptr -= diff;
-                                start_of_line -= diff;
-                                last_slash -= diff;
-                                prev_last_slash -= diff;
-                                ptr -= diff;
-				//  ! prev_last_slash does need to be copied. this means pathmax times two need to be copied
-
-			//	fprintf(stderr, "%p %p\n", ptr, alloc_ptr + params.allocsize);
+				i = write(STDOUT_FILENO, write_ptr, start_of_line - write_ptr);
+				write_ptr = start_of_line;
+				// copy stuff to beginning of buffer. why 2 * PATH_MAX?
+				// because last_slash may be PATH_MAX behind ptr
+				// and prev_last_slash may be PATH_MAX behind that
+				memcpy(alloc_ptr, read_ptr - 2 * PATH_MAX, 2 * PATH_MAX);
+				// fixup all the pointers
+				int diff = ptr - read_ptr;
+				write_ptr -= diff;
+				start_of_line -= diff;
+				last_slash -= diff;
+				prev_last_slash -= diff;
+				ptr -= diff;
+				read_ptr = alloc_ptr + 2 * PATH_MAX;
 			}
 			i = read(STDIN_FILENO, read_ptr, params.readsize);
 			// XXX take care of negative return value
