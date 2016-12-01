@@ -81,7 +81,7 @@ try:
 
     args.infile.seek(0)
     before=time.time()
-    p=subprocess.Popen(args.program, stdin=args.infile, stdout=args.outfile)
+    p=subprocess.Popen([args.program] + args.program_args, stdin=args.infile, stdout=args.outfile)
     i=p.wait()
     after=time.time()
 
