@@ -1,6 +1,19 @@
 [[ $- == *i* ]] || return
 
-# list 
+# git helpers
+ggrep ()
+{
+  printf -v GREP_ARGS ' %q' "${@}"
+  # this expression searches for "Entering '<path>'" and stores path in "hold buffer",
+  # then it will insert the path at the beginning of every line.
+  # if another "Entering ..." line is found then the hold pattern will be updated
+  SED_EXPR="/Entering/{s/^Entering '\(.*\)'$/\\1/;h;d};{G;s/\(.*\)\\n\(.*\)/\\2\/\\1/;}"
+  {
+    git --no-pager grep "${@}" "$(git rev-parse --show-toplevel)"
+    git submodule foreach --recursive "git --no-pager grep ${GREP_ARGS} ; true" | sed -e "$SED_EXPR"
+  } | grep --color=yes "${@}" | less -FRX
+}
+
 gls()
 {
   A=()
