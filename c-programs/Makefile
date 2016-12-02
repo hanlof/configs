@@ -8,3 +8,6 @@ insdirs: insdirs.c
 
 insdirs2: insdirs2.c Makefile
 	$(CC) -O4 -Wmaybe-uninitialized -Wuninitialized -Wall -g -o insdirs2 insdirs2.c
+
+prefix: prefix.c Makefile
+	$(CC) -O4 -Wmaybe-uninitialized -Wuninitialized -Wall -g -o prefix prefix.c
