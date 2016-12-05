@@ -1,6 +1,16 @@
 [[ $- == *i* ]] || return
 
 # git helpers
+
+fr ()
+{
+  SUPERREPO="$PWD"/
+  {
+    git ls-files
+    git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ~/configs/c-programs/prefix \$PREFIX"
+  } | ~/dmenu-4.5/dmenu -l 40 -i | xargs gvim
+}
+
 ggrep ()
 {
   printf -v GREP_ARGS ' %q' "${@}"
@@ -246,4 +256,4 @@ export MANPATH=${MANPATH}:/usr/share/man
 alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a="gitk --all ^refs/notes/test_results ^refs/notes/test_results_with_errors"
-
+alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
