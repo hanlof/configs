@@ -12,29 +12,38 @@ FILEPATTERNS=(
 #  *.java
 
 GITTOP=`git rev-parse --show-toplevel`
-pushd ${GITTOP}
+if [ "$?" != 0 -o "$GITTOP"x == x ]; then
+  echo Please enter a git repo first
+  exit 1
+fi
 
 PAT=("${FILEPATTERNS[@]/#/${GITTOP}/}")
 
 GIT_COMMIT=`git show-ref -s HEAD`
-#echo File pattern: "${PAT[@]}"
+echo Building index for the following file patterns: "${FILEPATTERNS[@]}"
+
+CSCOPE=$(which cscope)
+CSCOPE_RETVALUE=$?
+
+CTAGS=$(which ctags)
+CTAGS_RETVALUE=$?
 
 # TODO add support for git submodules
 
-# TODO check if cscope exists
-# cscope
-#time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
-time git ls-files "${PAT[@]}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
-echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
+if [ $CSCOPE_RETVALUE == 0 ]; then
+  #time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
+  time git ls-files "${PAT[@]}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
+  echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
+fi
 
 # TODO check for correct version of ctags
-# ctags
-TMPDIR=`mktemp -d ${GITTOP}/ctags_indexing.XXXXXXXX`
-cd ${TMPDIR}
-/bin/rm -f ${GITTOP}/.git/tags
-time git ls-files "${PAT[@]}" | ctags --langmap=c:.c.sig -L - -o - > ${GITTOP}/.git/tags
-echo ${GIT_COMMIT} > ${GITTOP}/.git/ctags.githash
+if [ $CTAGS_RETVALUE == 0 ]; then
+  #/bin/rm -f ${GITTOP}/.git/tags
 
-# clean up
-popd
-rmdir ${TMPDIR}
+  TIME=$( TIMEFORMAT=%R; { time git -C ${GITTOP}/.git --work-tree=${GITTOP} ls-files "${PAT[@]}" | ( cd ${GITTOP}/.git ; ctags --langmap=c:.c.sig -L - -o - > ${GITTOP}/.git/tags ); } 2>&1 )
+  echo ${GIT_COMMIT} > ${GITTOP}/.git/ctags.githash
+  FILES=$(git -C ${GITTOP}/.git --work-tree=${GITTOP} ls-files "${PAT[@]}" | wc -l)
+  TAGS=$(wc -l < ${GITTOP}/.git/tags)
+  echo Produced ${TAGS} tags from ${FILES} files in ${TIME} seconds
+fi
+
