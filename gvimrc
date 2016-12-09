@@ -4,6 +4,8 @@ set lines=50 columns=165
 
 set spelllang=en
 
+set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(v:val,\"$\")'))}
+
 hi cSpaceError guibg=#f0e0ff
 
 "hi ExtraWhitespace guibg=#f0e0ff
