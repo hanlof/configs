@@ -1,26 +1,33 @@
 #!/bin/bash
 
 FILEPATTERNS=(
-  *.asm
-  *.cpp
-  *.hpp
-  *.sig
-  *.c
-  *.h
-  *.cc
+  "*.asm"
+  "*.cpp"
+  "*.hpp"
+  "*.sig"
+  "*.c"
+  "*.h"
+  "*.cc"
+  "*.py"
 )
-#  *.java
 
-GITTOP=`git rev-parse --show-toplevel`
+GITTOP=$(git rev-parse --show-toplevel)
 if [ "$?" != 0 -o "$GITTOP"x == x ]; then
   echo Please enter a git repo first
   exit 1
 fi
 
-PAT=("${FILEPATTERNS[@]/#/${GITTOP}/}")
-
-GIT_COMMIT=`git show-ref -s HEAD`
 echo Building index for the following file patterns: "${FILEPATTERNS[@]}"
+
+P2=("${FILEPATTERNS[@]/#/${GITTOP}/}")
+
+
+PAT=("${FILEPATTERNS[@]/#/./}")
+P=${PAT[*]}
+
+echo P: "$P"
+
+GIT_COMMIT=$(git show-ref --head --heads HEAD -s)
 
 CSCOPE=$(which cscope)
 CSCOPE_RETVALUE=$?
@@ -28,8 +35,12 @@ CSCOPE_RETVALUE=$?
 CTAGS=$(which ctags)
 CTAGS_RETVALUE=$?
 
-# TODO add support for git submodules
+# set -f gets rid of globbing. awesome!
+printf -v SUBCMD "git ls-files ${P}"
+echo "$SUBCMD"
 
+export GITTOP
+export P
 if [ $CSCOPE_RETVALUE == 0 ]; then
   #time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
   time git ls-files "${PAT[@]}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
@@ -37,13 +48,15 @@ if [ $CSCOPE_RETVALUE == 0 ]; then
 fi
 
 # TODO check for correct version of ctags
+# TODO add support for git submodules
+# - do not sort until all stuff are appended. will improve performance tons.
+# TODO incremental updates!
+# - maybe do it using multiple tags files to avoid sorting a really huge tag file
+# - investigtae how vim handles that performance-wise
 if [ $CTAGS_RETVALUE == 0 ]; then
-  #/bin/rm -f ${GITTOP}/.git/tags
-
-  TIME=$( TIMEFORMAT=%R; { time git -C ${GITTOP}/.git --work-tree=${GITTOP} ls-files "${PAT[@]}" | ( cd ${GITTOP}/.git ; ctags --langmap=c:.c.sig -L - -o - > ${GITTOP}/.git/tags ); } 2>&1 )
-  echo ${GIT_COMMIT} > ${GITTOP}/.git/ctags.githash
-  FILES=$(git -C ${GITTOP}/.git --work-tree=${GITTOP} ls-files "${PAT[@]}" | wc -l)
-  TAGS=$(wc -l < ${GITTOP}/.git/tags)
-  echo Produced ${TAGS} tags from ${FILES} files in ${TIME} seconds
+  # XXX submodules needs some work. cant seem to be able to export array variables into the /bin/sh subshell of git foreach
+  git submodule foreach --recursive "set -f; ${SUBCMD}" # | ctags --tag-relative=yes --totals --sort=no --append --langmap=c:.c.sig -L - -o ${GITTOP}/.git/tags'
+  git ls-files "${P2[@]}" | ctags --tag-relative=yes --totals --append -L - -o ${GITTOP}/.git/tags
+  echo ${GIT_COMMIT} > ${GITTOP}/.git/tags.githash
 fi
 
