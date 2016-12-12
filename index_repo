@@ -1,15 +1,17 @@
 #!/bin/bash
 
+set -f
 FILEPATTERNS=(
-  "*.asm"
-  "*.cpp"
-  "*.hpp"
-  "*.sig"
-  "*.c"
-  "*.h"
-  "*.cc"
-  "*.py"
+  *.asm
+  *.cpp
+  *.hpp
+  *.sig
+  *.c
+  *.h
+  *.cc
+  *.py
 )
+set +f
 
 GITTOP=$(git rev-parse --show-toplevel)
 if [ "$?" != 0 -o "$GITTOP"x == x ]; then
@@ -19,14 +21,6 @@ fi
 
 echo Building index for the following file patterns: "${FILEPATTERNS[@]}"
 
-P2=("${FILEPATTERNS[@]/#/${GITTOP}/}")
-
-
-PAT=("${FILEPATTERNS[@]/#/./}")
-P=${PAT[*]}
-
-echo P: "$P"
-
 GIT_COMMIT=$(git show-ref --head --heads HEAD -s)
 
 CSCOPE=$(which cscope)
@@ -35,16 +29,17 @@ CSCOPE_RETVALUE=$?
 CTAGS=$(which ctags)
 CTAGS_RETVALUE=$?
 
-# set -f gets rid of globbing. awesome!
-printf -v SUBCMD "git ls-files ${P}"
-echo "$SUBCMD"
+#this is fed to into the git submodule foreach command
+printf -v QUOTED_PATTERNS "%q " "${FILEPATTERNS[@]}"
+FOREACH_CMD="git ls-files $QUOTED_PATTERNS"
 
 export GITTOP
-export P
 if [ $CSCOPE_RETVALUE == 0 ]; then
+
+	:
   #time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
-  time git ls-files "${PAT[@]}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
-  echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
+  #git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
+  #echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
 fi
 
 # TODO check for correct version of ctags
@@ -54,9 +49,15 @@ fi
 # - maybe do it using multiple tags files to avoid sorting a really huge tag file
 # - investigtae how vim handles that performance-wise
 if [ $CTAGS_RETVALUE == 0 ]; then
-  # XXX submodules needs some work. cant seem to be able to export array variables into the /bin/sh subshell of git foreach
-  git submodule foreach --recursive "set -f; ${SUBCMD}" # | ctags --tag-relative=yes --totals --sort=no --append --langmap=c:.c.sig -L - -o ${GITTOP}/.git/tags'
-  git ls-files "${P2[@]}" | ctags --tag-relative=yes --totals --append -L - -o ${GITTOP}/.git/tags
+  # looks like submodules are working now. printf %q FTW!
+  git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" | {
+    read entering repo
+    read files _ lines kb _ _ _ seconds
+    read tags
+    read _
+    echo Repo: $repo Files: $files
+  }
+  git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
   echo ${GIT_COMMIT} > ${GITTOP}/.git/tags.githash
 fi
 
