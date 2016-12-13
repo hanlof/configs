@@ -42,9 +42,12 @@ if [ $CSCOPE_RETVALUE == 0 ]; then
   #echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
 fi
 
+# XXX one big index in the super-repo or a small index in each subrepo?
+# - fugitive assumes tag file is in "gitdir" if editing a file in a subrepo
+#   in other words it will not use the tags from the superrepo but rather look under <superrepo>/.git/modules/...
+# - could create symlinks in all subrepos? would it work or would the relative paths be wrong?
+# XXX should there be separate tags file for different languages? this is natively supported by fugitive
 # TODO check for correct version of ctags
-# TODO add support for git submodules
-# - do not sort until all stuff are appended. will improve performance tons.
 # TODO incremental updates!
 # - maybe do it using multiple tags files to avoid sorting a really huge tag file
 # - investigtae how vim handles that performance-wise
