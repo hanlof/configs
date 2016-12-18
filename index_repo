@@ -36,7 +36,7 @@ FOREACH_CMD="git ls-files $QUOTED_PATTERNS"
 export GITTOP
 if [ $CSCOPE_RETVALUE == 0 ]; then
 
-	:
+  :
   #time git ls-files ${GITTOP}/*.asm ${GITTOP}/*.[ch]pp ${GITTOP}/*.sig ${GITTOP}/*.[ch] ${GITTOP}/*.cc | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
   #git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | cscope -k -b -u -q -f ${GITTOP}/.git/cscope.out -i -
   #echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
@@ -51,18 +51,32 @@ fi
 if [ $CTAGS_RETVALUE == 0 ]; then
   # looks like submodules are working now. printf %q FTW!
   git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" 2>&1 | {
-    read entering repo
-    while [ "$entering"x == "Entering"x ]; do
-	    read files _ lines kb _ _ _ seconds
-	    if [ "$files"x == "Entering"x ]; then
-		    entering=Entering
-		    continue
-	    fi
-	    read tags
-	    read _
-	    read entering
+    IFS=" (),'"
+    let tot_tags=0
+    let tot_lines=0
+    let tot_files=0
+    let tot_kb=0
+    printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n\n' $tot_tags $tot_lines $tot_files $tot_kb
+    read entering tmp
+    while [ 1 == 1 ]; do
+      read files tmp lines _ kb _ _ _ time _ kbs
+      if [ $? -ne 0 ]; then
+        break
+      fi
+      if [ "$files"x == "Entering"x ]; then
+        echo ${tmp}
+        continue
+      fi
+      read tags _ _ _ _ _ _ tagstot _
+      let tot_tags+=$tags
+      let tot_lines+=$lines
+      let tot_files+=$files
+      let tot_kb+=$kb
+      tput cuu1; tput el; tput el1; tput cuu1; tput el; tput el1
+      printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n' $tot_tags $tot_lines $tot_files $tot_kb
+
+      #echo tags:$tags tagstot:$tagstot files:$files lines:$lines kb:$kb time:$time kbs:$kbs;
     done
-    echo Repo: $repo Files: $files
   }
   git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
   echo ${GIT_COMMIT} > ${GITTOP}/.git/tags.githash
