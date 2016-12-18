@@ -50,11 +50,18 @@ fi
 # - investigtae how vim handles that performance-wise
 if [ $CTAGS_RETVALUE == 0 ]; then
   # looks like submodules are working now. printf %q FTW!
-  git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" | {
+  git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" 2>&1 | {
     read entering repo
-    read files _ lines kb _ _ _ seconds
-    read tags
-    read _
+    while [ "$entering"x == "Entering"x ]; do
+	    read files _ lines kb _ _ _ seconds
+	    if [ "$files"x == "Entering"x ]; then
+		    entering=Entering
+		    continue
+	    fi
+	    read tags
+	    read _
+	    read entering
+    done
     echo Repo: $repo Files: $files
   }
   git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
