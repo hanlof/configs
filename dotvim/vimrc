@@ -7,7 +7,8 @@ set statusline=%<%f\ %h%m%r%=[%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:v
 "set scrolloff=2
 set showcmd
 
-set runtimepath+=~/configs/vim
+set runtimepath+=~/.vim/../submodules/vim-fugitive
+set runtimepath+=~/.vim/../submodules/vim-localvimrc
 
 "efm for gerrit reviews: set efm=%E\ \ \ \ \ \ file:\ %f,%Z\ \ \ \ \ \ line:\ "%l
 "set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:%s,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %m,%Z%m
@@ -24,7 +25,6 @@ set runtimepath+=~/configs/vim
 
 highlight TrailingSpace ctermbg=red guibg=#ff0000
 
-
 " define tab stuff in language specific files like after/ftplugin/c.vim etc
 set tabstop=8
 set backspace=2
@@ -34,7 +34,6 @@ set splitright
 set foldmethod=syntax
 set foldcolumn=2
 set foldlevel=10
-
 
 "set textwidth=78
 
@@ -68,30 +67,30 @@ set wildmenu
 
 runtime ftplugin/man.vim
 
-nnoremap <F12> :set hls!
-inoremap <F12> :set hls!
-nnoremap <S-F12> :set list!
-inoremap <S-F12> :set list!
-nnoremap <C-F12> :set spell!
-inoremap <C-F12> :set spell!
-nnoremap <F11> :setlocal number!
-nnoremap <S-F11> :setlocal relativenumber!
-nnoremap <C-F11> :setlocal wrap!
+nnoremap <F12> :set hls!<CR>
+inoremap <F12> <C-o>:set hls!<CR>
+nnoremap <S-F12> :set list!<CR>
+inoremap <S-F12> <C-o>:set list!<CR>
+nnoremap <C-F12> :set spell!<CR>
+inoremap <C-F12> <C-o>:set spell!<CR>
+nnoremap <F11> :setlocal number!<CR>
+nnoremap <S-F11> :setlocal relativenumber!<CR>
+nnoremap <C-F11> :setlocal wrap!<CR>
 
-nnoremap <C-S-F11> :setlocal buftype=nofile
+nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 
-nnoremap <F9> :make!
-inoremap <F9> :make!
-nnoremap <F7> :cprev
-inoremap <F7> :cprev
-nnoremap <F8> :cnext
-inoremap <F8> :cnext
+nnoremap <F9> :make!<CR>
+inoremap <F9> <C-o>:make!<CR><CR>
+nnoremap <F7> :cprev<CR>
+inoremap <F7> <C-o>:cprev<CR>
+nnoremap <F8> :cnext<CR>
+inoremap <F8> <C-o>:cnext<CR>
 
-map <F2>g :cs find g <cword>
-map <F2>s :cs find s <cword>
-map <F2>c :cs find c <cword>
-map <F2>t :cs find t <cword>
-map <F2>d :cs find d <cword>
+map <F2>g :cs find g <cword><CR>
+map <F2>s :cs find s <cword><CR>
+map <F2>c :cs find c <cword><CR>
+map <F2>t :cs find t <cword><CR>
+map <F2>d :cs find d <cword><CR>
 
 map <Leader>G :tab split +:Ggrep\ <cword><CR>
 map <Leader>g :tab split +:Ggrep\\\ 
@@ -104,12 +103,12 @@ map <F4> :call DmenuTag("tag")<CR>
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
 
-cmap <F8> =g:GitTop
+cmap <F8> <C-r>=g:GitTop<CR>
 
-nnoremap <S-F7> :set foldlevel-=1
-nnoremap <S-F8> :set foldlevel+=1
-nnoremap <C-S-F7> :set foldlevel=0
-nnoremap <C-S-F8> :set foldlevel=99
+nnoremap <S-F7> :set foldlevel-=1<CR>
+nnoremap <S-F8> :set foldlevel+=1<CR>
+nnoremap <C-S-F7> :set foldlevel=0<CR>
+nnoremap <C-S-F8> :set foldlevel=99<CR>
 
 vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
 
