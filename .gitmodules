@@ -4,3 +4,6 @@
 [submodule "external/vim-fugitive"]
 	path = submodules/vim-fugitive
 	url = https://github.com/tpope/vim-fugitive
+[submodule "submodules/vim-localvimrc"]
+	path = submodules/vim-localvimrc
+	url = https://github.com/embear/vim-localvimrc
