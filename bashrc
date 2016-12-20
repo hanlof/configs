@@ -27,11 +27,26 @@ ggrep ()
 gls()
 {
   A=()
+  D=""
+  N=""
   for i in *; do
-    [ -d "$i" -a ! -h "$i" ] && continue
-    A+=( "$i" )
+    tree=$(git ls-tree --name-only HEAD -- "$i")
+    if [[ "$tree"x == ""x ]]; then
+      echo -n "$i"
+      #N+="? $i"/$'\n'
+      E=""
+      if [ -d "$i" -a ! -h "$i" ]; then
+          E="/"
+          #D+="  $i"/$'\n'
+      fi
+      echo $E
+    fi
+    #A+=( "$i" )
   done
-  git ls-files -cdmoktv "${A[@]}"
+  #echo -n "$D"
+  #echo -n "$N"
+  #git ls-files -cdmoktv "${A[@]}"
+  #git ls-files -icdmoktv --exclude-standard "${A[@]}" | sed 's/^\?/x/'
 }
 
 # Prompt stuff: format the number of jobs and hide if 0
