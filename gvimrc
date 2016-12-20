@@ -6,12 +6,20 @@ set spelllang=en
 
 set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(v:val,\"$\")'))}\ %{v:servername}
 
-hi cSpaceError guibg=#f0e0ff
-
 "hi ExtraWhitespace guibg=#f0e0ff
 "hi TabCharacters guibg=#f8f0ff
 
 "au! BufEnter * call g:SetColorOnBuffer()
+
+hi SpecialKey guifg=#b0b0b0
+set listchars=tab:‣\ 
+set list
+" TODO: modify shift-F12 behaviorto modify listchars, not enable/disable list mode
+
+call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+call matchadd("Error", " \\+\t")  " space before tab is bad
+" TODO: disable/enable EOL-space error while typing (?)
+
 
 au SwapExists * call g:SwapExists()
 
@@ -54,11 +62,10 @@ function! HansRightmouse()
   let mouse_lnum = v:mouse_lnum
   let wlastline  = line('w$')
   let lastline   = line('$')
-  
+
   call feedkeys("\<LeftMouse>")
 
   popup! PopUp
-  
 endfun
 
 menu ToolBar.-sep10- <nop>
