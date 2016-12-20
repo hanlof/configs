@@ -211,20 +211,6 @@ if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
 
-"au! BufEnter * call g:SetColorOnBuffer()
-
-function g:SetColorOnBuffer()
-  let GitTop = g:GitTopLevel(fnamemodify(expand('%'), ':p:s?[\/]$??'))
-  if GitTop == ''
-    hi Normal guibg=#f8fff8
-    return
-  endif
-  if GitTop == '/repo/hans/slask'
-    hi Normal guibg=#ffffff
-  else
-    hi Normal guibg=#e8e8f8
-  endif
-endfunction
 
 " au! CursorMoved * call MarkIfWide()
 

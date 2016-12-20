@@ -4,14 +4,47 @@ set lines=50 columns=165
 
 set spelllang=en
 
-set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(v:val,\"$\")'))}
+set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(v:val,\"$\")'))}\ %{v:servername}
 
 hi cSpaceError guibg=#f0e0ff
 
 "hi ExtraWhitespace guibg=#f0e0ff
 "hi TabCharacters guibg=#f8f0ff
 
-fun! HansRightmouse()
+"au! BufEnter * call g:SetColorOnBuffer()
+
+au SwapExists * call g:SwapExists()
+
+function g:SwapExists()
+  echo "swap exists!"
+  let out = ""
+  let servers=serverlist()
+  let cmd='map(range(1,bufnr("$")),"fnamemodify(bufname(v:val),\":p\")")'
+  let f=expand("<afile>:p")
+  for ser in split(serverlist(), '\n')
+    let out .= ser
+    let a=remote_expr(ser, cmd)
+    echomsg ser
+    echomsg a . " " . f
+  endfor
+  echomsg out
+  let v:swapchoice=''
+endfunction
+
+function g:SetColorOnBuffer()
+  let GitTop = g:GitTopLevel(fnamemodify(expand('%'), ':p:s?[\/]$??'))
+  if GitTop == ''
+    hi Normal guibg=#f8fff8
+    return
+  endif
+  if GitTop == '/repo/hans/slask'
+    hi Normal guibg=#ffffff
+  else
+    hi Normal guibg=#e8e8f8
+  endif
+endfunction
+
+function! HansRightmouse()
   " check if the status bar was clicked on instead of a file/directory name
   while getchar(0) != 0
    "clear the input stream
