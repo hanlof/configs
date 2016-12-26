@@ -3,18 +3,11 @@ set nocp
 set laststatus=2
 set ruler
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
-set statusline=%<%f\ %h%m%r%=[%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
-"set scrolloff=2
 set showcmd
 
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
-
-"efm for gerrit reviews: set efm=%E\ \ \ \ \ \ file:\ %f,%Z\ \ \ \ \ \ line:\ "%l
-"set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:%s,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %m,%Z%m
-"command for fetching gerrit reviews into errorlist
-"cexpr system('ssh gerrit.site.se -p 29418 gerrit query --comments --patch-sets commit:`git show --pretty=%H --no-patch --no-notes --no-abbrev`')
 
 " never use tabs. insert spaces
 "set noexpandtab
@@ -36,8 +29,6 @@ set foldmethod=syntax
 set foldcolumn=2
 set foldlevel=10
 
-"set textwidth=78
-
 set ignorecase
 set smartcase
 
@@ -51,10 +42,6 @@ set cinoptions=l1
 " syntax plugin options!
 let g:is_bash = 1
 let g:load_doxygen_syntax = 1
-
-let c_space_errors = 1
-let c_no_tab_space_error = 1
-
 syn on
 
 "this must be set in after/ftplugin/c.vim to be effective
@@ -112,7 +99,18 @@ nnoremap <C-S-F7> :set foldlevel=0<CR>
 nnoremap <C-S-F8> :set foldlevel=99<CR>
 
 vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
+function! GetSel()
+  let [lnum1, col1] = getpos("'<")[1:2]
+  let [lnum2, col2] = getpos("'>")[1:2]
+  if lnum1 != lnum2
+    echo 'Multi line'
+    return ""
+  endif
+  let sel = getline(lnum1)[ col1 - 1: col2 - 1]
+  return sel
+endfunction
 
+set includeexpr=g:IncludeExprExample(v:fname)
 function! g:IncludeExprExample(in)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
   let t2=substitute(a:in,'^b/',top,'g')
@@ -120,8 +118,6 @@ function! g:IncludeExprExample(in)
 "  let t2=substitute(t,'^/',top . '/','g')
   return t2
 endfunction
-
-set includeexpr=g:IncludeExprExample(v:fname)
 
 ".../ctags-5.8/readtags -t .git/tags -l |
 " Find a tag and pass it to cmd
@@ -161,27 +157,6 @@ function! DmenuOpen(cmd)
   execute a:cmd . " " . top . "/" . fname
 endfunction
 
-function! MarkIfWide()
-  if virtcol("$") > &textwidth
-    let &l:colorcolumn=&l:textwidth
-  else
-    let &l:colorcolumn=""
-  endif
-endfunction
-
-function! GetSel()
-  let [lnum1, col1] = getpos("'<")[1:2]
-  let [lnum2, col2] = getpos("'>")[1:2]
-
-  if lnum1 != lnum2
-    echo 'Multi line'
-    return ""
-  endif
-
-  let sel = getline(lnum1)[ col1 - 1: col2 - 1]
-  return sel
-endfunction
-
 " get git top-level dir
 function! g:GitTopLevel(path) abort
   let fn = fnamemodify(a:path,':s?[\/]$??')
@@ -197,29 +172,13 @@ function! g:GitTopLevel(path) abort
   return ''
 endfunction
 
-function! g:IsXRepo(path)
-  silent execute '!git --git-dir ' . a:path . '/.git rev-parse -q --verify XXXXXXX^{commit}'
-  return v:shell_error
-endfunction
-
-
-let list = []
-let list += [{'hej': 'nisse'}]
-let list += [{'hej2': 'kalle'}]
-
 let g:GitTop = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
 
-
-" au! CursorMoved * call MarkIfWide()
-
 cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
-
 set cscopequickfix=s-,c-,d-,i-,t-,e-
-
 
 if &diff
   "might wanna check if the buffers LOCAL, BASE and REMOTE exists... ?
@@ -227,8 +186,11 @@ if &diff
   nnoremap <F8> /<<<<<<<<CR>
   nnoremap <F9> :diffget LOCAL<CR>
   nnoremap <F10> :diffget BASE<CR>
-  nnoremap <F11> :diffget REMOTE<CR>
+  nnoremap <F11> :diffget REMOTE<CR>aoeuoaeuc=
+  drop expand("$MERGED")
   setlocal statusline=%<%f\ %h%m%r%=F9=LOCAL\ F10=BASE\ F11=REMOTE\ [%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
-endif
-
-" colorscheme siennaterm
+  "$BASE set to the name of a temporary file containing the common base for the merge, if available;
+  "$LOCAL set to the name of a temporary file containing the contents of the file on the current branch;
+  "$REMOTE set to the name of a temporary file containing the contents of the file to be merged, and
+  "$MERGED set to the name of the file to which the merge tool should write the result of the merge resolution 
+endif 
