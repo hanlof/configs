@@ -14,7 +14,7 @@ set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(
 hi SpecialKey guifg=#b0b0b0
 set listchars=tab:‣\ 
 set list
-" TODO: modify shift-F12 behaviorto modify listchars, not enable/disable list mode
+" TODO: modify shift-F12 behavior to modify listchars, not enable/disable list mode
 
 call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
 call matchadd("Error", " \\+\t")  " space before tab is bad

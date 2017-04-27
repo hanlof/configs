@@ -9,6 +9,11 @@ let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
 
+if has('gui_running')
+    let gvimrcpath=expand("<sfile>:h") . "/gvimrc"
+    exec "source " . gvimrcpath
+endif
+
 " never use tabs. insert spaces
 "set noexpandtab
 " big steps when tabbing (2 is too small difference from using spaces)
