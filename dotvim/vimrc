@@ -128,7 +128,7 @@ endfunction
 " Find a tag and pass it to cmd
 function! DmenuTag(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("~/bin/readtags2 -t " . top . "/.git/tags -l | ~/dmenu/dmenu-4.5/dmenu -sb purple -i -l 50 -p " . a:cmd)
+  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | ~/configs/submodules/dmenu/dmenu -sb purple -i -l 50 -p " . a:cmd)
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
@@ -147,7 +147,7 @@ endfunction
 " Find a file and pass it to cmd
 function! DmenuOpen(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("git ls-files --full-name " . top . " | ~/dmenu-4.5/dmenu -i -l 50 -p " . a:cmd)
+  let fname = system("git ls-files --full-name " . top . " | ~/configs/submodules/dmenu/dmenu -i -l 50 -p " . a:cmd)
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
