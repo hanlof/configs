@@ -1,13 +1,10 @@
-[user]
-	name = Hans
-	email = hanlof@gmail.com
+#[user] section left out because it changes from system to system
 [core]
-        excludesfile = /home/hans/.gitignore
-        editor = gvim -f
-        pager = LESS=FRX less
+	editor = gvim -f
+	pager = LESS=FRX less
 [status]
-        short = 1
-        branch = 1
+	short = 1
+	branch = 1
 [diff]
 	guitool = gvimdiff
 	tool = gvimdiff
@@ -15,25 +12,25 @@
 	status = auto
 	diff = auto
 [difftool]
-	prompt = 0 ; aoeu aoeu 
+	prompt = 0
 [push]
 	default = matching
 [merge]
-        stat = 0
-        tool = gvimdiff
+	stat = 0
+	tool = gvimdiff
 [alias]
-  clx = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph origin/master origin/clx HEAD ^`git merge-base origin/master origin/clx HEAD --octopus`
-  ll = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph --no-notes -n 20
-  lp = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph origin/master@{\"1 minutes ago\"}..origin/master
-  cls = !GIT_NOTES_REF=refs/notes/test_results git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX..origin/master
-  cll = !GIT_NOTES_REF=refs/notes/test_results git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX~20..origin/master
-  cld = !GIT_NOTES_REF=refs/notes/test_results_with_errors git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX..origin/master
-  clXx = "!git log --format='%C(auto)%cd %h %an %d %s' --date=raw --decorate --boundary --graph master origin/master origin/cl2 origin/clX HEAD ^`git merge-base master origin/master origin/cl2 origin/clX HEAD --octopus` | gawk '{ $1=\"\"; t=$2; $2=\"\"; $3=\"\"; hash=$4; $4=\"\"; sign=$5; $5=\"\"; rest=$0; sub(/^[ \\t\\r\\n]+/, \"\", rest); print \"* \" hash, \"[\"sign\"]\", strftime(\"%d %H:%M\", t), rest ; }'"
-  l = !git --no-pager log --format='%C(auto)%h [%an] %cd%d %s' --date=local --decorate --boundary --graph 
-  co = checkout
-  st = status
-  br = branch
-  pelle = "gawk '{ $1=\"\"; t=$2; $2=\"\"; $3=\"\"; hash=$4; $4=\"\"; sign=$5; $5=\"\"; rest=$0; sub(/^[ \\t\\r\\n]+/, \"\", rest); print \"* \" hash, \"[\"sign\"]\", strftime(\"%d %H:%M\", t), rest ; }'"
+	clx = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph origin/master origin/clx HEAD ^`git merge-base origin/master origin/clx HEAD --octopus`
+	ll = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph --no-notes -n 20
+	lp = !git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s' --date=local --decorate --boundary --graph origin/master@{\"1 minutes ago\"}..origin/master
+	cls = !GIT_NOTES_REF=refs/notes/test_results git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX..origin/master
+	cll = !GIT_NOTES_REF=refs/notes/test_results git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX~20..origin/master
+	cld = !GIT_NOTES_REF=refs/notes/test_results_with_errors git --no-pager log --format='%C(auto)%h [%<(7,trunc)%an] %cd%d %s%N' --date=local --decorate --boundary origin/clX..origin/master
+	clXx = "!git log --format='%C(auto)%cd %h %an %d %s' --date=raw --decorate --boundary --graph master origin/master origin/cl2 origin/clX HEAD ^`git merge-base master origin/master origin/cl2 origin/clX HEAD --octopus` | gawk '{ $1=\"\"; t=$2; $2=\"\"; $3=\"\"; hash=$4; $4=\"\"; sign=$5; $5=\"\"; rest=$0; sub(/^[ \\t\\r\\n]+/, \"\", rest); print \"* \" hash, \"[\"sign\"]\", strftime(\"%d %H:%M\", t), rest ; }'"
+	l = !git --no-pager log --format='%C(auto)%h [%an] %cd%d %s' --date=local --decorate --boundary --graph 
+	co = checkout
+	st = status
+	br = branch
+	pelle = "gawk '{ $1=\"\"; t=$2; $2=\"\"; $3=\"\"; hash=$4; $4=\"\"; sign=$5; $5=\"\"; rest=$0; sub(/^[ \\t\\r\\n]+/, \"\", rest); print \"* \" hash, \"[\"sign\"]\", strftime(\"%d %H:%M\", t), rest ; }'"
 
 [pretty]
 	xxx = %h%x09%an%x09%ad%x09%s

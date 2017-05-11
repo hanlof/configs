@@ -197,5 +197,5 @@ if &diff
   "$BASE set to the name of a temporary file containing the common base for the merge, if available;
   "$LOCAL set to the name of a temporary file containing the contents of the file on the current branch;
   "$REMOTE set to the name of a temporary file containing the contents of the file to be merged, and
-  "$MERGED set to the name of the file to which the merge tool should write the result of the merge resolution 
-endif 
+  "$MERGED set to the name of the file to which the merge tool should write the result of the merge resolution
+endif
