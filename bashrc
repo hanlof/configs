@@ -2,13 +2,15 @@
 
 # git helpers
 
+CONFIGS_PATH=~/configs
+
 fr ()
 {
   SUPERREPO="$PWD"/
   {
     git ls-files
     git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ~/configs/c-programs/prefix \$PREFIX"
-  } | ~/dmenu-4.5/dmenu -l 40 -i | xargs gvim
+  } | ${CONFIGS_PATH}/submodules/dmenu/dmenu -l 40 -i | xargs gvim
 }
 
 ggrep ()
@@ -86,7 +88,7 @@ ft()
     echo "Enter a git repo first."
     return 1
   fi
-  tagname=$(~/configs/c-programs/dumptags -t ${s}/.git/tags -l | ~/dmenu-4.5/dmenu -sb purple -i -l 50 -p ">" 2> /dev/null)
+  tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${CONFIGS_PATH}/submodules/dmenu/dmenu -sb purple -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$tagname" ]; then return; fi
 
   gvim --cmd set\ tags+=${s}/.git/tags -t ${tagname}
@@ -99,7 +101,7 @@ ff()
     echo "Enter a git repo first."
     return 1
   fi
-  fname=$(git ls-files --full-name ${s} | ~/dmenu-4.5/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${s} | ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
   gvim ${s}/${fname}
@@ -194,7 +196,7 @@ insert_filename ()
     return 1
   fi
 
-  fname=$(git ls-files --full-name ${gittop} | /home/hans/bin/insdirs | /home/hans/dmenu/dmenu-4.5/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs | ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "'git ls-files' returned nothing"
     return
@@ -211,7 +213,7 @@ insert_filename ()
 insert_from_file ()
 {
 
-  fname=$(< ${1} /home/hans/dmenu/dmenu-4.5/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(< ${1} ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "The file ${1} was empty"
     return
