@@ -1,8 +1,8 @@
 [[ $- == *i* ]] || return
 
-# git helpers
-
 CONFIGS_PATH=~/configs
+
+# git helpers
 
 fr ()
 {
@@ -176,15 +176,15 @@ run-menu ()
 
 insert_git_top ()
 {
-  w=$(git rev-parse --show-toplevel 2> /dev/null)
-  if [ -z "$w" ]; then
+  gittop=$(git rev-parse --show-toplevel 2> /dev/null)
+  if [ -z "$gittop" ]; then
     echo "Enter a git repo first."
     return 1
   fi
   s=${READLINE_LINE:0:$READLINE_POINT}
   e=${READLINE_LINE:$READLINE_POINT}
-  READLINE_LINE="$s$w/$e"
-  let READLINE_POINT+=${#w}
+  READLINE_LINE="$s$gittop/$e"
+  let READLINE_POINT+=${#gittop}
   let READLINE_POINT++
 }
 
@@ -251,9 +251,6 @@ bind '"\e[19~":'$'"\203"'        # F8
 bind '"\e[19;2~":'$'"\205"'      # S-F8
 bind '"\e[18~":'$'"\204"'        # F7
 
-#aoeuaoeu
-#bind '"\e[18~":'$'"\204"'
-
 bind '"p": history-search-backward'
 bind '"n": history-search-forward'
 
@@ -262,7 +259,6 @@ export PATH=/home/hans/bin:${PATH}
 export EDITOR="gvim -f"
 #export GITTOP='git rev-parse --show-toplevel'
 
-alias fbs=flexbs --buildprofile=edge
 alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
 alias vp='gvim -c "set buftype=nofile|0put *"'
 
