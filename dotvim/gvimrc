@@ -23,7 +23,7 @@ call matchadd("Error", " \\+\t")  " space before tab is bad
 
 au SwapExists * call g:SwapExists()
 
-function g:SwapExists()
+function! g:SwapExists()
   echo "swap exists!"
   let out = ""
   let servers=serverlist()
@@ -39,7 +39,7 @@ function g:SwapExists()
   let v:swapchoice=''
 endfunction
 
-function g:SetColorOnBuffer()
+function! g:SetColorOnBuffer()
   let GitTop = g:GitTopLevel(fnamemodify(expand('%'), ':p:s?[\/]$??'))
   if GitTop == ''
     hi Normal guibg=#f8fff8
