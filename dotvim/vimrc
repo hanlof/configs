@@ -191,7 +191,7 @@ if &diff
   nnoremap <F8> /<<<<<<<<CR>
   nnoremap <F9> :diffget LOCAL<CR>
   nnoremap <F10> :diffget BASE<CR>
-  nnoremap <F11> :diffget REMOTE<CR>aoeuoaeuc=
+  nnoremap <F11> :diffget REMOTE<CR>
   drop expand("$MERGED")
   setlocal statusline=%<%f\ %h%m%r%=F9=LOCAL\ F10=BASE\ F11=REMOTE\ [%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
   "$BASE set to the name of a temporary file containing the common base for the merge, if available;
