@@ -5,12 +5,15 @@ set ruler
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
 set showcmd
 
+let g:clang_auto=0
+let g:clang_verbose_pmenu=1
+let g:clang_c_completeopt="longest,menuone,preview"
+
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
 exec rtcmd . "/../submodules/vim-clang"
 
-let g:clang_auto=0
 
 if has('gui_running')
     let gvimrcpath=expand("<sfile>:h") . "/gvimrc"
