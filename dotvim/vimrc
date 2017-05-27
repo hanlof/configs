@@ -98,6 +98,7 @@ map <F3> :call DmenuOpen("edit")<CR>
 map <S-F3> :call DmenuOpen("split")<CR>
 map <C-F3> :call DmenuOpen("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
+map <S-F4> :call DmenuTag("tjump")<CR>
 
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
@@ -130,11 +131,16 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
+let g:dmenucmd="~/configs/submodules/dmenu/dmenu"
+function g:DmenuOptions()
+  return " -i -l 50 -p '' -w " . v:windowid
+endfunction
+
 ".../ctags-5.8/readtags -t .git/tags -l |
 " Find a tag and pass it to cmd
 function! DmenuTag(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | ~/configs/submodules/dmenu/dmenu -sb purple -i -l 50 -p " . a:cmd)
+  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:DmenuOptions())
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
@@ -153,7 +159,7 @@ endfunction
 " Find a file and pass it to cmd
 function! DmenuOpen(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("git ls-files --full-name " . top . " | ~/configs/submodules/dmenu/dmenu -i -l 50 -p " . a:cmd)
+  let fname = system("git ls-files --full-name " . top . " | " . g:dmenucmd . g:DmenuOptions())
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
