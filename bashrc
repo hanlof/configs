@@ -4,15 +4,17 @@ CONFIGS_PATH=~/configs
 
 find_dmenu()
 {
-  # system-wide installed?
-  DMENU_PATH=$(which dmenu)
-  if [ $? != 0 ]; then
-    DMENU_PATH="${CONFIGS_PATH}/submodules/dmenu/dmenu"
-    if [ ! -x ${DMENU_PATH} ]; then
-      printf 'Dmenu not found\n'
-      DMENU_PATH='DMENU_NOT_FOUND'
-    fi
-  fi
+  # system-wide installed? if found we return immediately
+  DMENU_PATH=$(which dmenu) && return
+
+  # plan-b: look under configs.
+  DMENU_PATH="${CONFIGS_PATH}/submodules/dmenu/dmenu"
+  # if that guy is executable we already have a good value in DMENU_PATH and so we just return
+  test -x ${DMENU_PATH} && return
+
+  # plan-c: bail! (TODO: try to compile it)
+  printf 'Dmenu not found\n'
+  DMENU_PATH='DMENU_NOT_FOUND'
 }
 
 # git helpers
