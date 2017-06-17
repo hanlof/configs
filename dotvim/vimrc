@@ -66,10 +66,26 @@ set wildmenu
 
 runtime ftplugin/man.vim
 
+set listchars=tab:‣\ 
+set list
+
+function! g:ToggleListCharsEOL()
+  let oldval = &listchars
+  if match(oldval, 'eol') > -1
+    exec 'set listchars-=eol:$'
+  else
+    exec 'set listchars+=eol:$'
+  endif
+endfunction
+
+call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+call matchadd("Error", " \\+\t")  " space before tab is bad
+" TODO: disable/enable EOL-space error while typing (?)
+
 nnoremap <F12> :set hls!<CR>
 inoremap <F12> <C-o>:set hls!<CR>
-nnoremap <S-F12> :set list!<CR>
-inoremap <S-F12> <C-o>:set list!<CR>
+nnoremap <expr> <S-F12> g:ToggleListCharsEOL()
+inoremap <expr> <S-F12> g:ToggleListCharsEOL()
 nnoremap <C-F12> :set spell!<CR>
 inoremap <C-F12> <C-o>:set spell!<CR>
 nnoremap <F11> :setlocal number!<CR>

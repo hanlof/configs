@@ -11,16 +11,7 @@ set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(
 
 "au! BufEnter * call g:SetColorOnBuffer()
 
-hi SpecialKey guifg=#b0b0b0
-set listchars=tab:‣\ 
-set list
-" TODO: modify shift-F12 behavior to modify listchars, not enable/disable list mode
-
-call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
-call matchadd("Error", " \\+\t")  " space before tab is bad
-" TODO: disable/enable EOL-space error while typing (?)
-
-
+autocmd ColorScheme * hi SpecialKey guifg=#b0b0b0
 au SwapExists * call g:SwapExists()
 
 function! g:SwapExists()

@@ -21,4 +21,17 @@ function! MarkIfWide()
   endif
 endfunction
 
+function! g:Hans()
+  echom 'hej :)'
+endfunction
+
+" custom settings
+let custom = {
+  \'kalle' : {
+    \'apa' : function('g:Hans'),
+    \'bepa' : function('g:Hans')
+  \}
+\}
+let a = custom['kalle']['apa']()
+
 " colorscheme siennaterm
