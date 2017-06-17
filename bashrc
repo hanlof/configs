@@ -250,6 +250,14 @@ xw ()
   xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
 }
 
+function v()
+{
+  filedir=$(dirname "$1")
+  gitdir=$(git -C "${dir}" rev-parse --show-toplevel)
+
+  gvim --servername ${gitdir} --remote-tab-silent "$1"
+}
+
 find_dmenu
 
 # dummy bindings to work around shortcomings in libreadline
