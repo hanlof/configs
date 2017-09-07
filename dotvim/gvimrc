@@ -12,6 +12,13 @@ set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(
 "au! BufEnter * call g:SetColorOnBuffer()
 
 autocmd ColorScheme * hi SpecialKey guifg=#b0b0b0
+autocmd ColorScheme * hi DiffAdd        guibg=#e8ffff
+autocmd ColorScheme * hi DiffChange     guibg=#fff0f0
+autocmd ColorScheme * hi DiffDelete     guibg=LightCyan
+autocmd ColorScheme * hi DiffText       guibg=#ffd0d0
+
+autocmd ColorScheme * hi Search         guibg=#90ff90
+
 au SwapExists * call g:SwapExists()
 
 function! g:SwapExists()
@@ -87,9 +94,3 @@ map <C-S-ScrollWheelUp> :LargerFont<CR>
 map <M-Right> >
 map <M-Left> <
 
-hi DiffAdd        guibg=#e8ffff
-hi DiffChange     guibg=#fff0f0
-hi DiffDelete     guibg=LightCyan
-hi DiffText       guibg=#ffd0d0
-
-hi Search         guibg=#90ff90
