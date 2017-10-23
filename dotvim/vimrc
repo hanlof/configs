@@ -89,7 +89,7 @@ map <Leader>G :tab split +:Ggrep\ <cword><CR>
 map <Leader>g :tab split +:Ggrep\\\ 
 
 map <F3> :call DmenuOpen("edit")<CR>
-map <S-F3> :call DmenuOpen("split")<CR>
+map <S-F3> :call DmenuOpen("vsplit")<CR>
 map <C-F3> :call DmenuOpen("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
 
