@@ -5,9 +5,15 @@ set ruler
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
 set showcmd
 
+let g:clang_auto=0
+let g:clang_verbose_pmenu=1
+let g:clang_c_completeopt="longest,menuone,preview"
+
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
+exec rtcmd . "/../submodules/vim-clang"
+
 
 if has('gui_running')
     let gvimrcpath=expand("<sfile>:h") . "/gvimrc"
@@ -60,10 +66,26 @@ set wildmenu
 
 runtime ftplugin/man.vim
 
+set listchars=tab:‣\ 
+set list
+
+function! g:ToggleListCharsEOL()
+  let oldval = &listchars
+  if match(oldval, 'eol') > -1
+    exec 'set listchars-=eol:$'
+  else
+    exec 'set listchars+=eol:$'
+  endif
+endfunction
+
+call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+call matchadd("Error", " \\+\t")  " space before tab is bad
+" TODO: disable/enable EOL-space error while typing (?)
+
 nnoremap <F12> :set hls!<CR>
 inoremap <F12> <C-o>:set hls!<CR>
-nnoremap <S-F12> :set list!<CR>
-inoremap <S-F12> <C-o>:set list!<CR>
+nnoremap <expr> <S-F12> g:ToggleListCharsEOL()
+inoremap <expr> <S-F12> g:ToggleListCharsEOL()
 nnoremap <C-F12> :set spell!<CR>
 inoremap <C-F12> <C-o>:set spell!<CR>
 nnoremap <F11> :setlocal number!<CR>
@@ -92,6 +114,7 @@ map <F3> :call DmenuOpen("edit")<CR>
 map <S-F3> :call DmenuOpen("vsplit")<CR>
 map <C-F3> :call DmenuOpen("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
+map <S-F4> :call DmenuTag("tjump")<CR>
 
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
@@ -124,11 +147,16 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
+let g:dmenucmd="~/configs/submodules/dmenu/dmenu"
+function g:DmenuOptions()
+  return " -i -l 50 -p '' -w " . v:windowid
+endfunction
+
 ".../ctags-5.8/readtags -t .git/tags -l |
 " Find a tag and pass it to cmd
 function! DmenuTag(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | ~/configs/submodules/dmenu/dmenu -sb purple -i -l 50 -p " . a:cmd)
+  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:DmenuOptions())
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
@@ -147,7 +175,7 @@ endfunction
 " Find a file and pass it to cmd
 function! DmenuOpen(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("git ls-files --full-name " . top . " | ~/configs/submodules/dmenu/dmenu -i -l 50 -p " . a:cmd)
+  let fname = system("git ls-files --full-name " . top . " | " . g:dmenucmd . g:DmenuOptions())
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
@@ -191,7 +219,7 @@ if &diff
   nnoremap <F8> /<<<<<<<<CR>
   nnoremap <F9> :diffget LOCAL<CR>
   nnoremap <F10> :diffget BASE<CR>
-  nnoremap <F11> :diffget REMOTE<CR>aoeuoaeuc=
+  nnoremap <F11> :diffget REMOTE<CR>
   drop expand("$MERGED")
   setlocal statusline=%<%f\ %h%m%r%=F9=LOCAL\ F10=BASE\ F11=REMOTE\ [%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
   "$BASE set to the name of a temporary file containing the common base for the merge, if available;

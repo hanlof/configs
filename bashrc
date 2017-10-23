@@ -2,6 +2,21 @@
 
 CONFIGS_PATH=~/configs
 
+find_dmenu()
+{
+  # system-wide installed? if found we return immediately
+  DMENU_PATH=$(which dmenu) && return
+
+  # plan-b: look under configs.
+  DMENU_PATH="${CONFIGS_PATH}/submodules/dmenu/dmenu"
+  # if that guy is executable we already have a good value in DMENU_PATH and so we just return
+  test -x ${DMENU_PATH} && return
+
+  # plan-c: bail! (TODO: try to compile it)
+  printf 'Dmenu not found\n'
+  DMENU_PATH='DMENU_NOT_FOUND'
+}
+
 # git helpers
 
 fr ()
@@ -10,7 +25,7 @@ fr ()
   {
     git ls-files
     git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ~/configs/c-programs/prefix \$PREFIX"
-  } | ${CONFIGS_PATH}/submodules/dmenu/dmenu -l 40 -i | xargs gvim
+  } | ${DMENU_PATH} -l 40 -i | xargs gvim
 }
 
 ggrep ()
@@ -88,7 +103,7 @@ ft()
     echo "Enter a git repo first."
     return 1
   fi
-  tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${CONFIGS_PATH}/submodules/dmenu/dmenu -sb purple -i -l 50 -p ">" 2> /dev/null)
+  tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${DMENU_PATH} -sb purple -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$tagname" ]; then return; fi
 
   gvim --cmd set\ tags+=${s}/.git/tags -t ${tagname}
@@ -101,7 +116,7 @@ ff()
     echo "Enter a git repo first."
     return 1
   fi
-  fname=$(git ls-files --full-name ${s} | ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
   gvim ${s}/${fname}
@@ -196,7 +211,7 @@ insert_filename ()
     return 1
   fi
 
-  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs | ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "'git ls-files' returned nothing"
     return
@@ -213,7 +228,7 @@ insert_filename ()
 insert_from_file ()
 {
 
-  fname=$(< ${1} ${CONFIGS_PATH}/submodules/dmenu/dmenu -i -l 50 -p ">" 2> /dev/null)
+  fname=$(< ${1} ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "The file ${1} was empty"
     return
@@ -234,6 +249,16 @@ xw ()
 {
   xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
 }
+
+function v()
+{
+  filedir=$(dirname "$1")
+  gitdir=$(git -C "${dir}" rev-parse --show-toplevel)
+
+  gvim --servername ${gitdir} --remote-tab-silent "$1"
+}
+
+find_dmenu
 
 # dummy bindings to work around shortcomings in libreadline
 bind $'"\201": "run-menu'

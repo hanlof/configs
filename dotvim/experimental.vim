@@ -1,4 +1,3 @@
-
 set statusline=%<%f\ %h%m%r%=[%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
 
 "efm for gerrit reviews: set efm=%E\ \ \ \ \ \ file:\ %f,%Z\ \ \ \ \ \ line:\ "%l
@@ -21,5 +20,18 @@ function! MarkIfWide()
     let &l:colorcolumn=""
   endif
 endfunction
+
+function! g:Hans()
+  echom 'hej :)'
+endfunction
+
+" custom settings
+let custom = {
+  \'kalle' : {
+    \'apa' : function('g:Hans'),
+    \'bepa' : function('g:Hans')
+  \}
+\}
+let a = custom['kalle']['apa']()
 
 " colorscheme siennaterm

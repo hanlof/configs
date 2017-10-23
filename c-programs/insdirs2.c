@@ -99,7 +99,8 @@ void check_args(struct params * par)
 }
 
 #define MAX(a, b) ( (a > b) ? (a) : (b) )
-int main(int argc, char * argv[]) {
+int main(int argc, char * argv[])
+{
 	struct params params = {
 		.readsize = getpagesize(),
 		.allocsize = 8 * MAX(PATH_MAX, getpagesize()),
