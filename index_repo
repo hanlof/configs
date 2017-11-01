@@ -83,5 +83,7 @@ if [ $CTAGS_RETVALUE == 0 ]; then
   }
   git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
   echo ${GIT_COMMIT} > ${GITTOP}/.git/tags.githash
+else
+  echo "ctags not found. bailing!"
 fi
 
