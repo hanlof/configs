@@ -24,7 +24,7 @@ fr ()
   SUPERREPO="$PWD"/
   {
     git ls-files
-    git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ~/configs/c-programs/prefix \$PREFIX"
+    git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ${CONFIGS_PATH}/c-programs/prefix \$PREFIX"
   } | ${DMENU_PATH} -l 40 -i | xargs gvim
 }
 
