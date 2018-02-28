@@ -93,19 +93,21 @@ int main(int argc, char * argv[]) {
 	char * outbuf = malloc(2 * ps);
 	char * inbuf = malloc(2 * ps);
 
-	read(STDIN_FILENO, inbuf, ps);
 
 	char * outptr = outbuf;
 	char * inptr = inbuf;
 	char * pptr = &prefix[0];
 	char n;
+	int tmp;
+
+	tmp = read(STDIN_FILENO, inbuf, ps);
 
 	while (1) {
 		pptr = &prefix[0];
 		while (*pptr != '\0') {
 			*outptr++ = *pptr++;
 			if (outptr >= outbuf + ps) {
-				write(STDOUT_FILENO, outbuf, ps);
+				tmp = write(STDOUT_FILENO, outbuf, ps);
 				outptr = outbuf;
 			}
 		}
@@ -113,12 +115,12 @@ int main(int argc, char * argv[]) {
 			n = *inptr;
 			*outptr++ = n;
 			if (inptr >= inbuf + ps) {
-				int tmp = read(STDIN_FILENO, inbuf, ps);
+				tmp = read(STDIN_FILENO, inbuf, ps);
 				if (tmp <= 0) goto out;
 				inptr = inbuf;
 			}
 			if (outptr >= outbuf + ps) {
-				write(STDOUT_FILENO, outbuf, ps);
+				tmp = write(STDOUT_FILENO, outbuf, ps);
 				outptr = outbuf;
 			}
 			inptr++;
