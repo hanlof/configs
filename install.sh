@@ -17,13 +17,14 @@
 install_dmenu()
 {
 	printf $'\e[1mTrying to install dmenu...\e[0m\n'
-	if ! sudo apt-get install dmenu; then
-		# fetch and build dmenu
-		git -C ${CONFIGS_PATH} submodule update --init submodules/dmenu || return 1
-		# fetch some common build deps
-		sudo apt-get install libx11-dev libxinerama-dev libxft-dev || return 1
-		make -C ${CONFIGS_PATH}/submodules/dmenu || return 1
+	if sudo apt-get install dmenu; then
+		VER=$(dmenu -v)
 	fi
+	# check if dmenu install failed or version is less than 4.7
+	# in that case build it!
+        if [ -z "$VER" -o ${VER%%.*} -lt 4 -o ${VER##*.} -lt 7 ]; then
+		${CONFIGS_PATH}/build_dmenu.sh
+        fi
 }
 
 CONFIGS_PATH=$(dirname $0)
