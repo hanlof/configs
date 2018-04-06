@@ -147,7 +147,9 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
-let g:dmenucmd="~/configs/submodules/dmenu/dmenu"
+" first discover dmenu location. compiled or system-wide
+" then discover dmenu version (-w available or not)
+let g:dmenucmd="dmenu"
 function g:DmenuOptions()
   return " -i -l 50 -p '' -w " . v:windowid
 endfunction

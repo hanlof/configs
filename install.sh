@@ -13,6 +13,17 @@
 # TODO: consider adding index_repo to path and/or as an alias in configs/bashrc
 # TODO: run :helptags ALL in vim once (ignore error about system-wide write permission)
 # TODO: sudo apt-get install exuberant-ctags vim-gtk gitk. what else??
+# TODO: check repo root hash in vimrc_template. set up indentation style to comply with repo coding standards
+# TODO: consider different indentation styles in different paths within a repo?
+
+# alternative1: screw system-wide dmenu. always compile. why not? if compilation fails for whatever reason we need to fall back to system-wide anyway.
+# alternative2: check system-wide dmenu version after install. compile if it not > 4.6
+
+# install system-wide dmenu
+# check version of system-wide dmenu. if it has -w then we are fine!
+# if we cannot install dmenu or if we dont have -w we compile
+# if system-wide install and/or compilation fails then we are screwed
+# vim and bash need to check dmen version either way
 
 install_dmenu()
 {

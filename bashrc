@@ -138,7 +138,7 @@ run-prompt()
     else
       break
     fi
-  done < /home/hans/bin/xx
+  done < ~/bin/xx
   read -s -n1 -d '' _KEY
   printf -v index %d \'$_KEY\'
   index=$(($index-97))
@@ -173,7 +173,7 @@ run-menu ()
     else
       break
     fi
-  done < /home/hans/bin/xx
+  done < ~/bin/xx
   read -s -n1 -d '' _KEY
   printf -v index %d \'$_KEY\'
   index=$(($index-97))
