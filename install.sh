@@ -5,6 +5,7 @@
 # DONE: fetch subrepos (skip dmenu if it can be found or installed globally (using apt-get)
 # DONE: compile helpers (again skip dmenu if its not needed)
 
+# TODO: consider global git options (hooks) that may interfere with this local git repo and/or other repos
 # TODO: consider dmenu versions. some versions do not recognize the -w flag
 # TODO: modify template files so "configs"-path can easily be sed:ed into them
 # TODO: update vim config so it can detect dmenu path
