@@ -3,19 +3,24 @@
 # Placeholder file with some notes...
 
 # DONE: fetch subrepos (skip dmenu if it can be found or installed globally (using apt-get)
+# DONE: set up dmenu. local and/or compiled from subrepo
 # DONE: compile helpers (again skip dmenu if its not needed)
 # DONE: run :helptags for vim-fugitive
 # DONE: install gitconfig include using git config mechanism
 
-# TODO: consider global git options (hooks) that may interfere with this local git repo and/or other repos
+# TODO: consider global (system-wide) git options (hooks) that may interfere with this local git repo and/or other repos
 # TODO: update vim config so it can detect dmenu path, and only use -w if version is >= 4.7
 # TODO: consider adding index_repo to path and/or as an alias in configs/bashrc
 # TODO: sudo apt-get install exuberant-ctags vim-gtk gitk. what else??
 # TODO: check repo root hash in vimrc_template. set up indentation style to comply with repo coding standards
 # TODO: consider different indentation styles in different paths within a repo?
 # TODO: do some SED magic for paths and install template files. gonna need some interactivity if files exists
+# TODO: set up ~/.vimrc to properly include $CONFIGS_PATH/dotvim/vimrc
+# TODO: set up ~/.bashrc to properly include $CONFIGS_PATH/bashrc
 # TODO: maybe set up core.email and core.name for git configuration
 # TODO: maybe set up github username for configs repo in git configuration (local or global?)
+# TODO: proper information printing while running install.sh. sort out coloring properly using tput
+# TODO: consider what dependencies we have in install.sh. git?! apt-get ?! LOLz. vim... make...
 
 
 CONFIGS_PATH=$(dirname $0)
