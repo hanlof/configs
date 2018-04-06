@@ -26,27 +26,24 @@
 # if system-wide install and/or compilation fails then we are screwed
 # vim and bash need to check dmen version either way
 
-install_dmenu()
-{
-	printf $'\e[1mTrying to install dmenu...\e[0m\n'
-	if sudo apt-get install dmenu; then
-		VER=$(dmenu -v)
-	fi
-        # check that dmenu was installed and version is less than 4.7
-	# otherwise build it!
-        if [ -z "$VER" -o ${VER%%.*} -lt 4 -o ${VER##*.} -lt 7 ]; then
-		${CONFIGS_PATH}/build_dmenu.sh
-        fi
-}
-
 CONFIGS_PATH=$(dirname $0)
 
 # dmenu
-which dmenu > /dev/null || install_dmenu
+which dmenu > /dev/null || { # first try systme-wide dmenu
+	printf $'\e[1mTrying to install dmenu...\e[0m\n'
+	sudo apt-get install dmenu
+}
+# did we get a dmenu with a satisfactory version?
+which dmenu > /dev/null && DMENU_VER=$(dmenu -v) || DMENU_VER=0.0
+DMENU_VER=${DMENU_VER##dmenu-}
+if [ "${DMENU_VER%%.*}" -lt 4 -o "${DMENU_VER##*.}" -lt 7 ]; then
+	${CONFIGS_PATH}/build_dmenu.sh
+fi
 which dmenu > /dev/null || test -x ${CONFIGS_PATH}/submodules/dmenu/dmenu || {
   printf $'\n\e[1mFAILED to install and/or build dmenu from source. Sorry!\n\n\e[0m'
 }
 
+# fugitive vim plugin
 git -C ${CONFIGS_PATH} submodule update --init submodules/vim-fugitive
 
 # c-program helpers

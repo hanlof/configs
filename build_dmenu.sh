@@ -4,8 +4,6 @@ set -e
 
 CONFIGS_PATH=$(dirname $0)
 
-set -x
-
 git -C ${CONFIGS_PATH} submodule update --init submodules/dmenu
 
 make -C ${CONFIGS_PATH}/submodules/dmenu || {
