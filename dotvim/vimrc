@@ -12,6 +12,7 @@ let g:clang_c_completeopt="longest,menuone,preview"
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
+exec rtcmd . "/../submodules/vim-bitbake"
 exec rtcmd . "/../submodules/vim-clang"
 
 

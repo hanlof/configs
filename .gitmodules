@@ -8,3 +8,6 @@
 [submodule "submodules/vim-clang"]
 	path = submodules/vim-clang
 	url = https://github.com/justmao945/vim-clang
+[submodule "submodules/vim-bitbake"]
+	path = submodules/vim-bitbake
+	url = https://github.com/kergoth/vim-bitbake
