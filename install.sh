@@ -21,7 +21,8 @@
 # TODO: maybe set up github username for configs repo in git configuration (local or global?)
 # TODO: proper information printing while running install.sh. sort out coloring properly using tput
 # TODO: consider what dependencies we have in install.sh. git?! apt-get ?! LOLz. vim... make...
-
+# TODO: VIM: sticky diff colors may not be nice for users who wants a different colorscheme
+# TODO: embed dmenu in terminal emulators does not seem to work, what's the problem?!
 
 CONFIGS_PATH=$(dirname $0)
 
