@@ -66,6 +66,12 @@ gls()
   #git ls-files -icdmoktv --exclude-standard "${A[@]}" | sed 's/^\?/x/'
 }
 
+# Prompt stuff: Display SDK version within {}, if set
+disp_devenv()
+{
+  printf "${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"
+}
+
 # Prompt stuff: format the number of jobs and hide if 0
 disp_jobs()
 {
@@ -288,7 +294,7 @@ alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -b
 alias vp='gvim -c "set buftype=nofile|0put *"'
 
 #export PS1='$(ppwd \l)\[\033[1m\]\h\[\033[0m\033]2;$(cleartool pwv -short)\h \a \]  $(cut_path \w) \$ '
-export PS1='\[\033]2;$(disp_gitinfo)\a\033[1m\]\h\[\033[0m\] $(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
+export PS1='\[\033]2;$(disp_gitinfo)\a\033[1m\]\h \[\033[0m\]$(disp_devenv)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
 export MANPATH=${MANPATH}:/usr/share/man
 
 alias ls="ls --color"
