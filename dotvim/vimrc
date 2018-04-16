@@ -137,13 +137,6 @@ function! GetDmenuVersion(cmd)
   endif
 endfunction
 
-let system_dmenu_path = "dmenu"
-let local_dmenu_path = expand("<sfile>:h:h") . "/submodules/dmenu/dmenu"
-
-let system_dmenu_version = GetDmenuVersion(system_dmenu_path)
-let local_dmenu_version = GetDmenuVersion(local_dmenu_path)
-
-
 function! GetDmenuOptions(version)
   echom string(a:version)
   if a:version[0] >= 4 && a:version[1] >= 7
@@ -152,6 +145,12 @@ function! GetDmenuOptions(version)
     return " -i -l 50 -p ''"
   endif
 endfunction
+
+let system_dmenu_path = "dmenu"
+let local_dmenu_path = expand("<sfile>:h:h") . "/submodules/dmenu/dmenu"
+
+let system_dmenu_version = GetDmenuVersion(system_dmenu_path)
+let local_dmenu_version = GetDmenuVersion(local_dmenu_path)
 
 let g:dmenucmd="false"
 if system_dmenu_version[0] == local_dmenu_version[0]
@@ -173,7 +172,6 @@ elseif system_dmenu_version[0] > local_dmenu_version[0]
 else
   let g:dmenucmd=local_dmenu_path . GetDmenuOptions(local_dmenu_version)
 endif
-
 
 vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
 function! GetSel()

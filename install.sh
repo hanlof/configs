@@ -11,7 +11,7 @@
 # TODO: consider global (system-wide) git options (hooks) that may interfere with this local git repo and/or other repos
 # TODO: update vim config so it can detect dmenu path, and only use -w if version is >= 4.7
 # TODO: consider adding index_repo to path and/or as an alias in configs/bashrc
-# TODO: sudo apt-get install exuberant-ctags vim-gtk gitk. what else??
+# TODO: sudo apt-get install exuberant-ctags vim vim-gtk3 git gitk gcc make. what else??
 # TODO: check repo root hash in vimrc_template. set up indentation style to comply with repo coding standards
 # TODO: consider different indentation styles in different paths within a repo?
 # TODO: do some SED magic for paths and install template files. gonna need some interactivity if files exists
