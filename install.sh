@@ -41,10 +41,12 @@ which dmenu > /dev/null || test -x ${CONFIGS_PATH}/submodules/dmenu/dmenu || {
   printf $'\n\e[1mFAILED to install and/or build dmenu from source. Sorry!\n\n\e[0m'
 }
 
-# fugitive vim plugin
-echo Set up fugitive vim plugin
+# vim plugins
+echo Set up vim plugins
 git -C ${CONFIGS_PATH} submodule update --init submodules/vim-fugitive
 vim -n -e --noplugin --cmd  "helptags submodules/vim-fugitive/doc|quit"
+git -C ${CONFIGS_PATH} submodule update --init submodules/vim-bitbake
+vim -n -e --noplugin --cmd  "helptags submodules/vim-bitbake/doc|quit"
 
 echo Build helper programs
 # c-program helpers
