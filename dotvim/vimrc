@@ -1,13 +1,13 @@
+" TODO:s
+" remove bang from <F9> mapping? hmm....
+" sort out the githash checking and formatting/coloring/compilation
+"  options depending on git repo and path and file-type
+" where to store custom compiler 'plugins'?
+" automatic tags generation??
+" more serious cscope usage??
+
+" this old friend gets a special place in dotvimrc :-D
 set nocp
-
-set laststatus=2
-set ruler
-set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
-set showcmd
-
-let g:clang_auto=0
-let g:clang_verbose_pmenu=1
-let g:clang_c_completeopt="longest,menuone,preview"
 
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 exec rtcmd
@@ -15,60 +15,60 @@ exec rtcmd . "/../submodules/vim-fugitive"
 exec rtcmd . "/../submodules/vim-bitbake"
 exec rtcmd . "/../submodules/vim-clang"
 
+runtime ftplugin/man.vim
 
 if has('gui_running')
     let gvimrcpath=expand("<sfile>:h") . "/gvimrc"
     exec "source " . gvimrcpath
 endif
 
-" never use tabs. insert spaces
-"set noexpandtab
-" big steps when tabbing (2 is too small difference from using spaces)
-"set softtabstop=4
-" i want 2 spaces to be the standard indentation
-"set shiftwidth=2
-" tabs are 8 characters. make them visible by coloring them in .gvimrc
+set laststatus=2
+set ruler
+set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
+set showcmd
 
-highlight TrailingSpace ctermbg=red guibg=#ff0000
-
-" define tab stuff in language specific files like after/ftplugin/c.vim etc
-set tabstop=8
 set backspace=2
 
 set splitright
 
-set foldmethod=syntax
-set foldcolumn=2
-set foldlevel=10
+" enable syntax-sensitive folding
+set foldmethod=syntax foldcolumn=2 foldlevel=10
 
-set ignorecase
-set smartcase
+" search is case insensitive unless the search pattern contains capital letters
+set ignorecase smartcase
+
+" vims defaults are mostly sane but for switch cases we must let it know whats correct
+set cinoptions=l1
+
+set sessionoptions+=resize,localoptions
+set autowrite
+set wildmenu
+
+set listchars=tab:‣\ 
+set list
+
+set cscopequickfix=s-,c-,d-,i-,t-,e-
+
+" syntax plugin options
+let g:is_bash = 1
+let g:load_doxygen_syntax = 1
+
+" clang plugin options
+let g:clang_auto=0
+let g:clang_verbose_pmenu=1
+let g:clang_c_completeopt="longest,menuone,preview"
+
+syn on
 
 filetype on
 filetype plugin on
 filetype indent on
 
-" vims defaults are mostly sane but for switch cases we must let it know whats correct
-set cinoptions=l1
+call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+call matchadd("Error", " \\+\t")  " space before tab is bad
+" TODO: disable/enable EOL-space error while typing (?)
 
-" syntax plugin options!
-let g:is_bash = 1
-let g:load_doxygen_syntax = 1
-syn on
-
-"this must be set in after/ftplugin/c.vim to be effective
-"set formatoptions-=ro
-
-set sessionoptions+=resize,localoptions
-
-set autowrite
-
-set wildmenu
-
-runtime ftplugin/man.vim
-
-set listchars=tab:‣\ 
-set list
+cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
 
 function! g:ToggleListCharsEOL()
   let oldval = &listchars
@@ -78,10 +78,6 @@ function! g:ToggleListCharsEOL()
     exec 'set listchars+=eol:$'
   endif
 endfunction
-
-call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
-call matchadd("Error", " \\+\t")  " space before tab is bad
-" TODO: disable/enable EOL-space error while typing (?)
 
 nnoremap <F12> :set hls!<CR>
 inoremap <F12> <C-o>:set hls!<CR>
@@ -127,6 +123,17 @@ nnoremap <S-F8> :set foldlevel+=1<CR>
 nnoremap <C-S-F7> :set foldlevel=0<CR>
 nnoremap <C-S-F8> :set foldlevel=99<CR>
 
+"For Emacs-style editing on the command-line: >
+cnoremap <C-A> <Home>
+cnoremap <C-B> <Left>
+cnoremap <C-D> <Del>
+cnoremap <C-E> <End>
+cnoremap <C-F> <Right>
+cnoremap <C-N> <Down>
+cnoremap <C-P> <Up>
+cnoremap <Esc><C-B> <S-Left>
+cnoremap <Esc><C-F> <S-Right>
+
 function! GetDmenuVersion(cmd)
   let tmp = system(a:cmd . " -v")
   if v:shell_error != 0
@@ -138,7 +145,6 @@ function! GetDmenuVersion(cmd)
 endfunction
 
 function! GetDmenuOptions(version)
-  echom string(a:version)
   if a:version[0] >= 4 && a:version[1] >= 7
     return " -i -l 50 -p '' -w " . v:windowid
   else
@@ -194,8 +200,6 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
-
-".../ctags-5.8/readtags -t .git/tags -l |
 " Find a tag and pass it to cmd
 function! DmenuTag(cmd)
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
@@ -252,9 +256,6 @@ let g:GitTop = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
-
-cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
-set cscopequickfix=s-,c-,d-,i-,t-,e-
 
 function! g:IsMergetool()
   if &diff == 0
