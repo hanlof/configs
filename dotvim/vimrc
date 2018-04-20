@@ -10,6 +10,7 @@
 set nocp
 
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
+let g:gvimrcpath=expand("<sfile>:h") . "/gvimrc"
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
 exec rtcmd . "/../submodules/vim-bitbake"
@@ -17,10 +18,7 @@ exec rtcmd . "/../submodules/vim-clang"
 
 runtime ftplugin/man.vim
 
-if has('gui_running')
-    let gvimrcpath=expand("<sfile>:h") . "/gvimrc"
-    exec "source " . gvimrcpath
-endif
+au GuiEnter * exec "source " . g:gvimrcpath
 
 set laststatus=2
 set ruler
