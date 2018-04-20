@@ -2,6 +2,14 @@
 
 CONFIGS_PATH=~/configs
 
+_complete_repos() {
+  local cur
+  pushd ~/repos > /dev/null
+  COMPREPLY=( $(compgen -d -- ${2}) )
+  popd > /dev/null
+}
+alias rcd="cd ~/repos; cd "
+
 find_dmenu()
 {
   # system-wide installed? if found we return immediately
