@@ -44,9 +44,8 @@ which dmenu > /dev/null || test -x ${CONFIGS_PATH}/submodules/dmenu/dmenu || {
 # vim plugins
 echo Set up vim plugins
 git -C ${CONFIGS_PATH} submodule update --init submodules/vim-fugitive
-vim -n -e --noplugin --cmd  "helptags submodules/vim-fugitive/doc|quit"
+vim -n -e --noplugin --cmd  'helptags submodules/vim-fugitive/doc|quit'
 git -C ${CONFIGS_PATH} submodule update --init submodules/vim-bitbake
-vim -n -e --noplugin --cmd  "helptags submodules/vim-bitbake/doc|quit"
 
 echo Build helper programs
 # c-program helpers
