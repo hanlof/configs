@@ -8,6 +8,7 @@ _complete_repos() {
   COMPREPLY=( $(compgen -d -- ${2}) )
   popd > /dev/null
 }
+complete -F _complete_repos rcd
 alias rcd="cd ~/repos; cd "
 
 find_dmenu()
