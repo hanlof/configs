@@ -144,8 +144,8 @@ function! GetDmenuVersion(cmd)
   endif
 endfunction
 
-function! GetDmenuOptions(version)
-  if a:version[0] >= 4 && a:version[1] >= 7
+function! GetDmenuOptions()
+  if g:dmenuversion[0] >= 4 && g:dmenuversion[1] >= 7
     return " -i -l 50 -p '' -w " . v:windowid
   else
     return " -i -l 50 -p ''"
@@ -161,22 +161,22 @@ let local_dmenu_version = GetDmenuVersion(local_dmenu_path)
 let g:dmenucmd="false"
 if system_dmenu_version[0] == local_dmenu_version[0]
   if system_dmenu_version[1] == local_dmenu_version[1]
-    if system_dmenu_version[0] == 0 && system_dmenu_version == 0
+    if system_dmenu_version[0] == 0 && system_dmenu_version[1] == 0
       " versions are equal and = 0.0. no dmenu available :(
       g:dmenucmd="false"
     else
       " versions are equal and both are runnable. pick system dmenu
-      let g:dmenucmd=system_dmenu_path . GetDmenuOptions(system_dmenu_version)
+      let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
     endif
   elseif system_dmenu_version[1] > local_dmenu_version[1]
-    let g:dmenucmd=system_dmenu_path . GetDmenuOptions(system_dmenu_version)
+    let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
   else
-    let g:dmenucmd=local_dmenu_path . GetDmenuOptions(local_dmenu_version)
+    let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
   endif
 elseif system_dmenu_version[0] > local_dmenu_version[0]
-  let g:dmenucmd=system_dmenu_path . GetDmenuOptions(system_dmenu_version)
+  let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
 else
-  let g:dmenucmd=local_dmenu_path . GetDmenuOptions(local_dmenu_version)
+  let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
 endif
 
 vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
@@ -202,8 +202,15 @@ endfunction
 
 " Find a tag and pass it to cmd
 function! DmenuTag(cmd)
+  if g:dmenucmd == 'false'
+    echom "Dmenu not found"
+    return
+  endif
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd)
+  let fname = system("set -o pipefail ; ~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:GetDmenuOptions())
+  if v:shell_error != 0
+    return
+  endif
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
@@ -221,8 +228,16 @@ endfunction
 
 " Find a file and pass it to cmd
 function! DmenuOpen(cmd)
+  if g:dmenucmd == 'false'
+    echom "dmenu not found"
+    return
+  endif
   let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
-  let fname = system("git ls-files --full-name " . top . " | " . g:dmenucmd)
+  let fname = system("set -o pipefail ; git ls-files --full-name " . top . " | " . g:dmenucmd . g:GetDmenuOptions())
+  if v:shell_error != 0
+    echo 'dmenu exited with non-zero status'
+    return
+  endif
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
   let fname2 = substitute(fname, '\n$', '', '')
