@@ -265,6 +265,19 @@ xw ()
   xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
 }
 
+function rand_xterm_bg()
+{
+	C=30
+	let base=256-C
+	r=$((base + (RANDOM * C) / 32767))
+	g=$((base + (RANDOM * C) / 32767))
+	b=$((base + (RANDOM * C) / 32767))
+
+	printf "\e]11;#%02x%02x%02x\a" $r $g $b
+
+	echo $r $b $g
+}
+
 function v()
 {
   filedir=$(dirname "$1")
