@@ -139,7 +139,7 @@ ff()
 
 function xxvim()
 {
-  xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim "$@" &
+  xterm -tn xterm-256color -fa "Monospace" -fg Black -bg White -fs 11 +sb -e vim "$@" &
 }
 
 run-prompt()
@@ -226,7 +226,7 @@ insert_filename ()
     return 1
   fi
 
-  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs2 | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "'git ls-files' returned nothing"
     return
