@@ -316,7 +316,7 @@ alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -b
 alias vp='gvim -c "set buftype=nofile|0put *"'
 
 #export PS1='$(ppwd \l)\[\033[1m\]\h\[\033[0m\033]2;$(cleartool pwv -short)\h \a \]  $(cut_path \w) \$ '
-export PS1='\[\033]2;$(disp_gitinfo)\a\033[0;1m\]\h \[\033[0m\]$(disp_devenv)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
+export PS1='\[\033]0;$(disp_gitinfo)\a\033[0;1m\]\h \[\033[0m\]$(disp_devenv)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
 export MANPATH=${MANPATH}:/usr/share/man
 
 alias ls="ls --color"
