@@ -267,13 +267,27 @@ xw ()
 
 function rand_xterm_bg()
 {
-	C=30
-	let base=256-C
+	# Beautiful green: 4 36 48
+	if [ -z $1 ]; then
+		C=30
+		let base=256-C
+	else
+		C=50
+		let base=0
+	fi
 	r=$((base + (RANDOM * C) / 32767))
 	g=$((base + (RANDOM * C) / 32767))
 	b=$((base + (RANDOM * C) / 32767))
 
+	# next line sets bg color
 	printf "\e]11;#%02x%02x%02x\a" $r $g $b
+	# make sure we have a readable foreground color as well
+	if [ $base -gt 128 ]; then
+		bgcolor=0
+	else
+		bgcolor=255
+	fi
+	printf "\e]10;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
 
 	echo $r $b $g
 }

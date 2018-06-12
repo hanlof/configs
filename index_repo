@@ -52,7 +52,6 @@ fi
 # - maybe do it using multiple tags files to avoid sorting a really huge tag file
 # - investigtae how vim handles that performance-wise
 if [ $CTAGS_RETVALUE == 0 ]; then
-  # looks like submodules are working now. printf %q FTW!
   git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" 2>&1 | {
     IFS=" (),'"
     let tot_tags=0
@@ -77,8 +76,6 @@ if [ $CTAGS_RETVALUE == 0 ]; then
       let tot_kb+=$kb
       tput cuu1; tput el; tput el1; tput cuu1; tput el; tput el1
       printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n' $tot_tags $tot_lines $tot_files $tot_kb
-
-      #echo tags:$tags tagstot:$tagstot files:$files lines:$lines kb:$kb time:$time kbs:$kbs;
     done
   }
   git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
