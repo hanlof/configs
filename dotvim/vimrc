@@ -177,16 +177,19 @@ else
   let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
 endif
 
-vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
-function! GetSel()
+vnoremap <Leader>f          <Esc>:call SearchForVisualSelection()<CR>
+function! SearchForVisualSelection()
   let [lnum1, col1] = getpos("'<")[1:2]
   let [lnum2, col2] = getpos("'>")[1:2]
   if lnum1 != lnum2
-    echo 'Multi line'
-    return ""
+    echohl ErrorMsg
+    echo 'Multiple lines marked'
+    echohl None
+    return
   endif
   let sel = getline(lnum1)[ col1 - 1: col2 - 1]
-  return sel
+  echo '/' . sel
+  call search(sel)
 endfunction
 
 set includeexpr=g:IncludeExprExample(v:fname)
