@@ -191,7 +191,7 @@ endfunction
 
 set includeexpr=g:IncludeExprExample(v:fname)
 function! g:IncludeExprExample(in)
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
   let t2=substitute(a:in,'^b/',top,'g')
   let t=substitute(t2,'^a/',top,'g')
 "  let t2=substitute(t,'^/',top . '/','g')
@@ -204,7 +204,7 @@ function! DmenuTag(cmd)
     echom "Dmenu not found"
     return
   endif
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
   let fname = system("set -o pipefail ; ~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
     return
@@ -230,7 +230,8 @@ function! DmenuOpen(cmd)
     echom "dmenu not found"
     return
   endif
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
+  echom top
   let fname = system("set -o pipefail ; git ls-files --full-name " . top . " | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
     echo 'dmenu exited with non-zero status'
@@ -251,21 +252,17 @@ function! DmenuOpen(cmd)
 endfunction
 
 " get git top-level dir
-function! g:GitTopLevel(path) abort
-  let fn = fnamemodify(a:path,':s?[\/]$??')
-  let ofn = ""
-  let nfn = fn
-  while fn != ofn
-    if filereadable(fn . '/.git/HEAD')
-      return fn
-    endif
-    let ofn = fn
-    let fn = fnamemodify(ofn,':h')
-  endwhile
+function! g:GitTopLevel()
+  " systemlist() seems like a convenient way to get rid of the newline in the
+  " output from the git command
+  let gt = systemlist("git rev-parse --show-toplevel")
+  if v:shell_error == 0
+    return gt[0]
+  endif
   return ''
 endfunction
 
-let g:GitTop = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+let g:GitTop = g:GitTopLevel()
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
