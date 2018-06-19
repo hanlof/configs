@@ -36,6 +36,7 @@ set ignorecase smartcase
 " vims defaults are mostly sane but for switch cases we must let it know whats correct
 set cinoptions=l1
 
+set mouse=a
 set sessionoptions+=resize,localoptions
 set autowrite
 set wildmenu
@@ -68,10 +69,20 @@ filetype on
 filetype plugin on
 filetype indent on
 
-call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
-call matchadd("Error", " \\+\t")  " space before tab is bad
-" TODO: disable/enable EOL-space error while typing (?)
+au VimEnter * call g:InitWindow()
+au WinEnter * call g:InitWindow()
 
+function! g:InitWindow()
+  if exists('w:is_initialised')
+    return
+  endif
+  let w:is_initialised = 1
+
+  call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+  call matchadd("Error", " \\+\t")  " space before tab is bad
+endfunction
+
+" TODO: disable/enable EOL-space error while typing (?)
 cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
 
 function! g:ToggleListCharsEOL()
