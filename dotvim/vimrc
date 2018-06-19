@@ -259,9 +259,17 @@ endfunction
 function! g:GitTopLevel()
   " systemlist() seems like a convenient way to get rid of the newline in the
   " output from the git command
-  let gt = systemlist("git rev-parse --show-toplevel")
+  let git_output = systemlist("git rev-parse --show-toplevel")
   if v:shell_error == 0
-    return gt[0]
+    return git_output[0]
+  endif
+  return ''
+endfunction
+
+function! g:GitUniqueId()
+  let git_output = systemlist("git rev-list --max-parents=0 HEAD")
+  if v:shell_error == 0
+    return git_output[0]
   endif
   return ''
 endfunction
