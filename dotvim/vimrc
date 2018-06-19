@@ -56,7 +56,10 @@ let g:clang_verbose_pmenu=1
 let g:clang_c_completeopt="longest,menuone,preview"
 
 syn on
-colorscheme siennaterm
+
+if $TERM == "xterm-256color"
+  colorscheme siennaterm
+endif
 " output CSI 2 SP q (set cursor to non-blinking solid block) when exiting insert-mode
 let &t_EI="\<Esc>]12;black\x7\<Esc>[2 q"
 " same for insert-mode for now. could use 5 to get a blinking bar but it
@@ -178,7 +181,7 @@ if system_dmenu_version[0] == local_dmenu_version[0]
   if system_dmenu_version[1] == local_dmenu_version[1]
     if system_dmenu_version[0] == 0 && system_dmenu_version[1] == 0
       " versions are equal and = 0.0. no dmenu available :(
-      g:dmenucmd="false"
+      let g:dmenucmd="false"
     else
       " versions are equal and both are runnable. pick system dmenu
       let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
