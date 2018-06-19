@@ -56,6 +56,11 @@ let g:clang_c_completeopt="longest,menuone,preview"
 
 syn on
 colorscheme siennaterm
+" output CSI 2 SP q (set cursor to non-blinking solid block) when exiting insert-mode
+let &t_EI="\<Esc>]12;black\x7\<Esc>[2 q"
+" same for insert-mode for now. could use 5 to get a blinking bar but it
+" keeps blinking after we enter normal-mode which is too annoying
+let &t_SI="\<Esc>]12;black\x7\<Esc>[2 q"
 au GuiEnter * exec "colorscheme sienna | source " . g:gvimrcpath
 
 
