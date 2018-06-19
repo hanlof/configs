@@ -18,8 +18,6 @@ exec rtcmd . "/../submodules/vim-clang"
 
 runtime ftplugin/man.vim
 
-au GuiEnter * exec "source " . g:gvimrcpath
-
 set laststatus=2
 set ruler
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
@@ -57,6 +55,9 @@ let g:clang_verbose_pmenu=1
 let g:clang_c_completeopt="longest,menuone,preview"
 
 syn on
+colorscheme siennaterm
+au GuiEnter * exec "colorscheme sienna | source " . g:gvimrcpath
+
 
 filetype on
 filetype plugin on

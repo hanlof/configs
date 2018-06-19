@@ -72,14 +72,14 @@ hi VertSplit gui=none  ctermfg=15  guifg=White ctermbg=242  guibg=DimGray
 hi Wildmenu cterm=bold gui=bold  ctermfg=15  guifg=White ctermbg=0  guibg=Black
 
 
-hi Pmenu  ctermbg=245  guibg=Grey55 ctermfg=0  guifg=Blackgui=none
- 
+hi Pmenu  ctermbg=245  guibg=Grey55 ctermfg=0  guifg=Black gui=none
+
 hi PmenuSbar  ctermbg=241  guibg=Grey40 guifg=fg gui=none
- 
-hi PmenuSel  ctermbg=11  guibg=Yellow2 ctermfg=0  guifg=Blackgui=none
- 
-hi PmenuThumb  ctermbg=252  guibg=Grey80 guifg=bg gui=none    
- 
+
+hi PmenuSel  ctermbg=11  guibg=Yellow2 ctermfg=0  guifg=Black gui=none
+
+hi PmenuThumb  ctermbg=252  guibg=Grey80 guifg=bg gui=none
+
 
 hi IncSearch gui=none  ctermfg=235  guifg=Grey15 ctermbg=188  guibg=Grey85
 
@@ -168,14 +168,14 @@ hi VertSplit gui=none  ctermfg=15  guifg=White ctermbg=242  guibg=DimGray
 hi Wildmenu cterm=bold gui=bold  ctermfg=0  guifg=Black ctermbg=15  guibg=White
 
 
-hi Pmenu  ctermbg=248  guibg=Grey65 ctermfg=0  guifg=Blackgui=none
- 
+hi Pmenu  ctermbg=248  guibg=Grey65 ctermfg=0  guifg=Black gui=none
+
 hi PmenuSbar  ctermbg=8  guibg=Grey50 guifg=fg gui=none
- 
-hi PmenuSel  ctermbg=11  guibg=Yellow ctermfg=0  guifg=Blackgui=none
- 
+
+hi PmenuSel  ctermbg=11  guibg=Yellow ctermfg=0  guifg=Black gui=none
+
 hi PmenuThumb  ctermbg=250  guibg=Grey75 guifg=fg gui=none
- 
+
 
 hi IncSearch gui=none  ctermfg=15  guifg=White ctermbg=0  guibg=Black
 
