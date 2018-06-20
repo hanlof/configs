@@ -60,12 +60,10 @@ syn on
 if $TERM == "xterm-256color"
   colorscheme siennaterm
 endif
-" output CSI 2 SP q (set cursor to non-blinking solid block) when exiting insert-mode
-let &t_EI="\<Esc>]12;black\x7\<Esc>[2 q"
-" same for insert-mode for now. could use 5 to get a blinking bar but it
-" keeps blinking after we enter normal-mode which is too annoying
-let &t_SI="\<Esc>]12;black\x7\<Esc>[2 q"
-au GuiEnter * exec "colorscheme sienna | source " . g:gvimrcpath
+" output '<CSI>5 q' (set cursor to non-blinking solid block) when exiting insert-mode
+let &t_EI="\<Esc>[2 q"
+" output '<CSI>5 q' (set cursor to blinking bar) when entering insert-mode
+let &t_SI="\<Esc>[5 q"
 
 
 filetype on
@@ -74,6 +72,7 @@ filetype indent on
 
 au VimEnter * call g:InitWindow()
 au WinEnter * call g:InitWindow()
+au GuiEnter * exec "source " . g:gvimrcpath
 
 function! g:InitWindow()
   if exists('w:is_initialised')
