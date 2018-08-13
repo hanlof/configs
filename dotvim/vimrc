@@ -64,6 +64,10 @@ endif
 let &t_EI="\<Esc>[2 q"
 " output '<CSI>5 q' (set cursor to blinking bar) when entering insert-mode
 let &t_SI="\<Esc>[5 q"
+" must set xterm cursor color to black.
+silent !echo -en '\e]12;black\x7'
+" redraw when leaving insertmode to ensure cursor is changed
+autocmd InsertLeave * redraw
 
 
 filetype on
@@ -207,7 +211,9 @@ function! SearchForVisualSelection()
     return
   endif
   let sel = getline(lnum1)[ col1 - 1: col2 - 1]
+
   echo '/' . sel
+  let @/ = sel
   call search(sel)
 endfunction
 
