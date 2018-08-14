@@ -202,21 +202,32 @@ else
   let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
 endif
 
-vnoremap <Leader>f          <Esc>:call SearchForVisualSelection()<CR>
-function! SearchForVisualSelection()
-  let [lnum1, col1] = getpos("'<")[1:2]
-  let [lnum2, col2] = getpos("'>")[1:2]
+vnoremap <Leader>f          <Esc>:call SearchForVisualSelection(0)<CR>
+vnoremap <Leader>F          <Esc>:call SearchForVisualSelection(1)<CR>
+function! SearchForVisualSelection(backward)
+  let [l:lnum1, l:col1] = getpos("'<")[1:2]
+  let [l:lnum2, l:col2] = getpos("'>")[1:2]
   if lnum1 != lnum2
     echohl ErrorMsg
     echo 'Multiple lines marked'
     echohl None
     return
   endif
-  let sel = getline(lnum1)[ col1 - 1: col2 - 1]
 
-  echo '/' . sel
-  let @/ = sel
-  call search(sel)
+  let l:sel = getline(lnum1)[ col1 - 1 : col2 - 1]
+  let l:searchchar = '/'
+  if a:backward == 1
+    let l:searchchar = '?'
+    call cursor(l:lnum1, l:col1)
+  endif
+
+  " feedkeys() inputs gets evaluated after a function returns so it can be used
+  " to get around the ":help function-search-undo" problem which is that
+  " last-search pattern and last-search direction is reset when returning
+  " from a function.
+  " using ":normal /pat<CR>" did not work and neither did search() and/or
+  " assigning to the "/ register.
+  call feedkeys(l:searchchar . l:sel . "\<CR>")
 endfunction
 
 set includeexpr=g:IncludeExprExample(v:fname)
