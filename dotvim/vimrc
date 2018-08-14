@@ -66,9 +66,11 @@ let &t_EI="\<Esc>[2 q"
 let &t_SI="\<Esc>[5 q"
 " must set xterm cursor color to black.
 silent !echo -en '\e]12;black\x7'
-" redraw when leaving insertmode to ensure cursor is changed
-autocmd InsertLeave * redraw
-
+" timeout for waiting for complete key-codes from terminal.
+" the default value is 1000 which makes vim wait a full second from pressing
+" escape until it exits insert-mode. this in turn makes the updating of the
+" cursor really slow.
+set timeout timeoutlen=20 ttimeout ttimeoutlen=20
 
 filetype on
 filetype plugin on
