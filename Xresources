@@ -1,0 +1,22 @@
+XTerm*termName: xterm-256color
+XTerm*faceName: Monospace
+XTerm*faceSize: 10
+XTerm.vt100.geometry: 128x46+200+100
+XTerm*savelines: 65536
+XTerm*scrollKey: true
+XTerm*scrollTtyOutput: false
+XTerm*utf8: true
+XTerm*fontDoublesize: true
+
+XTerm*font1: Monospace
+XTerm*faceSize1: 2
+XTerm*font2: Monospace
+XTerm*faceSize2: 4
+XTerm*font3: Monospace
+XTerm*faceSize3: 6
+XTerm*font4: Monospace
+XTerm*faceSize4: 8
+XTerm*font5: Monospace
+XTerm*faceSize5: 14
+XTerm*font6: Monospace
+XTerm*faceSize6: 18
