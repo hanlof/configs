@@ -3,8 +3,11 @@
 " sort out the githash checking and formatting/coloring/compilation
 "  options depending on git repo and path and file-type
 " where to store custom compiler 'plugins'?
+" - compiler configs are sort-of repo- or project-specific
+" - keep them on github or not?
 " automatic tags generation??
 " more serious cscope usage??
+" some colors improvements are still only in gvimrc
 
 " this old friend gets a special place in dotvimrc :-D
 set nocp
@@ -70,7 +73,7 @@ silent !echo -en '\e]12;black\x7'
 " the default value is 1000 which makes vim wait a full second from pressing
 " escape until it exits insert-mode. this in turn makes the updating of the
 " cursor really slow.
-set timeout timeoutlen=20 ttimeout ttimeoutlen=20
+set timeout timeoutlen=5000 ttimeout ttimeoutlen=20
 
 filetype on
 filetype plugin on

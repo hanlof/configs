@@ -8,7 +8,6 @@ set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(
 
 " hack for dealing with vims extremely slow 'terminal emulation'
 " all shell commands are executed in xterm
-set shell=xterm\ -e\ sh\ -c
 
 hi SpecialKey  guifg=#b0b0b0
 hi DiffAdd     guibg=#e8ffff
