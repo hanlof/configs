@@ -74,7 +74,7 @@ hi Question cterm=bold gui=bold  ctermfg=120  guifg=PaleGreen2
 hi WarningMsg cterm=bold gui=bold  ctermfg=9  guifg=Red
 
 hi Comment gui=italic  ctermfg=74  guifg=SkyBlue3
-hi Error gui=none  ctermfg=15  guifg=White ctermbg=9  guibg=Red2
+hi Error gui=none  ctermfg=Black  guifg=White ctermbg=9  guibg=Red2
 hi Identifier gui=none  ctermfg=209  guifg=LightSalmon2
 hi Special gui=none  ctermfg=111  guifg=SkyBlue2
 hi PreProc gui=none  ctermfg=74  guifg=SkyBlue3
