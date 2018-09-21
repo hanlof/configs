@@ -1,6 +1,15 @@
 source ~/configs/dotvim/vimrc
 
-au Filetype python set   expandtab softtabstop=4 tabstop=4 shiftwidth=4
-au Filetype c      set noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
-au Filetype vim    set   expandtab softtabstop=2 tabstop=2 shiftwidth=2
+let gitId=g:GitUniqueId()
+if gitId == "d70c5e8b69907479d82986b77debb5c8753e0620" " system-mode-manager
+  set expandtab
+  au FileType cpp    set   softtabstop=2 tabstop=2 shiftwidth=2
+elseif gitId == "8ea9fce8d29106d9677ff2c02c962da695863b29" " tacho
+  set expandtab
+  au FileType cpp    set   softtabstop=2 tabstop=2 shiftwidth=2
+else
+  au Filetype python set   expandtab softtabstop=4 tabstop=4 shiftwidth=4
+  au Filetype c      set noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
+  au Filetype vim    set   expandtab softtabstop=2 tabstop=2 shiftwidth=2
+endif
 
