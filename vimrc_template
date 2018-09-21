@@ -2,4 +2,5 @@ source ~/configs/dotvim/vimrc
 
 au Filetype python set   expandtab softtabstop=4 tabstop=4 shiftwidth=4
 au Filetype c      set noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
+au Filetype vim    set   expandtab softtabstop=2 tabstop=2 shiftwidth=2
 

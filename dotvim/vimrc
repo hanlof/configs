@@ -8,6 +8,19 @@
 " automatic tags generation??
 " more serious cscope usage??
 " some colors improvements are still only in gvimrc
+" how to do mouse-browsing in console-mode?
+" - Ctrl-Click is lock[220zed by xterm-menu (if even detectable)
+"   Maybe use g<LeftMouse> for jumping to tag??
+" - Buttons for :tnext/:tprev does not work
+
+" Mouse browsing features (wishlist)
+" Jump to tag
+"  tnext / tprev
+" Search for word
+" Toggle :cwin
+" Git grep
+" Git blame
+" gD / gd (goto definition)
 
 " this old friend gets a special place in dotvimrc :-D
 set nocp
