@@ -8,7 +8,13 @@ set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(
 
 " hack for dealing with vims extremely slow 'terminal emulation'
 " all shell commands are executed in xterm
-set shell=xterm\ -e\ sh\ -c
+
+hi SpecialKey  guifg=#b0b0b0
+hi DiffAdd     guibg=#e8ffff
+hi DiffChange  guibg=#fff0f0
+hi DiffDelete  guibg=LightCyan
+hi DiffText    guibg=#ffd0d0
+hi Search      guibg=#90ff90
 
 " these color stuff goes well with sienna
 " use autocmd to make sure they stick!

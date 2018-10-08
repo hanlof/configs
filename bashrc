@@ -81,6 +81,11 @@ disp_devenv()
   printf "${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"
 }
 
+disp_bitbakeinfo()
+{
+  printf "${BUILDDIR:+{${BUILDDIR##*/build}\} }"
+}
+
 # Prompt stuff: format the number of jobs and hide if 0
 disp_jobs()
 {
@@ -139,7 +144,7 @@ ff()
 
 function xxvim()
 {
-  xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim "$@" &
+  xterm -tn xterm-256color -fa "Monospace" -fg Black -bg White -fs 11 +sb -e vim "$@" &
 }
 
 run-prompt()
@@ -226,7 +231,7 @@ insert_filename ()
     return 1
   fi
 
-  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
+  fname=$(git ls-files --full-name ${gittop} | ${CONFIGS_PATH}/c-programs/insdirs2 | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "'git ls-files' returned nothing"
     return
@@ -265,6 +270,41 @@ xw ()
   xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
 }
 
+function rand_xterm_bg()
+{
+	# Beautiful green: 4 36 48
+	if [ -z $1 ]; then
+		C=50
+		let base=0
+	else
+		C=30
+		let base=256-C
+	fi
+	r=$((base + (RANDOM * C) / 32767))
+	g=$((base + (RANDOM * C) / 32767))
+	b=$((base + (RANDOM * C) / 32767))
+
+	# next line sets bg color
+	printf "\e]11;#%02x%02x%02x\a" $r $g $b
+	# make sure we have a readable foreground color as well
+	if [ $base -gt 128 ]; then
+		bgcolor=0
+	else
+		bgcolor=255
+	fi
+	printf "\e]10;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
+	printf "\e]17;#%02x%02x%02x\a" $r $g $b
+	printf "\e]19;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
+
+	#echo $r $g $b
+}
+
+function get_xterm_bg()
+{
+	echo -en '\e]11;?\a'; IFS=\; read -s -d $'\a' _ col _
+	echo $col
+}
+
 function v()
 {
   filedir=$(dirname "$1")
@@ -274,6 +314,8 @@ function v()
 }
 
 find_dmenu
+read PCMD < /proc/$PPID/comm
+if [ "$PCMD" == "xterm" ]; then rand_xterm_bg; fi
 
 # dummy bindings to work around shortcomings in libreadline
 bind $'"\201": "run-menu'
@@ -303,7 +345,7 @@ alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -b
 alias vp='gvim -c "set buftype=nofile|0put *"'
 
 #export PS1='$(ppwd \l)\[\033[1m\]\h\[\033[0m\033]2;$(cleartool pwv -short)\h \a \]  $(cut_path \w) \$ '
-export PS1='\[\033]2;$(disp_gitinfo)\a\033[1m\]\h \[\033[0m\]$(disp_devenv)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
+export PS1='\[\033]0;$(disp_gitinfo)\a\033[0;1m\]\h \[\033[0m\]$(disp_devenv)$(disp_bitbakeinfo)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
 export MANPATH=${MANPATH}:/usr/share/man
 
 alias ls="ls --color"

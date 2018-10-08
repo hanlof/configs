@@ -25,6 +25,7 @@
 # TODO: embed dmenu in terminal emulators does not seem to work, what's the problem?!
 
 CONFIGS_PATH=$(dirname $0)
+CONFIGS_PATH_ABS=$(readlink -m ${CONFIGS_PATH})
 
 # dmenu
 which dmenu > /dev/null || { # first try systme-wide dmenu
@@ -57,7 +58,7 @@ echo Build helper programs
 
 echo Git config
 INSTALL_GIT_INCLUDE=true
-GITCONFIG_PATH=$(readlink -m ${CONFIGS_PATH}/gitconfig)
+GITCONFIG_PATH=${CONFIGS_PATH_ABS}/gitconfig
 while read CFG_VALUE; do
 	if [ "$CFG_VALUE" = "$GITCONFIG_PATH" ]; then
 		INSTALL_GIT_INCLUDE=false
@@ -66,3 +67,5 @@ done <<< "$(git config --global --get-all include.path)"
 
 ${INSTALL_GIT_INCLUDE} && git config --global --add include.path "$GITCONFIG_PATH"
 
+echo Xresources
+test -e ~/.Xresources || ln -s ${CONFIGS_PATH_ABS}/Xresources ~/.Xresources

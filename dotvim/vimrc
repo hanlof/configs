@@ -3,8 +3,24 @@
 " sort out the githash checking and formatting/coloring/compilation
 "  options depending on git repo and path and file-type
 " where to store custom compiler 'plugins'?
+" - compiler configs are sort-of repo- or project-specific
+" - keep them on github or not?
 " automatic tags generation??
 " more serious cscope usage??
+" some colors improvements are still only in gvimrc
+" how to do mouse-browsing in console-mode?
+" - Ctrl-Click is lock[220zed by xterm-menu (if even detectable)
+"   Maybe use g<LeftMouse> for jumping to tag??
+" - Buttons for :tnext/:tprev does not work
+
+" Mouse browsing features (wishlist)
+" Jump to tag
+"  tnext / tprev
+" Search for word
+" Toggle :cwin
+" Git grep
+" Git blame
+" gD / gd (goto definition)
 
 " this old friend gets a special place in dotvimrc :-D
 set nocp
@@ -17,8 +33,6 @@ exec rtcmd . "/../submodules/vim-bitbake"
 exec rtcmd . "/../submodules/vim-clang"
 
 runtime ftplugin/man.vim
-
-au GuiEnter * exec "source " . g:gvimrcpath
 
 set laststatus=2
 set ruler
@@ -38,6 +52,7 @@ set ignorecase smartcase
 " vims defaults are mostly sane but for switch cases we must let it know whats correct
 set cinoptions=l1
 
+set mouse=a
 set sessionoptions+=resize,localoptions
 set autowrite
 set wildmenu
@@ -58,14 +73,40 @@ let g:clang_c_completeopt="longest,menuone,preview"
 
 syn on
 
+if $TERM == "xterm-256color"
+  colorscheme siennaterm
+endif
+" output '<CSI>5 q' (set cursor to non-blinking solid block) when exiting insert-mode
+let &t_EI="\<Esc>[2 q"
+" output '<CSI>5 q' (set cursor to blinking bar) when entering insert-mode
+let &t_SI="\<Esc>[5 q"
+" must set xterm cursor color to black.
+silent !echo -en '\e]12;black\x7'
+" timeout for waiting for complete key-codes from terminal.
+" the default value is 1000 which makes vim wait a full second from pressing
+" escape until it exits insert-mode. this in turn makes the updating of the
+" cursor really slow.
+set timeout timeoutlen=5000 ttimeout ttimeoutlen=20
+
 filetype on
 filetype plugin on
 filetype indent on
 
-call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
-call matchadd("Error", " \\+\t")  " space before tab is bad
-" TODO: disable/enable EOL-space error while typing (?)
+au VimEnter * call g:InitWindow()
+au WinEnter * call g:InitWindow()
+au GuiEnter * exec "source " . g:gvimrcpath
 
+function! g:InitWindow()
+  if exists('w:is_initialised')
+    return
+  endif
+  let w:is_initialised = 1
+
+  call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
+  call matchadd("Error", " \\+\t")  " space before tab is bad
+endfunction
+
+" TODO: disable/enable EOL-space error while typing (?)
 cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
 
 function! g:ToggleListCharsEOL()
@@ -161,7 +202,7 @@ if system_dmenu_version[0] == local_dmenu_version[0]
   if system_dmenu_version[1] == local_dmenu_version[1]
     if system_dmenu_version[0] == 0 && system_dmenu_version[1] == 0
       " versions are equal and = 0.0. no dmenu available :(
-      g:dmenucmd="false"
+      let g:dmenucmd="false"
     else
       " versions are equal and both are runnable. pick system dmenu
       let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
@@ -177,21 +218,37 @@ else
   let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
 endif
 
-vnoremap <F5>          <Esc>/<C-R>=GetSel()<CR><CR>
-function! GetSel()
-  let [lnum1, col1] = getpos("'<")[1:2]
-  let [lnum2, col2] = getpos("'>")[1:2]
+vnoremap <Leader>f          <Esc>:call SearchForVisualSelection(0)<CR>
+vnoremap <Leader>F          <Esc>:call SearchForVisualSelection(1)<CR>
+function! SearchForVisualSelection(backward)
+  let [l:lnum1, l:col1] = getpos("'<")[1:2]
+  let [l:lnum2, l:col2] = getpos("'>")[1:2]
   if lnum1 != lnum2
-    echo 'Multi line'
-    return ""
+    echohl ErrorMsg
+    echo 'Multiple lines marked'
+    echohl None
+    return
   endif
-  let sel = getline(lnum1)[ col1 - 1: col2 - 1]
-  return sel
+
+  let l:sel = getline(lnum1)[ col1 - 1 : col2 - 1]
+  let l:searchchar = '/'
+  if a:backward == 1
+    let l:searchchar = '?'
+    call cursor(l:lnum1, l:col1)
+  endif
+
+  " feedkeys() inputs gets evaluated after a function returns so it can be used
+  " to get around the ":help function-search-undo" problem which is that
+  " last-search pattern and last-search direction is reset when returning
+  " from a function.
+  " using ":normal /pat<CR>" did not work and neither did search() and/or
+  " assigning to the "/ register.
+  call feedkeys(l:searchchar . l:sel . "\<CR>")
 endfunction
 
 set includeexpr=g:IncludeExprExample(v:fname)
 function! g:IncludeExprExample(in)
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
   let t2=substitute(a:in,'^b/',top,'g')
   let t=substitute(t2,'^a/',top,'g')
 "  let t2=substitute(t,'^/',top . '/','g')
@@ -204,7 +261,7 @@ function! DmenuTag(cmd)
     echom "Dmenu not found"
     return
   endif
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
   let fname = system("set -o pipefail ; ~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
     return
@@ -230,7 +287,8 @@ function! DmenuOpen(cmd)
     echom "dmenu not found"
     return
   endif
-  let top = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+  let top = g:GitTopLevel()
+  echom top
   let fname = system("set -o pipefail ; git ls-files --full-name " . top . " | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
     echo 'dmenu exited with non-zero status'
@@ -251,21 +309,25 @@ function! DmenuOpen(cmd)
 endfunction
 
 " get git top-level dir
-function! g:GitTopLevel(path) abort
-  let fn = fnamemodify(a:path,':s?[\/]$??')
-  let ofn = ""
-  let nfn = fn
-  while fn != ofn
-    if filereadable(fn . '/.git/HEAD')
-      return fn
-    endif
-    let ofn = fn
-    let fn = fnamemodify(ofn,':h')
-  endwhile
+function! g:GitTopLevel()
+  " systemlist() seems like a convenient way to get rid of the newline in the
+  " output from the git command
+  let git_output = systemlist("git rev-parse --show-toplevel")
+  if v:shell_error == 0
+    return git_output[0]
+  endif
   return ''
 endfunction
 
-let g:GitTop = g:GitTopLevel(fnamemodify('.', ':p:s?[\/]$??'))
+function! g:GitUniqueId()
+  let git_output = systemlist("git rev-list --max-parents=0 HEAD")
+  if v:shell_error == 0
+    return git_output[0]
+  endif
+  return ''
+endfunction
+
+let g:GitTop = g:GitTopLevel()
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
