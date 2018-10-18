@@ -343,6 +343,11 @@ export EDITOR="gvim -f"
 
 alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
 alias vp='gvim -c "set buftype=nofile|0put *"'
+# XXX TODO: aliases for commands like this is not enough because we want to be
+# able to execute things such as mktags using system("...") and not only
+# through bash. achieving this will require us to set up PATH properly (from
+# iside bashrc)
+alias mktags="${CONFIGS_PATH}/index_repo"
 
 #export PS1='$(ppwd \l)\[\033[1m\]\h\[\033[0m\033]2;$(cleartool pwv -short)\h \a \]  $(cut_path \w) \$ '
 export PS1='\[\033]0;$(disp_gitinfo)\a\033[0;1m\]\h \[\033[0m\]$(disp_devenv)$(disp_bitbakeinfo)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '

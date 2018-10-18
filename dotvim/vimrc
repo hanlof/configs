@@ -320,11 +320,22 @@ function! g:GitTopLevel()
 endfunction
 
 function! g:GitUniqueId()
+  " XXX TODO probably replace 'git rev-list' with git -C $i config --local remote.origin.url
+  " because rev-list is WAY too slow on big repositories. ~5 seconds on Linux
+  " for example
   let git_output = systemlist("git rev-list --max-parents=0 HEAD")
   if v:shell_error == 0
     return git_output[0]
   endif
   return ''
+endfunction
+
+function! g:SetUpLocalRepoOptions(options)
+  " Here we do stuff!
+  " XXX figure out what the options struct should contain.
+  "     > probably it should map repo fetch urls to vim options
+  "       and/or vim commands.
+  "     > maybe run the commands using :sandbox for extra safety!
 endfunction
 
 let g:GitTop = g:GitTopLevel()
