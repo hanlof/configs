@@ -316,6 +316,9 @@ function v()
 find_dmenu
 read PCMD < /proc/$PPID/comm
 if [ "$PCMD" == "xterm" ]; then rand_xterm_bg; fi
+# TODO XXX set window position here as well!
+#  echo -ne '\e[3;200;100t'
+#  X resource allowWindowOps must be set
 
 # dummy bindings to work around shortcomings in libreadline
 bind $'"\201": "run-menu'

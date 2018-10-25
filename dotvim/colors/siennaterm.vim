@@ -130,7 +130,7 @@ hi Question cterm=bold gui=bold  ctermfg=28  guifg=ForestGreen
 hi WarningMsg cterm=bold gui=bold  ctermfg=9  guifg=Red
 
 hi Comment gui=italic  ctermfg=62  guifg=RoyalBlue3
-hi Error gui=none  ctermfg=15  guifg=White ctermbg=9  guibg=Red
+hi Error gui=none  ctermfg=Black  guifg=White ctermbg=9  guibg=Red2
 hi Identifier gui=none  ctermfg=94  guifg=Sienna4
 hi Special gui=none  ctermfg=24  guifg=RoyalBlue4
 hi PreProc gui=none  ctermfg=62  guifg=RoyalBlue3

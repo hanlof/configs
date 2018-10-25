@@ -34,6 +34,8 @@ exec rtcmd . "/../submodules/vim-clang"
 
 runtime ftplugin/man.vim
 
+au GuiEnter * exec "source " . g:gvimrcpath
+
 set laststatus=2
 set ruler
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
@@ -76,12 +78,11 @@ syn on
 if $TERM == "xterm-256color"
   colorscheme siennaterm
 endif
+
 " output '<CSI>5 q' (set cursor to non-blinking solid block) when exiting insert-mode
 let &t_EI="\<Esc>[2 q"
 " output '<CSI>5 q' (set cursor to blinking bar) when entering insert-mode
 let &t_SI="\<Esc>[5 q"
-" must set xterm cursor color to black.
-silent !echo -en '\e]12;black\x7'
 " timeout for waiting for complete key-codes from terminal.
 " the default value is 1000 which makes vim wait a full second from pressing
 " escape until it exits insert-mode. this in turn makes the updating of the
@@ -92,10 +93,9 @@ filetype on
 filetype plugin on
 filetype indent on
 
+" Stuff that we always want to do when a new window is created
 au VimEnter * call g:InitWindow()
 au WinEnter * call g:InitWindow()
-au GuiEnter * exec "source " . g:gvimrcpath
-
 function! g:InitWindow()
   if exists('w:is_initialised')
     return
@@ -320,10 +320,7 @@ function! g:GitTopLevel()
 endfunction
 
 function! g:GitUniqueId()
-  " XXX TODO probably replace 'git rev-list' with git -C $i config --local remote.origin.url
-  " because rev-list is WAY too slow on big repositories. ~5 seconds on Linux
-  " for example
-  let git_output = systemlist("git rev-list --max-parents=0 HEAD")
+  let git_output = systemlist("git remote get-url origin")
   if v:shell_error == 0
     return git_output[0]
   endif
