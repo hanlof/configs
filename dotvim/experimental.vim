@@ -19,8 +19,6 @@ cexpr system('ssh gerrit.site.se -p 29418 gerrit query --comments --patch-sets c
 
 "set textwidth=78
 
-" set xterm cursor color to black.
-silent !echo -en '\e]12;black\x7'
 
 set mousemodel=extend
 
