@@ -183,7 +183,7 @@ function! GetDmenuVersion(cmd)
   endif
 endfunction
 
-function! GetDmenuOptions()
+function! g:GetDmenuOptions()
   if g:dmenuversion[0] >= 4 && g:dmenuversion[1] >= 7
     return " -i -l 50 -p '' -w " . v:windowid
   else
