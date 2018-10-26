@@ -82,7 +82,8 @@ endif
 " set xterm cursor 'color' to value 0
 " this really causes inverse video on cursor which is really confusing.
 " without it the cursor is white which sucks
-silent !echo -en '\e]12;0\a'
+" "\e]12;XtDefaultBackground^G"
+silent !echo -en '\e]12;XtDefaultBackground\a'
 " make cursor blink upon startup
 silent !echo -en '\e[1 q'
 " output '<CSI>5 q' (set cursor to blinking solid block) when exiting insert-mode
