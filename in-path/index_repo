@@ -59,9 +59,11 @@ if [ $CTAGS_RETVALUE == 0 ]; then
     let tot_lines=0
     let tot_files=0
     let tot_kb=0
-    printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n\n' $tot_tags $tot_lines $tot_files $tot_kb
     read entering tmp
-    while [ 1 == 1 ]; do
+    if [ "$entering"x == "Entering"x ]; then
+      printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n\n' $tot_tags $tot_lines $tot_files $tot_kb
+    fi
+    while [ true ]; do
       read files tmp lines _ kb _ _ _ time _ kbs
       if [ $? -ne 0 ]; then
         break

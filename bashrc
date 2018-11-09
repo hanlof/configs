@@ -340,9 +340,8 @@ bind '"p": history-search-backward'
 bind '"n": history-search-forward'
 
 export MAN_POSIXLY_CORRECT=1
-export PATH=/home/hans/bin:${PATH}
+export PATH=${CONFIGS_PATH}/in-path:${PATH}
 export EDITOR="gvim -f"
-#export GITTOP='git rev-parse --show-toplevel'
 
 alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
 alias vp='gvim -c "set buftype=nofile|0put *"'
