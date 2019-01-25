@@ -75,47 +75,6 @@ gls()
   #git ls-files -icdmoktv --exclude-standard "${A[@]}" | sed 's/^\?/x/'
 }
 
-# Prompt stuff: Display SDK version within {}, if set
-disp_devenv()
-{
-  printf "${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"
-}
-
-disp_bitbakeinfo()
-{
-  printf "${BUILDDIR:+{${BUILDDIR##*/build}\} }"
-}
-
-# Prompt stuff: format the number of jobs and hide if 0
-disp_jobs()
-{
-  a="$*"
-  b=${a%0}
-  printf "${b:+[$a] }"
-  #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
-}
-
-# Prompt stuff: shrink the CWD string to max 30 chars
-cut_path()
-{
-  a="$*"
-  b=${a:0-30}
-  printf ${b:+<}${b:=$*}
-  #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
-}
-
-# Prompt stuff: get git repo and branch into the xterm title
-disp_gitinfo ()
-{
-  t=$(git rev-parse --show-toplevel 2> /dev/null)
-  if [ $? != 0 ]; then
-    printf "No git repo"
-    return
-  fi
-  b=$(git rev-parse --abbrev-ref HEAD)
-  printf "${t} :: ${b}"
-}
-
 ft()
 {
   s=$(git rev-parse --show-toplevel 2> /dev/null)
@@ -340,20 +299,58 @@ bind '"p": history-search-backward'
 bind '"n": history-search-forward'
 
 export MAN_POSIXLY_CORRECT=1
+export MANPATH=${MANPATH}:/usr/share/man
 export PATH=${CONFIGS_PATH}/in-path:${PATH}
 export EDITOR="gvim -f"
 
 alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
 alias vp='gvim -c "set buftype=nofile|0put *"'
-# XXX TODO: aliases for commands like this is not enough because we want to be
-# able to execute things such as mktags using system("...") and not only
-# through bash. achieving this will require us to set up PATH properly (from
-# iside bashrc)
-alias mktags="${CONFIGS_PATH}/index_repo"
 
-#export PS1='$(ppwd \l)\[\033[1m\]\h\[\033[0m\033]2;$(cleartool pwv -short)\h \a \]  $(cut_path \w) \$ '
-export PS1='\[\033]0;$(disp_gitinfo)\a\033[0;1m\]\h \[\033[0m\]$(disp_devenv)$(disp_bitbakeinfo)$(disp_jobs \j)$(cut_path \w) \[\033[1m\]\$\[\033[0m\] '
-export MANPATH=${MANPATH}:/usr/share/man
+# Prompt stuff: format the number of jobs and hide if 0
+__prompt_format_jobs()
+{
+  a="$*"
+  b=${a%0}
+  printf "${b:+[$a] }"
+  #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
+}
+
+function __prompt_command()
+{
+  __exit_status="$?"
+  _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
+  if [ $? != 0 ]; then
+    xterm_title="$PWD"
+  else
+    xterm_title="${_git_repo##*/}"
+  fi
+  PS1='\[\033]0;${xterm_title}\a\]'                      # xterm title
+  PS1+='\[\033[0m\]'                                     # reset all color
+  PS1+='\[\033[1m\]\h '                                  # hostname
+
+  PS1+='\[\033[0m\]'                                     # reset color
+  PS1+="${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"  # bitbake env
+  PS1+="${BUILDDIR:+{${BUILDDIR##*/build}\} }"           # build env
+
+  PS1+='$(__prompt_format_jobs \j)'                      # active jobs
+
+  _trimmed_pwd=${PWD:0-30}                               # trim path (this line returns empty string of not enough characters are available)
+  PS1+="${_trimmed_pwd:+<}${_trimmed_pwd:=$PWD}"
+
+  if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
+    if [ "$__exit_status" -gt 128 ]; then
+      M=SIG$(kill -l $((__exit_status - 128)))
+    else
+      M=$__exit_status
+    fi
+      PS1+=' [\[\e[1;31m\]'"$M"'\[\e[0m\]]'
+  fi
+
+  PS1+=' \[\033[1m\]\$\[\033[0m\] '                       # display the $ and reset color
+  export PS1
+}
+
+PROMPT_COMMAND="__prompt_command"
 
 alias ls="ls --color"
 alias ll="ls -l --color"
