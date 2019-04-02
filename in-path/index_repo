@@ -42,7 +42,6 @@ if [ $CSCOPE_RETVALUE == 0 ]; then
   #echo ${GIT_COMMIT} > ${GITTOP}/.git/cscope.githash
 fi
 
-# XXX We always print "Tags: 0 ... etc ...". fix this bug!
 # XXX one big index in the super-repo or a small index in each subrepo?
 # - fugitive assumes tag file is in "gitdir" if editing a file in a subrepo
 #   in other words it will not use the tags from the superrepo but rather look under <superrepo>/.git/modules/...

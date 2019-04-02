@@ -30,6 +30,9 @@
 	co = checkout
 	st = status
 	br = branch
+	lsf = ls-files
+	ls = ls-files
+
 	pelle = "gawk '{ $1=\"\"; t=$2; $2=\"\"; $3=\"\"; hash=$4; $4=\"\"; sign=$5; $5=\"\"; rest=$0; sub(/^[ \\t\\r\\n]+/, \"\", rest); print \"* \" hash, \"[\"sign\"]\", strftime(\"%d %H:%M\", t), rest ; }'"
 
 [pretty]

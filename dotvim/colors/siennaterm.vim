@@ -46,7 +46,7 @@ if s:siennaterm_style == 'dark'
 
 hi Normal gui=none  ctermfg=188  guifg=Grey85 ctermbg=235  guibg=Grey15
 
-hi Cursor  ctermfg=0  guifg=Black ctermbg=188  guibg=Grey85
+hi Cursor cterm=reverse term=reverse
 
 hi LineNr gui=none  ctermfg=248  guifg=Grey65
 hi NonText cterm=bold gui=bold  ctermfg=248  guifg=Grey65 ctermbg=236  guibg=Grey20
@@ -102,7 +102,7 @@ elseif s:siennaterm_style == 'light'
 
 hi Normal gui=none  ctermfg=0  guifg=Black ctermbg=15  guibg=White
 
-hi Cursor  ctermfg=15  guifg=White ctermbg=0  guibg=Black
+hi Cursor cterm=reverse term=reverse
 
 hi LineNr gui=none  ctermfg=248  guifg=DarkGray
 hi NonText cterm=bold gui=bold  ctermfg=248  guifg=DarkGray ctermbg=7  guibg=Grey95

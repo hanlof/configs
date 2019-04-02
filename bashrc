@@ -98,7 +98,7 @@ ff()
   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
-  gvim ${s}/${fname}
+  vim ${s}/${fname}
 }
 
 function xxvim()
@@ -338,8 +338,13 @@ function __prompt_command()
   PS1+="${_trimmed_pwd:+<}${_trimmed_pwd:=$PWD}"
 
   if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
-    if [ "$__exit_status" -gt 128 ]; then
-      M=SIG$(kill -l $((__exit_status - 128)))
+    if [ "$__exit_status" -gt 128 ]; then                # find signal name if exit status > 128
+      signame=$(2>/dev/null kill -l $((__exit_status - 128)))
+      if [ "$?" == "0" ]; then                           # verify that signal name could be found
+        M=SIG${signame}
+      else
+        M=$__exit_status
+      fi
     else
       M=$__exit_status
     fi
