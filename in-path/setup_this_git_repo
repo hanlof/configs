@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ "$1" == "--hanlof" ]; then
+  NAME="Hans Löfving"
+  EMAIL=hanlof@gmail.com
+else
+  NAME=""
+  EMAIL=""
+fi
+
+CUR_NAME=$(git config --get user.name)
+if [ $? == 0 ]; then
+  printf "Already set! [user.name=${CUR_NAME}]. Enter new or leave blank to use current value.\n"
+  read -p "> " -i "${CUR_NAME}" -e NAME
+fi
+CUR_EMAIL=$(git config --get user.email)
+if [ $? == 0 ]; then
+  printf "Already set! [user.email=${CUR_EMAIL}]. Enter new or leave blank to use current value.\n"
+  read -p "> " -i "${CUR_EMAIL}" -e EMAIL
+fi
+
+# TODO: dont set default values if they are not set (to bad values)
+git config --local user.name "$NAME"
+git config --local user.email "$EMAIL"
+git config --local core.hooksPath '$GIT_DIR/hooks'
+git config --local core.whitespace blank-at-eol, space-before-tab
+git config --local pull.rebase no
+git config --local rebase.autostash no
