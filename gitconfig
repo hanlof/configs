@@ -13,8 +13,6 @@
 	diff = auto
 [difftool]
 	prompt = 0
-[push]
-	default = matching
 [merge]
 	stat = 0
 	tool = gvimdiff
