@@ -318,13 +318,17 @@ __prompt_format_jobs()
 function __prompt_command()
 {
   __exit_status="$?"
+
+  # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
     xterm_title="$PWD"
   else
     xterm_title="${_git_repo##*/}"
   fi
-  PS1='\[\033]0;${xterm_title}\a\]'                      # xterm title
+  echo -ne "\033]0;${xterm_title}\a"                     # xterm title
+
+  PS1=""
   PS1+='\[\033[0m\]'                                     # reset all color
   PS1+='\[\033[1m\]\h '                                  # hostname
 
