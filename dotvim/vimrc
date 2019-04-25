@@ -1,5 +1,4 @@
 " TODO:s
-" remove bang from <F9> mapping? hmm....
 " sort out the githash checking and formatting/coloring/compilation
 "  options depending on git repo and path and file-type
 " where to store custom compiler 'plugins'?
@@ -9,7 +8,7 @@
 " more serious cscope usage??
 " some colors improvements are still only in gvimrc
 " how to do mouse-browsing in console-mode?
-" - Ctrl-Click is lock[220zed by xterm-menu (if even detectable)
+" - Ctrl-Click is locked by xterm-menu (if even detectable)
 "   Maybe use g<LeftMouse> for jumping to tag??
 " - Buttons for :tnext/:tprev does not work
 
@@ -137,7 +136,7 @@ nnoremap <C-F11> :setlocal wrap!<CR>
 
 nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 
-nnoremap <F9> :make!<CR>
+nnoremap <F9> :make<CR>
 inoremap <F9> <C-o>:make!<CR><CR>
 nnoremap <F7> :cprev<CR>
 inoremap <F7> <C-o>:cprev<CR>

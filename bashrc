@@ -93,6 +93,7 @@ ff()
   s=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ -z "$s" ]; then
     echo "Enter a git repo first."
+    git rev-parse --show-toplevel
     return 1
   fi
   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -i -l 50 -p ">" 2> /dev/null)
