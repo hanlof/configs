@@ -323,9 +323,9 @@ function __prompt_command()
   # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
-    xterm_title="$PWD"
+    xterm_title="${PWD}/"
   else
-    xterm_title="${_git_repo##*/}"
+    xterm_title="<${_git_repo##*/}>"
   fi
   echo -ne "\033]0;${xterm_title}\a"                     # xterm title
 
