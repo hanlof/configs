@@ -1,0 +1,30 @@
+MATE:
+$ dconf dump /org/mate/desktop/peripherals/keyboard/kbd/
+[/]
+layouts=['us\tdvorak', 'se']
+options=['caps\tcaps:ctrl_modifier']
+
+$ dconf dump /org/mate/desktop/applications/terminal/
+[/]
+exec='xterm'
+
+XFCE:
+xfconf-query -c keyboard-layout -p /Default/XkbVariant
+xfconf-query -c keyboard-layout -p /Default/XkbDisable
+xfconf-query -c keyboard-layout -p /Default/XkbLayout
+$ cat helpers.rc
+TerminalEmulator=xterm
+
+diff --git a/xfconf/xfce-perchannel-xml/xfce4-panel.xml b/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+index f42b409..4a517cb 100644
+--- a/xfconf/xfce-perchannel-xml/xfce4-panel.xml
++++ b/xfconf/xfce-perchannel-xml/xfce4-panel.xml
+@@ -3,7 +3,7 @@
+ <channel name="xfce4-panel" version="1.0">
+   <property name="panels" type="uint" value="1">
+     <property name="panel-0" type="empty">
+-      <property name="position" type="string" value="p=6;x=0;y=0"/>
++      <property name="position" type="string" value="p=8;x=960;y=1086"/>
+       <property name="length" type="uint" value="100"/>
+       <property name="position-locked" type="bool" value="true"/>
+       <property name="plugin-ids" type="array">
