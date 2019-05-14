@@ -327,7 +327,7 @@ function __prompt_command()
   else
     xterm_title="<${_git_repo##*/}>"
   fi
-  echo -ne "\033]0;${xterm_title}\a"                     # xterm title
+  echo -ne "\033]0;BASH: ${xterm_title}\a"                # xterm title
 
   PS1=""
   PS1+='\[\033[0m\]'                                     # reset all color
