@@ -152,9 +152,9 @@ map <F2>d :cs find d <cword><CR>
 map <Leader>G :tab split +:Ggrep\ <cword><CR>
 map <Leader>g :tab split +:Ggrep\\\ 
 
-map <F3> :call DmenuOpen("edit")<CR>
-map <S-F3> :call DmenuOpen("vsplit")<CR>
-map <C-F3> :call DmenuOpen("tabedit")<CR>
+map <F3> :call DmenuFile("edit")<CR>
+map <S-F3> :call DmenuFile("vsplit")<CR>
+map <C-F3> :call DmenuFile("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
 map <S-F4> :call DmenuTag("tjump")<CR>
 
@@ -261,15 +261,14 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
-" Find a tag and pass it to cmd
-function! DmenuTag(cmd)
+function! CallDmenu(system_cmd)
   if g:dmenucmd == 'false'
     echom "Dmenu not found"
     return
   endif
-  let top = g:GitTopLevel()
-  let fname = system("set -o pipefail ; ~/configs/c-programs/dumptags -t " . top . "/.git/tags -l | " . g:dmenucmd . g:GetDmenuOptions())
+  let fname = system("set -o pipefail ; " . a:system_cmd . " | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
+    echom fname
     return
   endif
 
@@ -281,37 +280,41 @@ function! DmenuTag(cmd)
   let fname = substitute(fname, "Xlib:  extension \"XINERAMA\" missing.*\".*.\"\.", '', '')
 
   if empty(fname)
+    return ""
+  endif
+
+  return split(fname, " ")[0]
+endfunction
+
+" Find a tag and pass it to cm
+function! DmenuTag(cmd)
+  let tagname = CallDmenu("~/configs/c-programs/dumptags -t " . g:GitDir() . "/tags -l")
+  if tagname == ""
     return
   endif
 
-  execute a:cmd . " " . split(fname, " ")[0]
+  execute a:cmd . " " . tagname
 endfunction
 
 " Find a file and pass it to cmd
-function! DmenuOpen(cmd)
-  if g:dmenucmd == 'false'
-    echom "dmenu not found"
-    return
-  endif
-  let top = g:GitTopLevel()
-  echom top
-  let fname = system("set -o pipefail ; git ls-files --full-name " . top . " | " . g:dmenucmd . g:GetDmenuOptions())
-  if v:shell_error != 0
-    echo 'dmenu exited with non-zero status'
+function! DmenuFile(cmd)
+  let fname = CallDmenu("git ls-files --full-name " . g:GitTopLevel())
+  if fname == ""
     return
   endif
 
-"  Xlib:  extension "XINERAMA" missing on display ":1011.0"
-  let fname2 = substitute(fname, '\n$', '', '')
-  " first substitute in the case of two "lines" (<CR> or NULL character present at the end)
-  let fname = substitute(fname2, "Xlib:  extension \"XINERAMA\" missing.*\".*.\"\..", '', '')
-  " the first pattern will not cover the case of one line, hence another substitute
-  let fname = substitute(fname, "Xlib:  extension \"XINERAMA\" missing.*\".*.\"\.", '', '')
+  execute a:cmd . " " . g:GitTopLevel() . "/" . fname
+endfunction
 
-  if empty(fname)
-    return
+" get .git dir
+function! g:GitDir()
+  " systemlist() seems like a convenient way to get rid of the newline in the
+  " output from the git command
+  let git_output = systemlist("git rev-parse --git-dir")
+  if v:shell_error == 0
+    return git_output[0]
   endif
-  execute a:cmd . " " . top . "/" . fname
+  return ''
 endfunction
 
 " get git top-level dir
