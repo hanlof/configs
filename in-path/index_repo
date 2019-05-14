@@ -18,6 +18,7 @@ if [ "$?" != 0 -o "$GITTOP"x == x ]; then
   echo Please enter a git repo first
   exit 1
 fi
+GITDIR=$(git rev-parse --git-dir)
 
 echo Building index for the following file patterns: "${FILEPATTERNS[@]}"
 
@@ -52,7 +53,7 @@ fi
 # - maybe do it using multiple tags files to avoid sorting a really huge tag file
 # - investigtae how vim handles that performance-wise
 if [ $CTAGS_RETVALUE == 0 ]; then
-  git submodule foreach --recursive "${FOREACH_CMD} | ctags --tag-relative=yes --totals --sort=no --append -L - -o ${GITTOP}/.git/tags" 2>&1 | {
+  git submodule foreach --recursive "${FOREACH_CMD} | ${CTAGS} --tag-relative=yes --totals --sort=no --append -L - -o ${GITDIR}/tags" 2>&1 | {
     IFS=" (),'"
     let tot_tags=0
     let tot_lines=0
@@ -80,8 +81,9 @@ if [ $CTAGS_RETVALUE == 0 ]; then
       printf $'Tags: %-8d Lines: %-8d Files: %-8d Kb: %10d\n' $tot_tags $tot_lines $tot_files $tot_kb
     done
   }
-  git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ctags --tag-relative=yes --totals --sort=yes --append -L - -o ${GITTOP}/.git/tags
-  echo ${GIT_COMMIT} > ${GITTOP}/.git/tags.githash
+  git ls-files "${FILEPATTERNS[@]/#/${GITTOP}/}" | ${CTAGS} --tag-relative=yes --totals --sort=yes --append -L - -o ${GITDIR}/tags
+  echo ${GIT_COMMIT} > ${GITDIR}/tags.githash
+  echo "Wrote ${GITDIR}/tags [${GIT_COMMIT}]"
 else
   echo "ctags not found. bailing!"
 fi
