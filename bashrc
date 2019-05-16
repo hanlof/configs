@@ -334,8 +334,8 @@ function __prompt_command()
   PS1+='\[\033[1m\]\h '                                  # hostname
 
   PS1+='\[\033[0m\]'                                     # reset color
-  PS1+="${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"  # bitbake env
-  PS1+="${BUILDDIR:+{${BUILDDIR##*/build}\} }"           # build env
+  PS1+="${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"  # build env
+  PS1+="${BUILDDIR:+{${BUILDDIR##*/build}\} }"           # bitbake env
 
   PS1+='$(__prompt_format_jobs \j)'                      # active jobs
 
@@ -359,8 +359,17 @@ function __prompt_command()
   PS1+=' \[\033[1m\]\$\[\033[0m\] '                       # display the $ and reset color
   export PS1
 }
-
 PROMPT_COMMAND="__prompt_command"
+
+# pre-execution hook shenanigans
+print_current_line()
+{
+  echo -ne "\033]0;${READLINE_LINE}\a"
+}
+bind -x $'"\200": "print_current_line"'
+bind $'"\307": accept-line'
+bind $'"\C-j": "\200\307"'
+
 
 alias ls="ls --color"
 alias ll="ls -l --color"

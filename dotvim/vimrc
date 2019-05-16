@@ -157,6 +157,7 @@ map <S-F3> :call DmenuFile("vsplit")<CR>
 map <C-F3> :call DmenuFile("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
 map <S-F4> :call DmenuTag("tjump")<CR>
+cmap <F3> =CallDmenu("git ls-files --full-name")<CR>
 
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
