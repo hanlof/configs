@@ -104,6 +104,13 @@ hi Normal gui=none  ctermfg=0  guifg=Black ctermbg=15  guibg=White
 
 hi Cursor cterm=reverse term=reverse
 
+hi Search ctermbg=48
+
+hi DiffText ctermbg=251 ctermfg=none
+hi DiffChange ctermbg=253 ctermfg=none
+hi DiffAdd ctermbg=255 ctermfg=none
+hi DiffDelete ctermbg=250 ctermfg=247
+
 hi LineNr gui=none  ctermfg=248  guifg=DarkGray
 hi NonText cterm=bold gui=bold  ctermfg=248  guifg=DarkGray ctermbg=7  guibg=Grey95
 hi SpecialKey gui=none  ctermfg=24  guifg=RoyalBlue4

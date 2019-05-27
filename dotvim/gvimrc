@@ -6,9 +6,6 @@ set lines=50 columns=165                  " window size
 " window title
 set titlestring=%{getcwd()}\ %{string(map(range(1,tabpagenr('$')),'tabpagewinnr(v:val,\"$\")'))}\ %{v:servername}
 
-" hack for dealing with vims extremely slow 'terminal emulation'
-" all shell commands are executed in xterm
-
 hi SpecialKey  guifg=#b0b0b0
 hi DiffAdd     guibg=#e8ffff
 hi DiffChange  guibg=#fff0f0

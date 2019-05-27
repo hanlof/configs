@@ -24,21 +24,31 @@
 " this old friend gets a special place in dotvimrc :-D
 set nocp
 
+" plugins
 let rtcmd="set runtimepath+=" . expand("<sfile>:h")
 let g:gvimrcpath=expand("<sfile>:h") . "/gvimrc"
 exec rtcmd
 exec rtcmd . "/../submodules/vim-fugitive"
 exec rtcmd . "/../submodules/vim-bitbake"
 exec rtcmd . "/../submodules/vim-clang"
+exec rtcmd . "/../submodules/vim-rtags"
 
 runtime ftplugin/man.vim
 
 au GuiEnter * exec "source " . g:gvimrcpath
 
+" X window title / task bar text (also for console mode!)
+set iconstring=VIM:\ %t
+set titlestring=%t\ ~\ [%f]
+set title
+set icon
+
+" statusline / command interface related stuff
+set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
 set laststatus=2
 set ruler
-set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
 set showcmd
+set wildmenu
 
 set backspace=2
 
@@ -56,7 +66,6 @@ set cinoptions=l1
 set mouse=a
 set sessionoptions+=resize,localoptions
 set autowrite
-set wildmenu
 
 set listchars=tab:‣\ 
 set list
