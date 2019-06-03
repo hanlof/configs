@@ -147,6 +147,7 @@ nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 
 nnoremap <F9> :make<CR>
 inoremap <F9> <C-o>:make!<CR><CR>
+nnoremap <F10> :call DmenuMakeTarget()<CR>
 nnoremap <F7> :cprev<CR>
 inoremap <F7> <C-o>:cprev<CR>
 nnoremap <F8> :cnext<CR>
@@ -166,7 +167,7 @@ map <S-F3> :call DmenuFile("vsplit")<CR>
 map <C-F3> :call DmenuFile("tabedit")<CR>
 map <F4> :call DmenuTag("tag")<CR>
 map <S-F4> :call DmenuTag("tjump")<CR>
-cmap <F3> =CallDmenu("git ls-files --full-name")<CR>
+cmap <F3> =CallDmenu("git ls-files --full-name ". g:GitTopLevel())<CR>
 
 map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
 map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
@@ -279,7 +280,7 @@ function! CallDmenu(system_cmd)
   let fname = system("set -o pipefail ; " . a:system_cmd . " | " . g:dmenucmd . g:GetDmenuOptions())
   if v:shell_error != 0
     echom fname
-    return
+    return ""
   endif
 
 "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
@@ -304,6 +305,16 @@ function! DmenuTag(cmd)
   endif
 
   execute a:cmd . " " . tagname
+endfunction
+
+" Find a file and pass it to cmd
+function! DmenuMakeTarget()
+  let targ = CallDmenu("~/configs/list-make-targets $MAKEARGS")
+  if targ == ""
+    return
+  endif
+
+  let $MAKETARGET=targ
 endfunction
 
 " Find a file and pass it to cmd

@@ -24,7 +24,7 @@ def d(x, y, col):
     print(col, end="")
 
 def pb(n):
-    zero_to_five = set([0, 1, 2, 3, 4, 5])
+    zero_to_five = set(range(6))
     all_comb = [i for i in itertools.product(zero_to_five, zero_to_five, zero_to_five)]
     c = [i for i in all_comb if sum(i) == n]
     # $color = 16 + ($red * 36) + ($green * 6) + $blue;
