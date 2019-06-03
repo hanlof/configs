@@ -275,10 +275,16 @@ function v()
 
 find_dmenu
 read PCMD < /proc/$PPID/comm
-if [ "$PCMD" == "xterm" ]; then rand_xterm_bg; fi
-# TODO XXX set window position here as well!
-#  echo -ne '\e[3;200;100t'
-#  X resource allowWindowOps must be set
+if [ "$PCMD" == "xterm" ]; then
+  # TODO some work to be done here.
+  #  tune the randomness
+  #  adapt to screen resolution!
+  rand_xterm_bg
+  base=100
+  xpos=$((base + (RANDOM * 100) / 32767))
+  ypos=$((base + (RANDOM * 100) / 32767))
+  echo -ne "\e[3;${xpos};${ypos}t"
+fi
 
 # dummy bindings to work around shortcomings in libreadline
 bind $'"\201": "run-menu'
@@ -361,6 +367,7 @@ function __prompt_command()
 }
 PROMPT_COMMAND="__prompt_command"
 
+export MAKEFLAGS="-j $(nproc)"
 # pre-execution hook shenanigans
 print_current_line()
 {
@@ -369,7 +376,6 @@ print_current_line()
 bind -x $'"\200": "print_current_line"'
 bind $'"\307": accept-line'
 bind $'"\C-j": "\200\307"'
-
 
 alias ls="ls --color"
 alias ll="ls -l --color"
