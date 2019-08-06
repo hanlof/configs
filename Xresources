@@ -21,3 +21,13 @@ XTerm*font5: Monospace
 XTerm*faceSize5: 14
 XTerm*font6: Monospace
 XTerm*faceSize6: 18
+
+*VT100.Translations: #override \n\
+  Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
+  Ctrl Shift <Btn5Down>: string("0x1b") string("[67~") \n\
+  Shift <Btn4Down>: string("0x1b") string("[64~") \n\
+  Shift <Btn5Down>: string("0x1b") string("[65~") \n\
+  Ctrl <Btn4Down>: larger-vt-font() \n\
+  Ctrl <Btn5Down>: smaller-vt-font() \n\
+
+

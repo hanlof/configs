@@ -8,9 +8,7 @@
 " more serious cscope usage??
 " some colors improvements are still only in gvimrc
 " how to do mouse-browsing in console-mode?
-" - Ctrl-Click is locked by xterm-menu (if even detectable)
-"   Maybe use g<LeftMouse> for jumping to tag??
-" - Buttons for :tnext/:tprev does not work
+"  answer: mmenu!
 
 " Mouse browsing features (wishlist)
 " Jump to tag
@@ -148,6 +146,10 @@ nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 nnoremap <F9> :make<CR>
 inoremap <F9> <C-o>:make!<CR><CR>
 nnoremap <F10> :call DmenuMakeTarget()<CR>
+" lets use dmenu for buffer nagivation!
+" let mybufs = map(filter(range(1, bufnr('$')), " 'buflisted(v:val)'),'bufname(v:val)')
+" bufname = cal system("dmenu", join(mybufs, "\n"))
+"
 nnoremap <F7> :cprev<CR>
 inoremap <F7> <C-o>:cprev<CR>
 nnoremap <F8> :cnext<CR>
@@ -272,6 +274,96 @@ function! g:IncludeExprExample(in)
   return t2
 endfunction
 
+command! ToggleQuickFix :call ToggleQuickFix()
+function! ToggleQuickFix()
+  if len(filter(range(1, winnr('$')), 'getwinvar(v:val, "&ft") == "qf"')) == 0
+    copen
+  else
+    cclose
+  endif
+endfunc
+
+" XXX consider mouse selection. act on selected text?
+" - what if click is outside selection??
+function! CallMmenu()
+  " first move cursor
+  while getchar(0) != 0
+   "clear the input stream
+  endwhile
+  call feedkeys("\<LeftMouse>")
+  let c          = getchar()
+  "echo v:mouse_col v:mouse_lnum v:mouse_win
+  let winid = win_getid(v:mouse_win)
+  "echo win_gotoid(win_getid(v:mouse_win))
+  let bufnr = winbufnr(v:mouse_win)
+  let line = getbufline(bufnr, v:mouse_lnum)[0]
+  " XXX NOPE! we may not so casually use \%Nv (virtual column matching)
+  " XXX Must consider clicking in a different buffer with different tabstop
+  " setting
+  let cword = matchstr(line, '\i*\%' . v:mouse_col .'v\i\+')
+  echo cword . "|" . line
+  call cursor(v:mouse_lnum, v:mouse_col)
+
+  let dmenuinput = ":!index_repo\<CR>\n"
+  let dmenuinput .= ":ToggleQuickFix\n"
+  let dmenuinput .= ":set hlsearch!\n"
+  if cword != ""
+    let dmenuinput .= ":\n"
+    let dmenuinput .= ":tag " . cword . "\n"
+    let dmenuinput .= ":Ggrep " . cword . "\<CR>\n"
+    let dmenuinput .= "/" . cword . "\n"
+    let dmenuinput .= "/\\<" . cword . "\\>\n"
+  endif
+  " XXX check for filenames and enable jumping to other files
+  let output = system("/home/ocp/configs/submodules/dmenu/mmenu", dmenuinput)
+  if v:shell_error != 0
+    echom output
+    return ""
+  endif
+
+  if empty(output)
+    return ""
+  endif
+
+  " XXX check output for tag or ggrep and set up <C-MouseDown>/<C-MouseUp>
+  " mappings accordingly (tprev/tnext or cprev/cnext)
+  return output
+endfunction
+
+function! CallMmenu2()
+  "let line = getbufline(bufnr, v:mouse_lnum)[0]
+  " XXX NOPE! we may not so casually use \%Nv (virtual column matching)
+  " XXX Must consider clicking in a different buffer with different tabstop
+  " setting
+  "let cword = matchstr(line, '\i*\%' . v:mouse_col .'v\i\+')
+  "echo cword . "|" . line
+  "call cursor(v:mouse_lnum, v:mouse_col)
+
+  set mouse=
+  let dmenuinput = ":copen\n"
+  let dmenuinput .= ":cclose\n"
+  let dmenuinput .= ":echo \'kalle'\n"
+  "let output = system("/home/ocp/configs/submodules/dmenu/mmenu", dmenuinput)
+  let output=""
+  if v:shell_error != 0
+    echom output
+    return ""
+  endif
+
+
+  call feedkeys(":call system('/home/ocp/configs/submodules/dmenu/mmenu', 'apa')\<CR>")
+  set mouse=
+  if empty(output)
+    return ""
+  endif
+
+endfunction
+
+map <expr> <RightMouse> CallMmenu()
+map <Esc>[64~ <C-I>
+map <Esc>[65~ <C-O>
+
+" XXX add dmenu options as arguments. ?? literal options or one arg per option?
 function! CallDmenu(system_cmd)
   if g:dmenucmd == 'false'
     echom "Dmenu not found"
