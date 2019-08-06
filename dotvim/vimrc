@@ -389,7 +389,11 @@ function! CallDmenu(system_cmd)
   return split(fname, " ")[0]
 endfunction
 
-" Find a tag and pass it to cm
+" Find a tag and pass it to cmd
+" XXX TODO get more fields from dumptags.
+" implement jumping to the correct tag definition (in case there are many) based on which one was chosen
+" or just filter the tag list to avoid duplicates being displayed in dmenu and
+" then call tselect??
 function! DmenuTag(cmd)
   let tagname = CallDmenu("~/configs/c-programs/dumptags -t " . g:GitDir() . "/tags -l")
   if tagname == ""
