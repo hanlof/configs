@@ -1,17 +1,33 @@
 source ~/configs/dotvim/vimrc
 
+func! HighestVersion(dirs)
+  let b=map(copy(a:dirs), 'substitute(v:val, "^build-", "", "")')
+  " XXX Maybe switch this up with a better version-comparing sort function
+  if len(b) > 0
+    return "build-" . reverse(sort(b))[0]
+  endif
+  return "."
+endfunc
+
+" makeprg notes
+" account for make targets? use $environment_variables??
+" how to use together with :compiler?
+" how to make it more generic? bitbake? cmake? python, anything... :)
 let gitId=g:GitUniqueId()
 if gitId == ""
   " no git!
   au Filetype python setl   expandtab softtabstop=4 tabstop=4 shiftwidth=4
   au Filetype c      setl noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
-elseif match(gitId, "some-corporate-repo") >= 0
+elseif match(gitId, "multiple-build-dirs-example") >= 0
+  let builddir = HighestVersion(glob("build-*", 0, 1))
+  let $MAKEARGS = "-C " . builddir"
   set expandtab softtabstop=2 tabstop=2 shiftwidth=2
 elseif match(gitId, "github.com/hanlof") >= 0 " my git repos
   au Filetype python setl   expandtab softtabstop=4 tabstop=4 shiftwidth=4
   au Filetype c      setl noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
 else
-  echom "Unknown git repo: " . gitId
+  echo "Unknown git repo: " . gitId
 endif
 au Filetype vim    setlocal   expandtab softtabstop=2 tabstop=2 shiftwidth=2
 
+let &makeprg = "make \$MAKEARGS \$MAKETARGET"
