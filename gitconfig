@@ -1,13 +1,13 @@
 #[user] section left out because it changes from system to system
 [core]
-	editor = gvim -f
+	editor = vim
 	pager = LESS=FRX less
 [status]
 	short = 1
 	branch = 1
 [diff]
 	guitool = gvimdiff
-	tool = gvimdiff
+	tool = vimdiff
 [color]
 	status = auto
 	diff = auto
@@ -15,7 +15,7 @@
 	prompt = 0
 [merge]
 	stat = 0
-	tool = gvimdiff
+	tool = vimdiff
 [alias]
 	clx = !git --no-pager log --format=ll --date=local --decorate --boundary --graph origin/master origin/clx HEAD ^`git merge-base origin/master origin/clx HEAD --octopus`
 	ll = !git --no-pager log --format=ll --date=local --decorate --boundary --graph --no-notes -n 15
