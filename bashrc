@@ -2,6 +2,9 @@
 
 CONFIGS_PATH=~/configs
 
+# TODO: fix name, put in subdir
+# TODO: break out other sh*t as well!
+source ${CONFIGS_PATH}/xterm-window-manip.sh
 _complete_repos() {
   local cur
   pushd ~/repos > /dev/null
