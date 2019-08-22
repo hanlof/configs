@@ -27,9 +27,11 @@ _get_workarea() {
 	declare -g x y w h
 }
 
+# TODO: interactive mode! move window using kjhl or arrow keys!
 # TODO: replace wl, wr commands with awesome generic window manipulation function
 #       Example: window_manip 2/1 3/2 to partition the screen in 2 equal parts for X
 #                and 3 equal parts for y, and use first slot for x and second slot for y
+# TODO: put in in-path/ ?
 wl() {
 	_get_workarea
 	echo $x $y $w $h
