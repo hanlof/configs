@@ -17,6 +17,11 @@
  *
  */
 
+// get a stupid non 1:1 aspect-ratio SVG to become 1:1 while stil looking sane:
+// convert /usr/share/icons/Humanity/apps/128/bash.svg -resize 64x64 -background none -gravity center -extent 64x64 ~/xterm.xpm
+// blend an image on top of another
+// convert -channel A -evaluate multiply 0.8 /usr/share/icons/hicolor/scalable/apps/gvim.svg png: | composite -compose blend -gravity center -geometry 32x32-0-0 png: -resize 48x48 +channel /usr/share/icons/Humanity/apps/128/bash.svg apa.png
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -205,6 +210,7 @@ void load_icon(int* ndata, CARD32** data)
 }
 
 // convert /usr/share/icons/Humanity/apps/128/bash.svg -resize 64x64 -background none -gravity center -extent 64x64 ~/xterm.xpm
+// convert -channel A -evaluate multiply 0.8 /usr/share/icons/hicolor/scalable/apps/ipython3.svg png: | composite -compose blend -gravity center -geometry 32x32-0-0 png: -resize 48x48 +channel /usr/share/icons/Humanity/apps/128/bash.svg apa.png
 /* Note:
  *  dispite the fact this routine specifically loads 32bit data, it needs to
  *  load it into an unsigned long int array, not a guint32 array. The
