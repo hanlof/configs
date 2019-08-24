@@ -9,9 +9,9 @@
    version="1.1"
    width="128"
    height="128"
-   id="svg3006">
+   id="s">
   <defs
-     id="defs3008">
+     id="d">
     <linearGradient
        x1="16.143"
        y1="4"
@@ -19,15 +19,15 @@
        x2="16.143"
        gradientUnits="userSpaceOnUse"
        y2="44"
-       id="linearGradient2880">
+       id="g1">
       <stop
          offset="0"
          style="stop-color:#fff"
-         id="stop2225-6-4-7-2" />
+         />
       <stop
          offset="1"
          style="stop-color:#fff;stop-opacity:0"
-         id="stop2229-2-5-5-8" />
+         />
     </linearGradient>
     <linearGradient
        x1="16.626"
@@ -36,15 +36,15 @@
        x2="20.055"
        gradientUnits="userSpaceOnUse"
        y2="24.628"
-       id="linearGradient2883">
+       id="g1">
       <stop
          offset="0"
          style="stop-color:#fff"
-         id="stop2687-1-9-0-2" />
+         />
       <stop
          offset="1"
          style="stop-color:#fff;stop-opacity:0"
-         id="stop2689-5-4-3-1" />
+         />
     </linearGradient>
     <linearGradient
        x1="16"
@@ -60,11 +60,11 @@
       <stop
          offset="0"
          style="stop-color:#dcdcdc"
-         id="stop3682-4" />
+         />
       <stop
          offset="1"
          style="stop-color:#fff"
-         id="stop3684-8" />
+         />
     </linearGradient>
     <linearGradient
        x1="20"
@@ -86,11 +86,11 @@
       <stop
          offset="0"
          style="stop-color:#fff"
-         id="stop2240-1-6-7-0" />
+         />
       <stop
          offset="1"
          style="stop-color:#fff;stop-opacity:0"
-         id="stop2242-7-3-7-2" />
+         />
     </linearGradient>
     <linearGradient
        x1="23.071"
@@ -103,11 +103,11 @@
       <stop
          offset="0"
          style="stop-color:#fff"
-         id="stop2225-6-4-7" />
+         />
       <stop
          offset="1"
          style="stop-color:#fff;stop-opacity:0"
-         id="stop2229-2-5-5" />
+         />
     </linearGradient>
     <radialGradient
        r="20"
@@ -119,11 +119,11 @@
       <stop
          offset="0"
          style="stop-color:#505050"
-         id="stop3790-0-0" />
+         />
       <stop
          offset="1"
          style="stop-color:#141414"
-         id="stop3792-0-2" />
+         />
     </radialGradient>
     <linearGradient
        x1="16.143"
@@ -136,10 +136,10 @@
       <stop
          offset="0"
          style="stop-color:#323232"
-         id="stop3796-3-0" />
+         />
       <stop
          offset="1"
-         id="stop3798-8-6" />
+         />
     </linearGradient>
     <linearGradient
        x1="24"
@@ -152,19 +152,19 @@
       <stop
          offset="0"
          style="stop-color:#f0f0f0"
-         id="stop4324-9-7" />
+         />
       <stop
          offset=".085525"
          style="stop-color:#d7d7d8"
-         id="stop2860-4-4" />
+         />
       <stop
          offset=".92166"
          style="stop-color:#b2b2b3"
-         id="stop2862-5-9" />
+         />
       <stop
          offset="1"
          style="stop-color:#979798"
-         id="stop4326-1-1" />
+         />
     </linearGradient>
     <linearGradient
        x1="10.014"
@@ -177,11 +177,11 @@
       <stop
          offset="0"
          style="stop-color:#595959"
-         id="stop4334-7-6" />
+         />
       <stop
          offset="1"
          style="stop-color:#b3b3b3"
-         id="stop4336-8-0" />
+         />
     </linearGradient>
     <radialGradient
        r="117.14"
@@ -195,11 +195,11 @@
        id="linearGradient5060-6-6-5">
       <stop
          offset="0"
-         id="stop5062-3-0-3" />
+         />
       <stop
          offset="1"
          style="stop-opacity:0"
-         id="stop5064-1-4-9" />
+         />
     </linearGradient>
     <radialGradient
        r="117.14"
@@ -220,14 +220,14 @@
       <stop
          offset="0"
          style="stop-opacity:0"
-         id="stop5050-5-6-4" />
+         />
       <stop
          offset=".5"
-         id="stop5056-9-0-1" />
+         />
       <stop
          offset="1"
          style="stop-opacity:0"
-         id="stop5052-6-9-5" />
+         />
     </linearGradient>
   </defs>
   <metadata
@@ -244,14 +244,14 @@
   </metadata>
   <g
      transform="translate(0,64)"
-     id="layer1">
+     >
     <rect
        x="14"
        y="46"
        width="100"
        height="14"
        style="opacity:.40206;fill:url(#linearGradient3004)"
-       id="rect2512-9-5" />
+       />
     <path
        d="m114 46v13.999c5.7911 0.0263 14-3.1365 14-7.0005s-6.4624-6.9987-14-6.9987z"
        style="opacity:.40206;fill:url(#radialGradient2913)"
@@ -268,7 +268,7 @@
        ry="3"
        rx="3"
        style="stroke-linejoin:round;fill-rule:evenodd;stroke:url(#linearGradient2907);stroke-linecap:round;stroke-width:1.0021;fill:url(#linearGradient2905)"
-       id="rect2551-5-8" />
+       />
     <rect
        x="13.5"
        y="-34.5"
@@ -277,7 +277,7 @@
        ry="0"
        rx="0"
        style="stroke-linejoin:round;color:#000000;stroke:url(#linearGradient2902);stroke-linecap:round;fill:url(#radialGradient2900)"
-       id="rect1314-3-3" />
+       />
     <rect
        x="12.501"
        y="-35.499"
@@ -286,7 +286,7 @@
        ry="0"
        rx="0"
        style="opacity:.4;stroke-linejoin:round;stroke:url(#linearGradient2897);stroke-linecap:round;stroke-width:1.0021;fill:none"
-       id="rect2221-3-8" />
+       />
     <rect
        x="5.5019"
        y="-43.498"
@@ -295,10 +295,10 @@
        ry="2"
        rx="2"
        style="opacity:.8;stroke-linejoin:round;stroke:url(#linearGradient2894);stroke-linecap:round;stroke-width:1.0037;fill:none"
-       id="rect2556-8-5" />
+       />
     <path
        d="m10.619-44c-3.1037 0-5.619 2.729-5.619 6.096v44.59c0.00805 0.37512 0.15876 0.72986 0.41807 0.9781 0.25933 0.24823 0.6026 0.36729 0.94655 0.32824l115.6-19.856c0.59462-0.10173 1.0352-0.65334 1.0436-1.3063v-24.734c0-3.3673-2.5153-6.0963-5.6191-6.0963h-106.76z"
-       style="opacity:.2;fill:url(#linearGradient2883);fill-rule:evenodd"
+       style="opacity:.2;fill:url(#g1);fill-rule:evenodd"
        id="path3333-3-0" />
     <rect
        x="14.5"
@@ -307,7 +307,7 @@
        height="77"
        ry="0"
        rx="0"
-       style="opacity:.1;stroke-linejoin:round;color:#000000;stroke:url(#linearGradient2880);stroke-linecap:round;fill:none"
-       id="rect1314-3-3-9" />
+       style="opacity:.1;stroke-linejoin:round;color:#000000;stroke:url(#g1);stroke-linecap:round;fill:none"
+       />
   </g>
 </svg>
