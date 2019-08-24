@@ -85,8 +85,7 @@ if $TERM == "xterm-256color"
   colorscheme siennaterm
 endif
 
-" set xterm cursor 'color' to value 0
-" this really causes inverse video on cursor which is really confusing.
+" set xterm cursor 'color' to value "XtDefaultBackground"
 " without it the cursor is white which sucks
 " "\e]12;XtDefaultBackground^G"
 silent !echo -en '\e]12;XtDefaultBackground\a'
@@ -301,12 +300,13 @@ function! CallMmenu()
   " XXX Must consider clicking in a different buffer with different tabstop
   " setting
   let cword = matchstr(line, '\i*\%' . v:mouse_col .'v\i\+')
-  echo cword . "|" . line
   call cursor(v:mouse_lnum, v:mouse_col)
 
   let dmenuinput = ":!index_repo\<CR>\n"
   let dmenuinput .= ":ToggleQuickFix\n"
   let dmenuinput .= ":set hlsearch!\n"
+  let dmenuinput .= ":Gblame\n"
+  let dmenuinput .= ":wincmd close\n"
   if cword != ""
     let dmenuinput .= ":\n"
     let dmenuinput .= ":tag " . cword . "\n"
@@ -325,7 +325,7 @@ function! CallMmenu()
     return ""
   endif
 
-  " XXX check output for tag or ggrep and set up <C-MouseDown>/<C-MouseUp>
+  " XXX check output for tag or ggrep and set up <S-MouseDown>/<S-MouseUp>
   " mappings accordingly (tprev/tnext or cprev/cnext)
   return output
 endfunction
