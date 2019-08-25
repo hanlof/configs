@@ -54,6 +54,9 @@ echo Build helper programs
 	make -C ${CONFIGS_PATH}/c-programs insdirs2 prefix dumptags || {
 		printf $'\n\e[1mFAILED to build helper programs for shell dmenu integration. Sorry!\n\n'
 	}
+	make -C ${CONFIGS_PATH}/c-programs/mmenu mmenu || {
+		printf $'\n\e[1mFAILED to build mmenu. Sorry!\n\n'
+	}
 )
 
 echo Git config
