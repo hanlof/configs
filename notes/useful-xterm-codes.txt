@@ -1,0 +1,39 @@
+# xterm bg
+echo -ne "\033]11;#707000\007"
+
+# xterm color 1
+echo -ne "\033]4;1;#70ffff\007"
+
+# xterm with decent font!
+xterm -fa "Monospace" -fs 11 -tn xterm-256color
+😁
+
+# list terminfo entries
+toe -a
+
+# list terminfo capabilities
+infocmp -1 -L xterm-256color
+
+# palette fading! :D
+tput initc 1 0 0 0 0; tput setab 1; echo -en '\nXX\nXXX\nXXXXX'; for i in $(seq 1 20); do tput initc 1 $((i * 49))  0 0; tput cub1; sleep 0.05; done
+
+# background fading! :D
+for i in $(seq 0 16 255); do printf "\e]11;#%02x0000\a" $i; sleep 0.03; done; printf "\e]11;#%02x0000\a" 0
+
+# Beautiful green: 4 36 48
+# Beautiful green: 1 30 21
+
+# Get current xterm-bg-color:
+echo -en '\e]11;?\a'
+
+# set window position to 200, 100. NOTE (XXX)!!! it needs the allowWindowOps X resource
+echo -ne '\e[3;200;100t'
+
+# tput -S with coproc (working!)
+coproc TPUT { stdbuf -i 0 -o 0 tput -S; }
+echo setaf 19 >&${TPUT[1]}
+col=""; while read -u ${TPUT[0]} -n 1 -t 0.1 tmp; do col=${col}${tmp}; done
+
+# mouse reporting
+echo -e "\e[?1003h" ; cat
+
