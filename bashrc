@@ -2,17 +2,12 @@
 
 CONFIGS_PATH=~/configs
 
-# TODO: fix name, put in subdir
-# TODO: break out other sh*t as well!
-source ${CONFIGS_PATH}/xterm-window-manip.sh
 _complete_repos() {
   local cur
   pushd ~/repos > /dev/null
   COMPREPLY=( $(compgen -d -- ${2}) )
   popd > /dev/null
 }
-complete -F _complete_repos rcd
-alias rcd="cd ~/repos; cd "
 
 find_dmenu()
 {
@@ -30,7 +25,6 @@ find_dmenu()
 }
 
 # git helpers
-
 fr ()
 {
   SUPERREPO="$PWD"/
@@ -131,13 +125,12 @@ run-prompt()
     echo "Abort"
   else
     echo ${cmds[$index]}
-    eval ${cmds[$index]}
     history -s ${cmds[$index]}
+    eval ${cmds[$index]}
   fi
 }
 
-
-run-menu ()
+run_menu ()
 {
   printf "\e[?1049h" >&2
   # clear display
@@ -166,10 +159,10 @@ run-menu ()
   if [ $index -lt 0 -o $index -ge ${#cmds[*]} ]; then
     echo "Aborted"
   else
-    eval ${cmds[$index]}
     history -s ${cmds[$index]}
+    set_xterm_title "${cmds[$index]}"
+    eval ${cmds[$index]}
   fi
-
 }
 
 insert_git_top ()
@@ -276,46 +269,6 @@ function v()
   gvim --servername ${gitdir} --remote-tab-silent "$1"
 }
 
-find_dmenu
-read PCMD < /proc/$PPID/comm
-if [ "$PCMD" == "xterm" ]; then
-  # TODO some work to be done here.
-  #  tune the randomness
-  #  adapt to screen resolution!
-  rand_xterm_bg
-  base=100
-  xpos=$((base + (RANDOM * 100) / 32767))
-  ypos=$((base + (RANDOM * 100) / 32767))
-  echo -ne "\e[3;${xpos};${ypos}t"
-fi
-
-# dummy bindings to work around shortcomings in libreadline
-bind $'"\201": "run-menu'
-bind -x $'"\202": "ff"'
-bind -x $'"\204": "insert_from_file ~/bin/paths"'
-bind -x $'"\205": "insert_filename"'
-bind -x $'"\203": "insert_git_top"'
-bind -x $'"\206": "ft"'
-
-# real bindings, make use of dummy bindings above to get something done
-bind '"\e[20~":'$'"\201"'        # F9
-bind '"\eOR":'$'"\202"'          # F3
-bind '"\eOS":'$'"\206"'          # F4
-bind '"\e[19~":'$'"\203"'        # F8
-bind '"\e[19;2~":'$'"\205"'      # S-F8
-bind '"\e[18~":'$'"\204"'        # F7
-
-bind '"p": history-search-backward'
-bind '"n": history-search-forward'
-
-export MAN_POSIXLY_CORRECT=1
-export MANPATH=${MANPATH}:/usr/share/man
-export PATH=${CONFIGS_PATH}/in-path:${PATH}
-export EDITOR="gvim -f"
-
-alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
-alias vp='gvim -c "set buftype=nofile|0put *"'
-
 # Prompt stuff: format the number of jobs and hide if 0
 __prompt_format_jobs()
 {
@@ -323,6 +276,11 @@ __prompt_format_jobs()
   b=${a%0}
   printf "${b:+[$a] }"
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
+}
+
+set_xterm_title()
+{
+  echo -ne "\033]0;${1}\a"
 }
 
 function __prompt_command()
@@ -336,7 +294,7 @@ function __prompt_command()
   else
     xterm_title="<${_git_repo##*/}>"
   fi
-  echo -ne "\033]0;BASH: ${xterm_title}\a"                # xterm title
+  set_xterm_title "BASH: ${xterm_title}"                 # xterm title
 
   PS1=""
   PS1+='\[\033[0m\]'                                     # reset all color
@@ -368,18 +326,73 @@ function __prompt_command()
   PS1+=' \[\033[1m\]\$\[\033[0m\] '                       # display the $ and reset color
   export PS1
 }
-PROMPT_COMMAND="__prompt_command"
 
-export MAKEFLAGS="-j $(nproc)"
-# pre-execution hook shenanigans
-print_current_line()
+__pre_line_accept_command()
 {
-  echo -ne "\033]0;${READLINE_LINE}\a"
+  set_xterm_title "${READLINE_LINE}"
+  # set up xterm icon
+  #  find proper image to overlay using first word of command
+  #  compose image using imagemagick > BGRA
+  #  pipe above into custom xseticon $WINDOWID
 }
-bind -x $'"\200": "print_current_line"'
-bind $'"\307": accept-line'
-bind $'"\C-j": "\200\307"'
 
+# dummy bindings to work around shortcomings in libreadline
+# XXX Maybe have a look at the numbers some time :)
+bind -x $'"\200": "__pre_line_accept_command"'
+bind -x $'"\201": "run_menu"'
+bind -x $'"\202": "ff"'
+bind -x $'"\203": "insert_git_top"'
+bind -x $'"\204": "insert_from_file ~/bin/paths"'
+bind -x $'"\205": "insert_filename"'
+bind -x $'"\206": "ft"'
+bind $'"\307": accept-line'
+
+# real bindings, make use of dummy bindings above to get something done
+bind '"\e[20~":'$'"\201"'        # F9
+bind '"\eOR":'$'"\202"'          # F3
+bind '"\e[19~":'$'"\203"'        # F8
+bind '"\e[18~":'$'"\204"'        # F7
+bind '"\e[19;2~":'$'"\205"'      # S-F8
+bind '"\eOS":'$'"\206"'          # F4
+
+bind '"p": history-search-backward'
+bind '"n": history-search-forward'
+
+# Remap enter to run the "pre-command" hook.
+bind $'"\C-m": "\200\307"'
+bind $'"\C-j": accept-line'
+
+alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
+alias vp='gvim -c "set buftype=nofile|0put *"'
 alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
+alias rcd="cd ~/repos; cd "
+
+complete -F _complete_repos rcd
+
+# TODO: fix name, put in subdir
+# TODO: break out other sh*t as well!
+source ${CONFIGS_PATH}/xterm-window-manip.sh
+
+find_dmenu
+
+PROMPT_COMMAND="__prompt_command"
+
+export MAKEFLAGS="-j $(nproc)"
+export MAN_POSIXLY_CORRECT=1
+export MANPATH=${MANPATH}:/usr/share/man
+export PATH=${CONFIGS_PATH}/in-path:${PATH}
+export EDITOR="gvim -f"
+
+read PCMD < /proc/$PPID/comm
+if [ "$PCMD" == "xterm" ]; then
+  # TODO some work to be done here.
+  #  tune the randomness
+  #  adapt to screen resolution!
+  rand_xterm_bg
+  base=100
+  xpos=$((base + (RANDOM * 100) / 32767))
+  ypos=$((base + (RANDOM * 100) / 32767))
+  echo -ne "\e[3;${xpos};${ypos}t"
+fi
