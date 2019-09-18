@@ -1,8 +1,8 @@
 XTerm*termName: xterm-256color
 XTerm*faceName: Monospace
 XTerm*faceSize: 10
-XTerm.vt100.geometry: 165x55+200+100
-XTerm*savelines: 65536
+XTerm.vt100.geometry: 170x45+200+100
+XTerm*saveLines: 200000
 XTerm*scrollKey: true
 XTerm*scrollTtyOutput: false
 XTerm*utf8: true
@@ -24,7 +24,8 @@ XTerm*font5: Monospace
 XTerm*faceSize5: 14
 XTerm*font6: Monospace
 XTerm*faceSize6: 18
-XTerm*iconHint: /home/ocp/xterm.xpm
+XTerm*iconHint: /home/ehanlof/xterm.xpm
+XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
 
 *VT100.Translations: #override \n\
   Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
