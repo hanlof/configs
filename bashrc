@@ -379,20 +379,24 @@ find_dmenu
 
 PROMPT_COMMAND="__prompt_command"
 
+export SHELL=/bin/bash
 export MAKEFLAGS="-j $(nproc)"
 export MAN_POSIXLY_CORRECT=1
 export MANPATH=${MANPATH}:/usr/share/man
 export PATH=${CONFIGS_PATH}/in-path:${PATH}
 export EDITOR="gvim -f"
 
+function set_xterm_icon()
+{
+  :
+  # produce xterm-base.abgr
+  # set it using xseticon
+}
+
+# if xterm do xterm stuff
 read PCMD < /proc/$PPID/comm
 if [ "$PCMD" == "xterm" ]; then
-  # TODO some work to be done here.
-  #  tune the randomness
-  #  adapt to screen resolution!
   rand_xterm_bg
-  base=100
-  xpos=$((base + (RANDOM * 100) / 32767))
-  ypos=$((base + (RANDOM * 100) / 32767))
-  echo -ne "\e[3;${xpos};${ypos}t"
+  rand_xterm_geometry
+  set_xterm_icon ${CONFIGS_PATH}/graphics/term-base.svg
 fi

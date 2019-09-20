@@ -71,7 +71,7 @@ wl() {
 	# set new size
 	echo -ne "\e[4;${h};${neww}t"
 	# set new pos
-	echo -ne "\e[3;${x};${y}t"
+	echo -ne "\e[3;${newx};${y}t"
 }
 
 wr() {
@@ -84,4 +84,48 @@ wr() {
 	echo -ne "\e[4;${h};${neww}t"
 	# set new size
 	echo -ne "\e[3;${newx};${y}t"
+}
+
+function rand_xterm_geometry()
+{
+  # TODO some work to be done here.
+  #  tune the randomness
+
+  # get original size
+  echo -n $'\e['18t
+  IFS=";" read -t 0.1 -d t -s _ oh ow _
+
+  # get maximized size
+  echo -n $'\e['9\;1t # maximize window
+  sleep 0.05          # wait for maximize to happen
+  echo -n $'\e['18t   # read current size (which is now maximum)
+  IFS=";" read -t 0.1 -d t -s _ maxh maxw _
+  echo -n $'\e['9\;0t # unmaximize window
+
+  _get_workarea # in pixels
+  charwidth=$((w / maxw))
+  charheight=$((h / maxh))
+
+  # TODO there seems to be no need to calculate anything in characters
+  #      just do redo this using pixel values only (remove above character size calculations
+  #      and all that belongs to it
+  let xmargin="((maxw*100)/(10))"
+  let ymargin="((maxh*100)/(10))"
+  let xmargin=xmargin/100
+  let ymargin=ymargin/100
+  xpos=$((xmargin+(RANDOM*xmargin)/32767))
+  ypos=$((ymargin+(RANDOM*ymargin)/32767))
+  rightdist=$((xmargin+(RANDOM*xmargin)/32767))
+  botdist=$((ymargin+(RANDOM*ymargin)/32767))
+  xsize=$((maxw-xpos-rightdist))
+  ysize=$((maxh-ypos-botdist))
+
+  # convert everything to pixels
+  let xpos=xpos*charwidth
+  let ypos=ypos*charheight
+  let xsize=xsize*charwidth
+  let ysize=ysize*charheight
+  echo -ne "\e[3;${xpos};${ypos}t"
+  # set new size
+  echo -ne "\e[4;${ysize};${xsize}t"
 }
