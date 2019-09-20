@@ -12,7 +12,7 @@ _complete_repos() {
 find_dmenu()
 {
   # system-wide installed? if found we return immediately
-  DMENU_PATH=$(which dmenu) && return
+  DMENU_PATH=$(which dmenu 2>/dev/null) && return
 
   # plan-b: look under configs.
   DMENU_PATH="${CONFIGS_PATH}/submodules/dmenu/dmenu"
@@ -270,7 +270,7 @@ function v()
 }
 
 # Prompt stuff: format the number of jobs and hide if 0
-__prompt_format_jobs()
+function __prompt_format_jobs()
 {
   a="$*"
   b=${a%0}
@@ -278,7 +278,7 @@ __prompt_format_jobs()
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
 }
 
-set_xterm_title()
+function set_xterm_title()
 {
   echo -ne "\033]0;${1}\a"
 }
