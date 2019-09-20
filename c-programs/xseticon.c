@@ -27,6 +27,8 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <string.h>
+#include <fcntl.h>
+#include <stdint.h>
 
 
 #include <X11/Xlib.h>
@@ -87,10 +89,10 @@ Window Window_With_Name(Display* dpy, Window top, char* name)
   char *window_name;
 
   if (XFetchName(dpy, top, &window_name) && !strcmp(window_name, name))
-    return(top);
+    return top;
 
   if (!XQueryTree(dpy, top, &dummy, &dummy, &children, &nchildren))
-    return(0);
+    return 0;
 
   for (i=0; i<nchildren; i++) {
           w = Window_With_Name(dpy, children[i], name);
@@ -98,7 +100,7 @@ Window Window_With_Name(Display* dpy, Window top, char* name)
             break;
   }
   if (children) XFree ((char *)children);
-  return(w);
+  return w;
 }
 
 Window Select_Window_Args(Display* dpy, int screen, int* rargc, char* argv[])
@@ -147,8 +149,8 @@ Window Select_Window_Args(Display* dpy, int screen, int* rargc, char* argv[])
     COPYOPT;
   }
   ARGC = nargc;
-  
-  return(w);
+
+  return w;
 }
 
 
@@ -160,14 +162,12 @@ void abortprog(char * fname)
   exit(1);
 }
 
-void load_icon(int* ndata, CARD32** data)
+void load_icon(unsigned int* ndata, CARD32** data)
 {
-
-
   int width, height;
 
-  width = 16;
-  height = 16;
+  width = 64;
+  height = 64;
 
   if (verbose)
     printf("Loaded a %dx%d icon\n", width, height);
@@ -175,7 +175,7 @@ void load_icon(int* ndata, CARD32** data)
   (*ndata) = (width * height) + 2;
 
   //(*data) = g_new0(CARD32, (*ndata));
-  (*data) = malloc(1024 * 128);
+  (*data) = malloc((*ndata) * sizeof(CARD32));
 
   int i = 0;
   (*data)[i++] = width;
@@ -183,32 +183,27 @@ void load_icon(int* ndata, CARD32** data)
 
   int x, y;
 
+  int fd = open("out.bgra", O_RDONLY);
+  uint32_t * buf = malloc(height * width);
+  (void) read(fd, buf, height*width * 4);
+
   for(y = 0; y < height; y++) {
     for(x = 0; x < width; x++) {
-      // data is RGBA
-      // We'll do some horrible data-munging here
-      unsigned char * cols = (unsigned char *)&((*data)[i++]);
+      // each output pixel is 64 bits (but only the first four are used)
+      // input is expected to be 32 bits BGRA
+      unsigned char * src = (unsigned char *)&(buf[i]);
+      unsigned char * dst = (unsigned char *)&((*data)[i++]);
 
-      cols[0] = x * 15;
-      cols[1] = y * 15;
-      cols[2] = (x + y) * 7;
-
-      /* Alpha is more difficult */
-      int alpha;
-      
-      // Scale it up to 0 to 255; remembering that 2*127 should be max
-      if (alpha == 127)
-        alpha = 255;
-      else
-        alpha *= 2;
-
-      alpha = 255;
-      
-      cols[3] = alpha;
+      dst[0] = src[0];
+      dst[1] = src[1];
+      dst[2] = src[2];
+      dst[3] = src[3];
     }
   }
 }
 
+// inkscape -z -e out.png -w 64 -h 64 configs/graphics/term-base.svg
+// convert out.png -size 64x64 -depth 8 out.bgra
 // convert /usr/share/icons/Humanity/apps/128/bash.svg -resize 64x64 -background none -gravity center -extent 64x64 ~/xterm.xpm
 // convert -channel A -evaluate multiply 0.8 /usr/share/icons/hicolor/scalable/apps/ipython3.svg png: | composite -compose blend -gravity center -geometry 32x32-0-0 png: -resize 48x48 +channel /usr/share/icons/Humanity/apps/128/bash.svg apa.png
 /* Note:
@@ -255,13 +250,13 @@ int main(int argc, char* argv[])
   if (!property)
     abortprog("XInternAtom(property)");
 
-  int nelements;
+  unsigned int nelements;
   CARD32* data;
 
   load_icon(&nelements, &data);
 
   int result = XChangeProperty(display, window, property, XA_CARDINAL, 32, PropModeReplace,
-      (char*)data, nelements);
+      (unsigned char*)data, nelements);
 
   if(!result)
     abortprog("XChangeProperty");
@@ -272,5 +267,7 @@ int main(int argc, char* argv[])
     abortprog("XFlush");
 
   XCloseDisplay(display);
-}
 
+  printf("%ld\n", sizeof(CARD32));
+  return 0;
+}
