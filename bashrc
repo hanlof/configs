@@ -373,7 +373,7 @@ complete -F _complete_repos rcd
 
 # TODO: fix name, put in subdir
 # TODO: break out other sh*t as well!
-source ${CONFIGS_PATH}/xterm-window-manip.sh
+source ${CONFIGS_PATH}/xterm-functions.sh
 
 find_dmenu
 
