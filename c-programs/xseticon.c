@@ -17,10 +17,6 @@
  *
  */
 
-// get a stupid non 1:1 aspect-ratio SVG to become 1:1 while stil looking sane:
-// convert /usr/share/icons/Humanity/apps/128/bash.svg -resize 64x64 -background none -gravity center -extent 64x64 ~/xterm.xpm
-// blend an image on top of another
-// convert -channel A -evaluate multiply 0.8 /usr/share/icons/hicolor/scalable/apps/gvim.svg png: | composite -compose blend -gravity center -geometry 32x32-0-0 png: -resize 48x48 +channel /usr/share/icons/Humanity/apps/128/bash.svg apa.png
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -162,50 +158,29 @@ void abortprog(char * fname)
   exit(1);
 }
 
-void load_icon(unsigned int* ndata, CARD32** data)
+void load_icon(unsigned int* ndata, CARD32** data, int width, int height)
 {
-  int width, height;
-
-  width = 64;
-  height = 64;
-
-  if (verbose)
-    printf("Loaded a %dx%d icon\n", width, height);
+  if (verbose) {
+    printf("Loading a %dx%d icon\n", width, height);
+  }
 
   (*ndata) = (width * height) + 2;
-
-  //(*data) = g_new0(CARD32, (*ndata));
   (*data) = malloc((*ndata) * sizeof(CARD32));
 
-  int i = 0;
-  (*data)[i++] = width;
-  (*data)[i++] = height;
+  //int fd = open("out.bgra", O_RDONLY);
+  uint32_t * buf = malloc(height * width * 4);
+  // XXX malloc error handling
+  (void) read(STDIN_FILENO, buf, height*width * 4);
+  // XXX read error handling
 
-  int x, y;
-
-  int fd = open("out.bgra", O_RDONLY);
-  uint32_t * buf = malloc(height * width);
-  (void) read(fd, buf, height*width * 4);
-
-  for(y = 0; y < height; y++) {
-    for(x = 0; x < width; x++) {
-      // each output pixel is 64 bits (but only the first four are used)
-      // input is expected to be 32 bits BGRA
-      unsigned char * src = (unsigned char *)&(buf[i]);
-      unsigned char * dst = (unsigned char *)&((*data)[i++]);
-
-      dst[0] = src[0];
-      dst[1] = src[1];
-      dst[2] = src[2];
-      dst[3] = src[3];
-    }
+  (*data)[0] = width;
+  (*data)[1] = height;
+  int i = 2;
+  while (i++ < *ndata) {
+      (*data)[i] = buf[i];
   }
 }
 
-// inkscape -z -e out.png -w 64 -h 64 configs/graphics/term-base.svg
-// convert out.png -size 64x64 -depth 8 out.bgra
-// convert /usr/share/icons/Humanity/apps/128/bash.svg -resize 64x64 -background none -gravity center -extent 64x64 ~/xterm.xpm
-// convert -channel A -evaluate multiply 0.8 /usr/share/icons/hicolor/scalable/apps/ipython3.svg png: | composite -compose blend -gravity center -geometry 32x32-0-0 png: -resize 48x48 +channel /usr/share/icons/Humanity/apps/128/bash.svg apa.png
 /* Note:
  *  dispite the fact this routine specifically loads 32bit data, it needs to
  *  load it into an unsigned long int array, not a guint32 array. The
@@ -215,18 +190,40 @@ void load_icon(unsigned int* ndata, CARD32** data)
 
 int main(int argc, char* argv[])
 {
-  if (argc < 2 ||
-      !strcmp(argv[1], "-h") ||
-      !strcmp(argv[1], "--help"))
-    usage(0);
+  int width = 0, height = 0;
+  char windowid_str[1024] = { '\0' };
+  Window windowid = 0;
+  int o;
+  while ((o = getopt(argc, argv, "hvw:s:")) != -1) {
+    switch (o) {
+      case '?': { usage(1);    break; }
+      case ':': { usage(1);    break; }
+      case 'h': { usage(0);    break; }
+      case 'v': { verbose = 1; break; }
+      case 's': {
+        if (sscanf(optarg, "%dx%d", &width, &height) != 2) {
+          printf("Can't parse size argument '%s'. Expecting 'WIDTHxHEIGHT'\n", optarg);
+          exit(1);
+        }
+        break;
+      }
+      case 'w': {
+        strncpy(windowid_str, optarg, 1023);
+        windowid_str[1023] = '\0';
+        break;
+      }
+    }
+  }
 
-  if (!argv[1])
-    usage(1);
-
-  int argindex = 1;
-  if (!strcmp(argv[argindex], "-v")) {
-    verbose = 1;
-    argindex++;
+  if (windowid_str[0] == '\0') {
+    // try to get $windowid from environemnt!
+  } else {
+    sscanf(windowid_str, "0x%lx", &windowid);
+    if (!windowid) {
+      sscanf(windowid_str, "%ld", &windowid);
+    } if (!windowid) {
+      Fatal_Error("Invalid window id format: %s.", windowid_str);
+    }
   }
 
   Display* display = XOpenDisplay(NULL);
@@ -236,14 +233,12 @@ int main(int argc, char* argv[])
 
   XSynchronize(display, 1);
 
-  int screen = DefaultScreen(display);
-
-  Window window = Select_Window_Args(display, screen, &(argc), argv);
+  Window window = windowid; // Select_Window_Args(display, screen, &(argc), argv);
 
   if (!window) {
+    // XXX rah
     abortprog("supply window!\n");
   }
-
 
   Atom property = XInternAtom(display, "_NET_WM_ICON", 0);
 
@@ -253,7 +248,7 @@ int main(int argc, char* argv[])
   unsigned int nelements;
   CARD32* data;
 
-  load_icon(&nelements, &data);
+  load_icon(&nelements, &data, width, height);
 
   int result = XChangeProperty(display, window, property, XA_CARDINAL, 32, PropModeReplace,
       (unsigned char*)data, nelements);
@@ -268,6 +263,5 @@ int main(int argc, char* argv[])
 
   XCloseDisplay(display);
 
-  printf("%ld\n", sizeof(CARD32));
   return 0;
 }
