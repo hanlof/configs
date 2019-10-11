@@ -27,7 +27,7 @@ $(raster_dir_stamp):
 	touch $@
 
 $(RASTER_DIR)/%.bgra: $(RASTER_DIR)/%.png $(raster_dir_stamp)
-	convert $< -resize $(SIZE) -background none -gravity center -extent $(SIZE) -depth 8 $@
+	convert $< -resize $(call geom,$*) -background none -gravity center -extent $(call geom,$*) -depth 8 $@
 
 # Need .SECONDEXPANSION because it's the only way to evaluate % before the function call
 .SECONDEXPANSION:

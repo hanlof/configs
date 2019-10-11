@@ -388,9 +388,12 @@ export EDITOR="gvim -f"
 
 function set_xterm_icon()
 {
-  :
-  # produce xterm-base.abgr
+  # produce xterm-base.bgra
+  SIZE=64x64
+  SVGNAME=term-base-centered
+  make --quiet -C ${CONFIGS_PATH}/graphics raster/${SVGNAME}-${SIZE}.bgra
   # set it using xseticon
+  ${CONFIGS_PATH}/c-programs/xseticon -s ${SIZE} -w $WINDOWID < ${CONFIGS_PATH}/graphics/raster/${SVGNAME}-${SIZE}.bgra
 }
 
 # if xterm do xterm stuff
