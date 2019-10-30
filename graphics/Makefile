@@ -2,6 +2,8 @@ RASTER_DIR=raster
 
 # output directory creation shenanigans
 raster_dir_stamp=$(RASTER_DIR)/.STAMP
+
+# don't remove in-between targets (png:s)
 .SECONDARY: $(RASTER_DIR)/%.png
 .PRECIOUS: $(RASTER_DIR)/%.png
 
@@ -29,7 +31,7 @@ $(raster_dir_stamp):
 $(RASTER_DIR)/%.bgra: $(RASTER_DIR)/%.png $(raster_dir_stamp)
 	convert $< -resize $(call geom,$*) -background none -gravity center -extent $(call geom,$*) -depth 8 $@
 
-# Need .SECONDEXPANSION because it's the only way to evaluate % before the function call
+# Need .SECONDEXPANSION and double $ because it's the only way to evaluate % before the function call
 .SECONDEXPANSION:
 $(RASTER_DIR)/%.png: $$(call base,$$*).svg $(raster_dir_stamp)
 	# why inkscape? Old imagemagick don't do transparency well! :-/
