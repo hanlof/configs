@@ -23,17 +23,19 @@
 set nocp
 
 " plugins
-let rtcmd="set runtimepath+=" . expand("<sfile>:h")
-let g:gvimrcpath=expand("<sfile>:h") . "/gvimrc"
-exec rtcmd
-exec rtcmd . "/../submodules/vim-fugitive"
-exec rtcmd . "/../submodules/vim-bitbake"
-exec rtcmd . "/../submodules/vim-clang"
-exec rtcmd . "/../submodules/vim-rtags"
+let g:dotvimPath = expand("<sfile>:h")
+let g:configsPath = expand("<sfile>:h:h")
+exec "set runtimepath+=" . g:dotvimPath
+exec "set runtimepath+=" . g:configsPath . "/submodules/vim-fugitive"
+exec "set runtimepath+=" . g:configsPath . "/submodules/vim-bitbake"
+exec "set runtimepath+=" . g:configsPath . "/submodules/vim-clang"
+exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
 
 runtime ftplugin/man.vim
 
-au GuiEnter * exec "source " . g:gvimrcpath
+au GuiEnter * exec "source " . g:dotvimPath . "/gvimrc"
+
+exec "source " . expand("<sfile>:h") . "/emacs-keymappings-for-command-editing.vim"
 
 " X window title / task bar text (also for console mode!)
 set iconstring=VIM:\ %t
@@ -58,7 +60,7 @@ set foldmethod=syntax foldcolumn=2 foldlevel=10
 " search is case insensitive unless the search pattern contains capital letters
 set ignorecase smartcase
 
-" vims defaults are mostly sane but for switch cases we must let it know whats correct
+" vims autoindent defaults are mostly sane but for switch cases it needs correction!
 set cinoptions=l1
 
 set mouse=a
@@ -143,11 +145,16 @@ nnoremap <C-F11> :setlocal wrap!<CR>
 nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 
 nnoremap <F9> :make<CR>
+if has("terminal")
+  nnoremap <F9> :Tmake<CR>
+else
+  nnoremap <F9> :make<CR>
+endif
 inoremap <F9> <C-o>:make!<CR><CR>
 nnoremap <F10> :call DmenuMakeTarget()<CR>
 " lets use dmenu for buffer nagivation!
 " let mybufs = map(filter(range(1, bufnr('$')), " 'buflisted(v:val)'),'bufname(v:val)')
-" bufname = cal system("dmenu", join(mybufs, "\n"))
+" bufname = call system("dmenu", join(mybufs, "\n"))
 "
 nnoremap <F7> :cprev<CR>
 inoremap <F7> <C-o>:cprev<CR>
@@ -180,16 +187,6 @@ nnoremap <S-F8> :set foldlevel+=1<CR>
 nnoremap <C-S-F7> :set foldlevel=0<CR>
 nnoremap <C-S-F8> :set foldlevel=99<CR>
 
-"For Emacs-style editing on the command-line: >
-cnoremap <C-A> <Home>
-cnoremap <C-B> <Left>
-cnoremap <C-D> <Del>
-cnoremap <C-E> <End>
-cnoremap <C-F> <Right>
-cnoremap <C-N> <Down>
-cnoremap <C-P> <Up>
-cnoremap <Esc><C-B> <S-Left>
-cnoremap <Esc><C-F> <S-Right>
 
 function! GetDmenuVersion(cmd)
   let tmp = system(a:cmd . " -v")
@@ -203,7 +200,7 @@ endfunction
 
 function! g:GetDmenuOptions()
   if g:dmenuversion[0] >= 4 && g:dmenuversion[1] >= 7
-    return " -i -l 50 -p '' -w " . v:windowid
+    return " -i -l 50 -p '' -w " . $WINDOWID
   else
     return " -i -l 50 -p ''"
   endif
@@ -290,7 +287,7 @@ function! CallMmenu()
    "clear the input stream
   endwhile
   call feedkeys("\<LeftMouse>")
-  let c          = getchar()
+  let c = getchar()
   "echo v:mouse_col v:mouse_lnum v:mouse_win
   let winid = win_getid(v:mouse_win)
   "echo win_gotoid(win_getid(v:mouse_win))
@@ -423,11 +420,16 @@ function! DmenuFile(cmd)
   execute a:cmd . " " . g:GitTopLevel() . "/" . fname
 endfunction
 
+function! g:SystemList(cmd)
+  let out = system(a:cmd)
+  return split(out, '\n')
+endfunction
+
 " get .git dir
 function! g:GitDir()
   " systemlist() seems like a convenient way to get rid of the newline in the
   " output from the git command
-  let git_output = systemlist("git rev-parse --git-dir")
+  let git_output = g:SystemList("git rev-parse --git-dir")
   if v:shell_error == 0
     return git_output[0]
   endif
@@ -438,7 +440,7 @@ endfunction
 function! g:GitTopLevel()
   " systemlist() seems like a convenient way to get rid of the newline in the
   " output from the git command
-  let git_output = systemlist("git rev-parse --show-toplevel")
+  let git_output = g:SystemList("git rev-parse --show-toplevel")
   if v:shell_error == 0
     return git_output[0]
   endif
@@ -446,7 +448,7 @@ function! g:GitTopLevel()
 endfunction
 
 function! g:GitUniqueId()
-  let git_output = systemlist("git remote get-url origin")
+  let git_output = g:SystemList("git remote get-url origin")
   if v:shell_error == 0
     return git_output[0]
   endif
