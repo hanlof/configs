@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 char * compare_path(char * p, char * c)
 {
@@ -25,7 +26,7 @@ char * compare_path(char * p, char * c)
 #define ALLOCSIZE 0x800000
 #define READSIZE 0x0e
 
-int main(int argc, int * argv[]) {
+int main(int argc, char * argv[]) {
   char * buf_start = malloc(ALLOCSIZE);
 
   *buf_start++ = '\n'; // put newline as a mark at the beginning of the buffer. it will simplify the compare function.
@@ -66,4 +67,5 @@ int main(int argc, int * argv[]) {
     i = read(0, buf_end, READSIZE);
     buf_end += i;
   }
+  return 0;
 }
