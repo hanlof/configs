@@ -6,9 +6,8 @@
 " - keep them on github or not?
 " automatic tags generation??
 " more serious cscope usage??
-" some colors improvements are still only in gvimrc
 " how to do mouse-browsing in console-mode?
-"  answer: mmenu!
+"  answer: mmenu.. NO! vim-8 WinBar menu!
 
 " Mouse browsing features (wishlist)
 " Jump to tag
@@ -19,23 +18,28 @@
 " Git blame
 " gD / gd (goto definition)
 
-" this old friend gets a special place in dotvimrc :-D
+" this old friend goes first in every dotvimrc, for sentimental reasons <3
 set nocp
 
-" plugins
+" some handy paths
 let g:dotvimPath = expand("<sfile>:h")
 let g:configsPath = expand("<sfile>:h:h")
+
+" plugins
 exec "set runtimepath+=" . g:dotvimPath
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-fugitive"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-bitbake"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-clang"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
 
-runtime ftplugin/man.vim
-
+" we add on gui stuff when we enter gui
 au GuiEnter * exec "source " . g:dotvimPath . "/gvimrc"
 
-exec "source " . expand("<sfile>:h") . "/emacs-keymappings-for-command-editing.vim"
+" for :Man command
+runtime ftplugin/man.vim
+
+exec "source " . g:dotvimPath . "/emacs-keymappings-for-command-editing.vim"
+exec "source " . g:dotvimPath . "/Qdiff.vim"
 
 " X window title / task bar text (also for console mode!)
 set iconstring=VIM:\ %t
@@ -54,8 +58,6 @@ set backspace=2
 
 set splitright
 
-" enable syntax-sensitive folding
-set foldmethod=syntax foldcolumn=2 foldlevel=10
 
 " search is case insensitive unless the search pattern contains capital letters
 set ignorecase smartcase
@@ -66,9 +68,6 @@ set cinoptions=l1
 set mouse=a
 set sessionoptions+=resize,localoptions
 set autowrite
-
-set listchars=tab:‣\ 
-set list
 
 set cscopequickfix=s-,c-,d-,i-,t-,e-
 
@@ -99,15 +98,29 @@ let &t_EI="\<Esc>[1 q"
 let &t_SI="\<Esc>[5 q"
 " timeout for waiting for complete key-codes from terminal.
 " the default value is 1000 which makes vim wait a full second from pressing
-" escape until it exits insert-mode. this in turn makes the updating of the
-" cursor really slow.
-set timeout timeoutlen=5000 ttimeout ttimeoutlen=20
+" escape until it exits insert-mode.
+" timeoutlen is used for command line and <Leader> maps
+" ttimeoutlen is for normal editing
+set timeout timeoutlen=500 ttimeout ttimeoutlen=20
 
+" enable syntax-sensitive folding
+set foldmethod=syntax foldcolumn=2 foldlevel=10
 filetype on
 filetype plugin on
 filetype indent on
 
+" ### Stuff related to whitespace and special characters begin here ###
+
+let &listchars="tab:‣\ " "set this one using let so it doesn't show up as a space error!
+set list
+
+hi SpecialKey ctermfg=189
+hi Search ctermbg=158
+hi QuickFixLine ctermbg=11 ctermfg=0 term=reverse
+
 " Stuff that we always want to do when a new window is created
+" TODO: disable/enable EOL-space error while typing (?)
+" XXX this adds additional autocommands every time this file is reloaded. FIXME!
 au VimEnter * call g:InitWindow()
 au WinEnter * call g:InitWindow()
 function! g:InitWindow()
@@ -115,13 +128,9 @@ function! g:InitWindow()
     return
   endif
   let w:is_initialised = 1
-
   call matchadd("Error", "\\s\\+$") " whitespace at EOL is bad
   call matchadd("Error", " \\+\t")  " space before tab is bad
 endfunction
-
-" TODO: disable/enable EOL-space error while typing (?)
-cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
 
 function! g:ToggleListCharsEOL()
   let oldval = &listchars
@@ -131,6 +140,8 @@ function! g:ToggleListCharsEOL()
     exec 'set listchars+=eol:$'
   endif
 endfunction
+
+cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
 
 nnoremap <F12> :set hls!<CR>
 inoremap <F12> <C-o>:set hls!<CR>
