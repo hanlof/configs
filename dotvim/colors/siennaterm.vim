@@ -113,7 +113,7 @@ hi DiffDelete ctermbg=250 ctermfg=247
 
 hi LineNr gui=none  ctermfg=248  guifg=DarkGray
 hi NonText cterm=bold gui=bold  ctermfg=248  guifg=DarkGray ctermbg=7  guibg=Grey95
-hi SpecialKey gui=none  ctermfg=24  guifg=RoyalBlue4
+hi SpecialKey gui=none  ctermfg=189 guifg=RoyalBlue4
 hi Title cterm=bold gui=bold  ctermfg=0  guifg=Black
 hi Visual cterm=bold gui=bold  ctermfg=0  guifg=Black ctermbg=209  guibg=Sienna1
 
@@ -130,7 +130,8 @@ hi PmenuSel  ctermbg=11  guibg=Yellow ctermfg=0  guifg=Black gui=none
 hi PmenuThumb  ctermbg=250  guibg=Grey75 guifg=fg gui=none
 
 hi IncSearch gui=none  ctermfg=15  guifg=White ctermbg=0  guibg=Black
-hi Search gui=none  ctermfg=0  guifg=Black ctermbg=11  guibg=Yellow
+hi Search gui=none  ctermbg=158 guifg=Black guibg=Yellow
+hi QuickFixLine ctermbg=11 ctermfg=0 term=reverse
 
 hi MoreMsg cterm=bold gui=bold  ctermfg=28  guifg=ForestGreen
 hi Question cterm=bold gui=bold  ctermfg=28  guifg=ForestGreen

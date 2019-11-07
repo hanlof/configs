@@ -114,10 +114,6 @@ filetype indent on
 let &listchars="tab:‣\ " "set this one using let so it doesn't show up as a space error!
 set list
 
-hi SpecialKey ctermfg=189
-hi Search ctermbg=158
-hi QuickFixLine ctermbg=11 ctermfg=0 term=reverse
-
 " Stuff that we always want to do when a new window is created
 " TODO: disable/enable EOL-space error while typing (?)
 " XXX this adds additional autocommands every time this file is reloaded. FIXME!
