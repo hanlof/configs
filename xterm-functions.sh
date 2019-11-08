@@ -122,3 +122,43 @@ function rand_xterm_geometry()
   # set new size
   echo -ne "\e[4;${ysize};${xsize}t"
 }
+
+function set_xterm_title()
+{
+  echo -ne "\033]0;${1}\a"
+}
+
+function rand_xterm_bg()
+{
+  # Beautiful green: 4 36 48
+  if [ -z $1 ]; then
+    C=50
+    let base=0
+  else
+    C=30
+    let base=256-C
+  fi
+  r=$((base + (RANDOM * C) / 32767))
+  g=$((base + (RANDOM * C) / 32767))
+  b=$((base + (RANDOM * C) / 32767))
+
+  # next line sets bg color
+  printf "\e]11;#%02x%02x%02x\a" $r $g $b
+  # make sure we have a readable foreground color as well
+  if [ $base -gt 128 ]; then
+    bgcolor=0
+  else
+    bgcolor=255
+  fi
+  printf "\e]10;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
+  printf "\e]17;#%02x%02x%02x\a" $r $g $b
+  printf "\e]19;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
+
+  #echo $r $g $b
+}
+
+function get_xterm_bg()
+{
+  echo -en '\e]11;?\a'; IFS=\; read -s -d $'\a' _ col _
+  echo $col
+}

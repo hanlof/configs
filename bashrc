@@ -99,11 +99,6 @@ ff()
   vim ${s}/${fname}
 }
 
-function xxvim()
-{
-  xterm -tn xterm-256color -fa "Monospace" -fg Black -bg White -fs 11 +sb -e vim "$@" &
-}
-
 run-prompt()
 {
   printf "> "
@@ -226,41 +221,6 @@ xw ()
   xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
 }
 
-function rand_xterm_bg()
-{
-  # Beautiful green: 4 36 48
-  if [ -z $1 ]; then
-    C=50
-    let base=0
-  else
-    C=30
-    let base=256-C
-  fi
-  r=$((base + (RANDOM * C) / 32767))
-  g=$((base + (RANDOM * C) / 32767))
-  b=$((base + (RANDOM * C) / 32767))
-
-  # next line sets bg color
-  printf "\e]11;#%02x%02x%02x\a" $r $g $b
-  # make sure we have a readable foreground color as well
-  if [ $base -gt 128 ]; then
-    bgcolor=0
-  else
-    bgcolor=255
-  fi
-  printf "\e]10;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
-  printf "\e]17;#%02x%02x%02x\a" $r $g $b
-  printf "\e]19;#%02x%02x%02x\a" $bgcolor $bgcolor $bgcolor
-
-  #echo $r $g $b
-}
-
-function get_xterm_bg()
-{
-  echo -en '\e]11;?\a'; IFS=\; read -s -d $'\a' _ col _
-  echo $col
-}
-
 function v()
 {
   filedir=$(dirname "$1")
@@ -276,11 +236,6 @@ function __prompt_format_jobs()
   b=${a%0}
   printf "${b:+[$a] }"
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
-}
-
-function set_xterm_title()
-{
-  echo -ne "\033]0;${1}\a"
 }
 
 function __prompt_command()
@@ -323,7 +278,7 @@ function __prompt_command()
       PS1+=' [\[\e[1;31m\]'"$M"'\[\e[0m\]]'
   fi
 
-  PS1+=' \[\033[1m\]\$\[\033[0m\] '                       # display the $ and reset color
+  PS1+=' \[\033[36;1m\]\$\[\033[0m\] '                       # display the $ and reset color
   export PS1
 }
 
