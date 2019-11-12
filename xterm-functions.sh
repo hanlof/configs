@@ -128,6 +128,11 @@ function set_xterm_title()
   echo -ne "\033]0;${1}\a"
 }
 
+function set_xterm_cursor_color()
+{
+  echo -ne "\033]12;${1}\a"
+}
+
 function rand_xterm_bg()
 {
   # Beautiful green: 4 36 48
