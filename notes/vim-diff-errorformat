@@ -1,0 +1,11 @@
+set errorformat=\%-G+,
+set errorformat+=\%-P---\ a/%f,
+set errorformat+=\%-Gdiff%.%#,
+set errorformat+=\%-Gindex%.%#,
+set errorformat+=\%-G+++%.%#,
+set errorformat+=\%A@@\ %.%#\ +%l%.%#\ %m,
+set errorformat+=\%C\ ,
+set errorformat+=\%C\-%m,
+set errorformat+=\%Z+%.%#,
+set errorformat+=\%-G\ ,
+set errorformat+=\%-G%.%#

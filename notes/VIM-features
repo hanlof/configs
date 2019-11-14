@@ -1,0 +1,23 @@
+second statusline fun
+---------------------
+analyze current character as ascii/unicode
+analyze current number (binary, octal, hex, decimal)
+display code elements of current position as hierarchy such as:
+class ClassName > class SubClassName > function FuncName > if (...) > if (...) > for (...) > if (...)
+
+tags in quickfix
+----------------
+getqflist()/setqflist() is the interface to qf window.
+some plugins exist. are they good??
+
+git diff in quickfix
+--------------------
+found the errorformat!
+need hooks that act when switching file through quickfix
+- might not be possible to add such hooks, can fall back to hooks for switching buffer.
+- maybe hook into F7/F8 mappings?
+- the hook needs to close the previous fugitive diff window and then perform Gdiff on the newly opened one.
+need to know when to remove the hooks. probably needs to be a manual way plus whenever qf contents is changed (QuickFixCmd(Post/Pre) ?!?)
+there are QuickFixCmdPre / QuickFixCmdPost hooks!
+integrate this stuff into fugitive?! :Gdiff will depend on fugitive anyways
+
