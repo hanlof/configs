@@ -1,6 +1,6 @@
-command Qdiff call g:Qdiff()
+command Qdiff call s:Qdiff()
 
-function g:Qdiff()
+function s:Qdiff()
   set errorformat=\%-G+,
   set errorformat+=\%-P---\ a/%f,
   set errorformat+=\%-Gdiff%.%#,
