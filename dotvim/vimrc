@@ -176,6 +176,13 @@ function g:Tmake()
     let termOptions = extend(termOptions, { 'curwin': 1 })
   endif
   let ret = term_start(&makeprg, termOptions)
+  if !exists("w:original_statusline")
+    let w:original_statusline = &statusline
+  endif
+  let sl="%#Todo#"
+  let sl.=w:original_statusline
+  let &l:statusline = escape(sl, " \\")
+  let &l:winfixheight = 1
   exec win . "wincmd w"
 endfunction
 
@@ -193,14 +200,14 @@ endfunc
 function g:Tmake_exit(job, code)
   let tmakeWin = bufwinnr('tmakebuffer')
   exec tmakeWin . "wincmd w"
-  let sl=""
+  let sl = ""
   if a:code == 0
-    let sl.="%#StatusLineTerm#"
+    let sl .= "%#StatusLineTerm#"
   else
-    let sl.="%#ErrorMsg#"
+    let sl .= "%#ErrorMsg#"
   endif
-  let sl.=&statusline
-  let &l:statusline = escape(sl, " \\")
+  let sl .= w:original_statusline
+  let &l:statusline = sl
   exec bufwinnr(g:startbuf) . "wincmd w"
 endfunction
 
