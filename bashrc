@@ -238,6 +238,18 @@ function __prompt_format_jobs()
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
 }
 
+function __git_color_path()
+{
+
+  G=()
+  T=$(git rev-parse --show-toplevel 2> /dev/null)
+  while [ "$?" == "0" ]; do
+    G+=("$T")
+    T=$(git -C $T/.. rev-parse --show-toplevel 2> /dev/null)
+  done
+  echo "${G[@]}"
+}
+
 function __prompt_command()
 {
   __exit_status="$?"
@@ -262,6 +274,8 @@ function __prompt_command()
   PS1+='$(__prompt_format_jobs \j)'                      # active jobs
 
   _trimmed_pwd=${PWD:0-30}                               # trim path (this line returns empty string of not enough characters are available)
+  #_git_colored_path=$(__git_color_path "$PWD")
+
   PS1+="${_trimmed_pwd:+<}${_trimmed_pwd:=$PWD}"
 
   if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
