@@ -238,16 +238,33 @@ function __prompt_format_jobs()
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
 }
 
+# reference: https://github.com/git/git/blame/master/contrib/completion/git-prompt.sh
 function __git_color_path()
 {
-
-  G=()
-  T=$(git rev-parse --show-toplevel 2> /dev/null)
+  printf -v red  '\[\e[1;31m\]'
+  printf -v pink '\[\e[1;35m\]'
+  printf -v rst '\[\e[0m\]'
+  out="$PWD"
+  repo=$(git rev-parse --show-toplevel 2> /dev/null)
   while [ "$?" == "0" ]; do
-    G+=("$T")
-    T=$(git -C $T/.. rev-parse --show-toplevel 2> /dev/null)
+    if [ -d "${repo}/.git/rebase-merge" -o \
+         -d "${repo}/.git/rebase-apply" -o \
+         -f "${repo}/.git/MERGE_HEAD" -o \
+         -f "${repo}/.git/CHERRY_PICK_HEAD" -o \
+         -f "${repo}/.git/REVERT_HEAD" -o \
+         -d "${repo}/.git/sequencer" ]; then
+      col=${red}
+    else
+      col=${pink}
+    fi
+    tail=${out#${repo}}
+    repo_name=${repo##*/}
+    repo_prefix=${repo%$repo_name}
+    out="${repo_prefix}${col}${repo_name}${rst}${tail}"
+
+    repo=$(git -C $repo/.. rev-parse --show-toplevel 2> /dev/null)
   done
-  echo "${G[@]}"
+  echo $out
 }
 
 function __prompt_command()
@@ -276,7 +293,7 @@ function __prompt_command()
   _trimmed_pwd=${PWD:0-30}                               # trim path (this line returns empty string of not enough characters are available)
   #_git_colored_path=$(__git_color_path "$PWD")
 
-  PS1+="${_trimmed_pwd:+<}${_trimmed_pwd:=$PWD}"
+  PS1+="$(__git_color_path)"
 
   if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
     if [ "$__exit_status" -gt 128 ]; then                # find signal name if exit status > 128

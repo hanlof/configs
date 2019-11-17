@@ -1,8 +1,8 @@
 command Tmake :call s:Tmake()
 
 " XXX TODO: abort/restart job when already running
-" XXX TODO: maybe use different colors for running and finished sucessfully
 " XXX TODO: can the callbacks be defined as s: (script local) functions somehow?
+" XXX TODO: save all buffers if &autowrite ?!
 function s:Tmake()
   cexpr ""
   let tmakeWin = bufwinnr('tmakebuffer')
@@ -23,7 +23,7 @@ function s:Tmake()
   endif
   let sl="%#Todo#"
   let sl.=w:original_statusline
-  let &l:statusline = escape(sl, " \\")
+  let &l:statusline = sl
   let &l:winfixheight = 1
   exec win . "wincmd w"
 endfunction
