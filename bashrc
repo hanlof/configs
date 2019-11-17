@@ -293,6 +293,7 @@ function __prompt_command()
   _trimmed_pwd=${PWD:0-30}                               # trim path (this line returns empty string of not enough characters are available)
   #_git_colored_path=$(__git_color_path "$PWD")
 
+  # XXX TODO trimming gone?! maybe fix inside __git_color_path
   PS1+="$(__git_color_path)"
 
   if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
