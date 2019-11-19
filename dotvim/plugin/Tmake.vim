@@ -5,6 +5,7 @@ command Tmake :call s:Tmake()
 " XXX TODO: save all buffers if &autowrite ?!
 function s:Tmake()
   cexpr ""
+  call setqflist([], 'a', { 'title': 'Tmake: "' . &makeprg . '"'})
   let tmakeWin = bufwinnr('tmakebuffer')
   let g:startbuf = bufnr('%')
   if &autowrite && &modified
