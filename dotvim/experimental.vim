@@ -103,4 +103,81 @@ let custom = {
 \}
 let a = custom['kalle']['apa']()
 
+" XXX consider mouse selection. act on selected text?
+" - what if click is outside selection??
+function! CallMmenu()
+  " first move cursor
+  while getchar(0) != 0
+   "clear the input stream
+  endwhile
+  call feedkeys("\<LeftMouse>")
+  let c = getchar()
+  "echo v:mouse_col v:mouse_lnum v:mouse_win
+  let winid = win_getid(v:mouse_win)
+  "echo win_gotoid(win_getid(v:mouse_win))
+  let bufnr = winbufnr(v:mouse_win)
+  let line = getbufline(bufnr, v:mouse_lnum)[0]
+  " XXX NOPE! we may not so casually use \%Nv (virtual column matching)
+  " XXX Must consider clicking in a different buffer with different tabstop
+  " setting
+  let cword = matchstr(line, '\i*\%' . v:mouse_col .'v\i\+')
+  call cursor(v:mouse_lnum, v:mouse_col)
+
+  let mmenuinput = ":!index_repo\<CR>\n"
+  let mmenuinput .= ":ToggleQuickFix\n"
+  let mmenuinput .= ":set hlsearch!\n"
+  let mmenuinput .= ":Gblame\n"
+  let mmenuinput .= ":wincmd close\n"
+  if cword != ""
+    let mmenuinput .= ":\n"
+    let mmenuinput .= ":tag " . cword . "\n"
+    let mmenuinput .= ":Ggrep " . cword . "\<CR>\n"
+    let mmenuinput .= "/" . cword . "\n"
+    let mmenuinput .= "/\\<" . cword . "\\>\n"
+  endif
+  " XXX check for filenames and enable jumping to other files
+  let output = system("/home/ocp/configs/submodules/dmenu/mmenu", mmenuinput)
+  if v:shell_error != 0
+    echom output
+    return ""
+  endif
+
+  if empty(output)
+    return ""
+  endif
+
+  " XXX check output for tag or ggrep and set up <S-MouseDown>/<S-MouseUp>
+  " mappings accordingly (tprev/tnext or cprev/cnext)
+  return output
+endfunction
+
+function! CallMmenu2()
+  "let line = getbufline(bufnr, v:mouse_lnum)[0]
+  " XXX NOPE! we may not so casually use \%Nv (virtual column matching)
+  " XXX Must consider clicking in a different buffer with different tabstop
+  " setting
+  "let cword = matchstr(line, '\i*\%' . v:mouse_col .'v\i\+')
+  "echo cword . "|" . line
+  "call cursor(v:mouse_lnum, v:mouse_col)
+
+  set mouse=
+  let mmenuinput = ":copen\n"
+  let mmenuinput .= ":cclose\n"
+  let mmenuinput .= ":echo \'kalle'\n"
+  "let output = system("/home/ocp/configs/submodules/dmenu/mmenu", mmenuinput)
+  let output=""
+  if v:shell_error != 0
+    echom output
+    return ""
+  endif
+
+
+  call feedkeys(":call system('/home/ocp/configs/submodules/dmenu/mmenu', 'apa')\<CR>")
+  set mouse=
+  if empty(output)
+    return ""
+  endif
+
+endfunction
+
 " colorscheme siennaterm
