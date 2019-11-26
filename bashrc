@@ -271,6 +271,8 @@ function __prompt_command()
 {
   __exit_status="$?"
 
+  # reset window icon to standard bash when prompt is shown
+  set_xterm_icon ${CONFIGS_PATH}/graphics/term-base.svg
   # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
@@ -317,10 +319,14 @@ function __prompt_command()
 __pre_line_accept_command()
 {
   set_xterm_title "${READLINE_LINE}"
-  # set up xterm icon
-  #  find proper image to overlay using first word of command
-  #  compose image using imagemagick > BGRA
-  #  pipe above into custom xseticon $WINDOWID
+  command_name="${READLINE_LINE%% *}"
+  SIZE=64x64
+  if [ -f ${CONFIGS_PATH}/graphics/${command_name}.svg ]; then
+    # make the overlayed image
+    make --quiet -C ${CONFIGS_PATH}/graphics raster_overlay/${command_name}-${SIZE}.bgra
+    # set it using xseticon
+    ${CONFIGS_PATH}/c-programs/xseticon -s ${SIZE} -w $WINDOWID < ${CONFIGS_PATH}/graphics/raster_overlay/${command_name}-${SIZE}.bgra
+  fi
 }
 
 # dummy bindings to work around shortcomings in libreadline
