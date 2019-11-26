@@ -1,5 +1,6 @@
 function! s:FetchGerritComments()
   "set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:%m,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %s,%Z%m
+  let old_efm = &efm
   set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:\ %m,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %s,%Z
 
   "command for fetching gerrit reviews into errorlist
@@ -10,6 +11,7 @@ function! s:FetchGerritComments()
   let gerritcmd = 'ssh ' . o[2] . ' -l ' . o[1] . ' -p ' . o[3] . ' gerrit query --comments --patch-sets ' . change_id
   cexpr system(gerritcmd)
   call setqflist([], 'a', {'title': "Gerrit review comments: https://" . o[2] . "/#/q/" . change_id})
+  let &efm = old_efm
 endfunc
 command! GerritComments call s:FetchGerritComments()
 
