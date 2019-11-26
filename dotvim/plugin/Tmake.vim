@@ -1,18 +1,26 @@
 command Tmake :call s:Tmake()
 
-" XXX TODO: abort/restart job when already running
+function s:TmakeWriteWin()
+  if &modifiable && &modified
+    write
+  endif
+endfunction
+
 " XXX TODO: can the callbacks be defined as s: (script local) functions somehow?
-" XXX TODO: save all buffers if &autowrite ?!
+" XXX TODO: maybe use 'autowriteall' instead of just 'autowrite' ?!?
 function s:Tmake()
+  if term_getstatus('tmakebuffer') == "running"
+    call term_sendkeys('tmakebuffer', "\<C-C>")
+    return
+  endif
   cexpr ""
   call setqflist([], 'a', { 'title': 'Tmake: "' . &makeprg . '"'})
   let tmakeWin = bufwinnr('tmakebuffer')
   let g:startbuf = bufnr('%')
-  if &autowrite && &modified
-    write
+  if &autowrite
+    windo call s:TmakeWriteWin()
   endif
   let termOptions = { "term_name": "tmakebuffer", "term_rows": 5, "callback": "g:Tmake_processoutput", "exit_cb": "g:Tmake_exit" }
-  let win = winnr()
   if tmakeWin != -1
     " Open in current tmakebuffer if it exists.
     exec tmakeWin . "wincmd w"
@@ -26,7 +34,7 @@ function s:Tmake()
   let sl.=w:original_statusline
   let &l:statusline = sl
   let &l:winfixheight = 1
-  exec win . "wincmd w"
+  exec bufwinnr(g:startbuf) . "wincmd w"
 endfunction
 
 function g:Tmake_processoutput(chan, msg)
