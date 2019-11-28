@@ -43,21 +43,7 @@ int verbose = 0;
 
 void usage(int exitcode)
 {
-  printf("usage: %s [options] path/to/icon.png\n", program_name);
-  printf("options:\n");
-  printf("  -name <text>    : apply icon to the window of the name supplied\n");
-  printf("  -id <windowid>  : apply icon to the window id supplied\n");
-  printf("\n");
-  printf("Sets the window icon to the specified .png image. The image is loaded from\n");
-  printf("the file at runtime and sent to the X server; thereafter the file does not\n");
-  printf("need to exist, and can be deleted/renamed/modified without the X server or\n");
-  printf("window manager noticing.\n");
-  printf("If no window selection option is specified, the window can be interactively\n");
-  printf("selected using the cursor.\n");
-  printf("\n");
-  printf("Hints:\n");
-  printf("  %s -id \"$WINDOWID\" path/to/icon.png\n", program_name);
-  printf("Will set the icon for an xterm.\n");
+  printf("usage: %s -w <winid> -s <size> [-vh] < icon.bgra\n", program_name);
   exit(exitcode);
 }
 
@@ -75,80 +61,6 @@ void Fatal_Error(char *msg, ...)
   fprintf(stderr, "\n");
   exit(1);
 }
-
-Window Window_With_Name(Display* dpy, Window top, char* name)
-{
-  Window *children, dummy;
-  unsigned int nchildren;
-  int i;
-  Window w = 0;
-  char *window_name;
-
-  if (XFetchName(dpy, top, &window_name) && !strcmp(window_name, name))
-    return top;
-
-  if (!XQueryTree(dpy, top, &dummy, &dummy, &children, &nchildren))
-    return 0;
-
-  for (i=0; i<nchildren; i++) {
-          w = Window_With_Name(dpy, children[i], name);
-          if (w)
-            break;
-  }
-  if (children) XFree ((char *)children);
-  return w;
-}
-
-Window Select_Window_Args(Display* dpy, int screen, int* rargc, char* argv[])
-{
-  int nargc = 1;
-  int argc;
-  char **nargv;
-  Window w = 0;
-
-#define ARGC (*rargc)
-  nargv = argv+1; argc = ARGC;
-#define OPTION argv[0]
-#define NXTOPTP ++argv, --argc>0
-#define NXTOPT if (++argv, --argc==0) usage(1)
-#define COPYOPT nargv++[0]=OPTION, nargc++
-
-  while (NXTOPTP) {
-    if (!strcmp(OPTION, "-")) {
-      COPYOPT;
-      while (NXTOPTP)
-        COPYOPT;
-      break;
-    }
-    if (!strcmp(OPTION, "-name")) {
-      NXTOPT;
-      if (verbose)
-        printf("Selecting window by name %s\n", OPTION);
-      w = Window_With_Name(dpy, RootWindow(dpy, screen),
-                           OPTION);
-      if (!w)
-        Fatal_Error("No window with name %s exists!",OPTION);
-      continue;
-    }
-    if (!strcmp(OPTION, "-id")) {
-      NXTOPT;
-      if (verbose)
-        printf("Selecting window by ID %s\n", OPTION);
-      w=0;
-      sscanf(OPTION, "0x%lx", &w);
-      if (!w)
-        sscanf(OPTION, "%ld", &w);
-      if (!w)
-        Fatal_Error("Invalid window id format: %s.", OPTION);
-      continue;
-    }
-    COPYOPT;
-  }
-  ARGC = nargc;
-
-  return w;
-}
-
 
 // END FROM
 
@@ -233,9 +145,7 @@ int main(int argc, char* argv[])
 
   XSynchronize(display, 1);
 
-  Window window = windowid; // Select_Window_Args(display, screen, &(argc), argv);
-
-  if (!window) {
+  if (!windowid) {
     // XXX rah
     abortprog("supply window!\n");
   }
@@ -250,7 +160,7 @@ int main(int argc, char* argv[])
 
   load_icon(&nelements, &data, width, height);
 
-  int result = XChangeProperty(display, window, property, XA_CARDINAL, 32, PropModeReplace,
+  int result = XChangeProperty(display, windowid, property, XA_CARDINAL, 32, PropModeReplace,
       (unsigned char*)data, nelements);
 
   if(!result)
