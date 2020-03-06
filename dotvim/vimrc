@@ -1,44 +1,34 @@
 " TODO:s
-" sort out the githash checking and formatting/coloring/compilation
-"  options depending on git repo and path and file-type
+" sort out the git origin checking and formatting/compilation
+" - options depending on git repo and path and file-type
+" - color background according to a files git repo? color files outside current repo? 
 " where to store custom compiler 'plugins'?
 " - compiler configs are sort-of repo- or project-specific
 " - keep them on github or not?
 " automatic tags generation??
-" more serious cscope usage??
-" how to do mouse-browsing in console-mode?
-"  answer: vim-8 WinBar/PopUp menu!
-
-" Mouse browsing features (wishlist)
-" Jump to tag
-"  tnext / tprev
-" Search for word
-" Toggle :cwin
-" Git grep
-" Git blame
-" gD / gd (goto definition)
 
 " this old friend goes first in every dotvimrc, for sentimental reasons <3
 set nocp
 
 " some handy paths
-let g:dotvimPath = expand("<sfile>:h")
 let g:configsPath = expand("<sfile>:h:h")
 
 " plugins
-exec "set runtimepath+=" . g:dotvimPath
+exec "set runtimepath+=" . g:configsPath . "/dotvim"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-fugitive"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-bitbake"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-clang"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
 
 " we add on gui stuff when we enter gui
-au GuiEnter * exec "source " . g:dotvimPath . "/gvimrc"
+au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
 
 " for :Man command
 runtime ftplugin/man.vim
 
-exec "source " . g:dotvimPath . "/emacs-keymappings-for-command-editing.vim"
+runtime emacs-keymappings-for-command-editing.vim
+
+if has("terminal") | packadd termdebug | endif
 
 " X window title / task bar text (also for console mode!)
 set iconstring=VIM:\ %t
@@ -56,7 +46,6 @@ set wildmenu
 set backspace=2
 
 set splitright
-
 
 " search is case insensitive unless the search pattern contains capital letters
 set ignorecase smartcase
@@ -194,11 +183,50 @@ nnoremap <S-F8> :set foldlevel+=1<CR>
 nnoremap <C-S-F7> :set foldlevel=0<CR>
 nnoremap <C-S-F8> :set foldlevel=99<CR>
 
-menu PopUp.search *
-menu PopUp.tag 
-map <RightMouse> :popup PopUp
+" the following works only if xterm mappings have been set up in Xresources
 map <Esc>[64~ <C-I>
 map <Esc>[65~ <C-O>
+
+" Mouse browsing features (wishlist)
+"  tnext / tprev
+" Toggle :cwin
+" Git grep
+" Git blame
+" gD / gd (goto definition)
+menu PopUp.Search\ forward :call feedkeys("*")
+menu PopUp.Search\ backward :call feedkeys("#")
+menu PopUp.Go\ to\ def 
+menu PopUp.Go\ to\ def\ (new\ win) 
+menu PopUp.Go\ to\ filename gf
+menu PopUp.Go\ to\ filename\ (new\ win) f
+menu PopUp.Git\ grep \G
+menu PopUp.Git\ blame :Gblame
+menu PopUp.Git\ blame :Gblame
+menu PopUp.Split\ horizontally s
+menu PopUp.Split\ vertically v
+menu PopUp.Close\ window c
+menu PopUp.Toggle\ search\ highlight :set hls!
+menu PopUp.Toggle\ quickfix :ToggleQuickFix
+menu PopUp.Jump\ back 
+"menu PopUp.subMenu.test :echo test
+map <expr> <RightMouse> RightClickFunc()
+
+function! PopUpWithHighLight(line, col)
+  call setpos(".", [0, a:line, a:col, 0])
+  let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
+  redraw
+  popup PopUp
+  call matchdelete(mat)
+  call clearmatches()
+  redraw
+endfunction
+
+function! RightClickFunc()
+  call feedkeys("\<LeftMouse>")
+  let c          = getchar()
+  let s = ':call feedkeys(":call PopUpWithHighLight(' . v:mouse_lnum . ',' . v:mouse_col . ')\<CR>")'
+  return s
+endfunction
 
 function! GetDmenuVersion(cmd)
   let tmp = system(a:cmd . " -v")
@@ -432,7 +460,7 @@ function! g:SetupMergetool()
   " Can't figure out a better way to jump to the first merge conflict
   " except feedkeys(). simply calling vimgrep seems to be eaten up before UI
   " is ready for it to take effect
-  call feedkeys(":vimgrep /=======/ %\<CR>")
+  call feedkeys(":vimgrep /^=======$/ %\<CR>")
 endfunction
 
 if g:IsMergetool()
