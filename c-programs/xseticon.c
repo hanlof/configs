@@ -80,10 +80,16 @@ void load_icon(unsigned int* ndata, CARD32** data, int width, int height)
   (*data) = malloc((*ndata) * sizeof(CARD32));
 
   //int fd = open("out.bgra", O_RDONLY);
-  uint32_t * buf = malloc(height * width * 4);
+  int size = height * width * 4;
+  uint32_t * buf = malloc(size);
   // XXX malloc error handling
-  (void) read(STDIN_FILENO, buf, height*width * 4);
-  // XXX read error handling
+  int totread = 0;
+  while (totread < size) {
+	  int ret = read(STDIN_FILENO, ((char *)buf) + totread, size);
+	  if (ret < 0) break;
+	  totread += ret;
+	  if (verbose) printf("%d remaining.\n", size - totread);
+  }
 
   (*data)[0] = width;
   (*data)[1] = height;
