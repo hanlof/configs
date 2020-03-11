@@ -33,16 +33,18 @@ $(overlay_dir_stamp):
 $(RASTER_DIR)/%.bgra: $(RASTER_DIR)/%.png $(raster_dir_stamp) Makefile
 	convert $< -resize $(call geom,$*) -background none -gravity center -extent $(call geom,$*) -depth 8 $@
 
-$(OVERLAY_DIR)/%.bgra: $(OVERLAY_DIR)/%.png $(overlay_dir_stamp) Makefile
-	convert -depth 8 -compose blend -background none -gravity center -extent $(call geom,$*) \( -gravity center -geometry 32x32-0-0 raster/term-base-centered-64x64.png \) \( -resize 48x48 -channel A -evaluate multiply 0.8 $(OVERLAY_DIR)/$(call base,$*)-$(call geom,$*).png \) -composite $@
+$(OVERLAY_DIR)/%.bgra: $(RASTER_DIR)/term-base-centered-64x64.png $(RASTER_DIR)/%.png $(overlay_dir_stamp) Makefile
+	convert -depth 8 -background none -extent $(call geom,$*) \
+		\( -gravity center $(RASTER_DIR)/term-base-centered-$(call geom,$*).png \) \
+		\( -gravity SouthEast -resize 70% $(RASTER_DIR)/$(call base,$*)-$(call geom,$*).png \) -composite $@
+#	convert -depth 8 -compose blend -background none -extent $(call geom,$*) \( -gravity center $(RASTER_DIR)/term-base-centered-$(call geom,$*).png \) \( -gravity SouthEast -resize 60% -channel A -evaluate multiply 0.9 $(OVERLAY_DIR)/$(call base,$*)-$(call geom,$*).png \) -composite $@
 
 # Need .SECONDEXPANSION and double $ because it's the only way to evaluate % before the function call
+# why inkscape? Old imagemagick don't do transparency well! :-/
 .SECONDEXPANSION:
 $(RASTER_DIR)/%.png: $$(call base,$$*).svg $(raster_dir_stamp)
-	# why inkscape? Old imagemagick don't do transparency well! :-/
 	inkscape -z -e $@ -w $(call geom,$*) $(call base,$*).svg
 
-.SECONDEXPANSION:
-#$(OVERLAY_DIR)/%.png: $$(call base,$$*).svg $(RASTER_DIR)/term-base-centered-$$((call geom,$$*).png $(overlay_dir_stamp)
-$(OVERLAY_DIR)/%.png: $$(call base,$$*).svg $(overlay_dir_stamp)
-	inkscape -z -e $@ -w $(call geom,$*) $(call base,$*).svg
+.PHONY:
+print:
+	@echo output
