@@ -1,9 +1,11 @@
 # convert -size 100x100 xc:white -fill none -stroke '#000000' -strokewidth 3 -draw "path 'M10,10 a 80,80 0 0,0 80,80'" -stroke '#111111' -draw "path 'M10,10 a 60,60 0 0,0 80,80'" -strokewidth 0.4 -antialias -stroke '#555555' -draw "path 'M50,50 a 20,20 90 1,1 1,0'" png: | display png:
-
-convert -size 100x100 xc:white
-
--stroke '#000000' -strokewidth 3              -fill none -draw "path 'M10,10 a 80,80 0 0,0 80,80'"
--stroke '#111111'                                        -draw "path 'M10,10 a 60,60 0 0,0 80,80'"
--stroke '#555555' -strokewidth 0.4 -antialias            -draw "path 'M50,50 a 20,20 90 1,1 1,0'"
-
+convert -size 100x100 xc:white \
+-stroke '#000000' -strokewidth 3              -fill none -draw "path 'M10,10 a 80,80 0 0,0 80,80'" \
+-stroke '#888888'                                        -draw "path 'M10,10 a 50,50 0 0,0 80,80'" \
+-stroke '#eeeeee' -strokewidth 0.4 -antialias            -draw "path 'M50,50 a 20,20 90 1,1 1,0'" \
 png: | display png:
+# :set makeprg=sh\ -c\ \"bash\ <\ notes/svg-with-imagemagick\"
+#$ display -debug X11 xterm.xpm 2>&1 | grep Window\ id.*context
+#  Window id: 0x48000fb (context)
+#$ display -window 0x48000fb -remote <imagespec>
+

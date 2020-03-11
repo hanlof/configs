@@ -1,0 +1,9 @@
+Objective: launch vim with tabs containing each conflict instead of running vim once for each conflict
+Findings: git-mergetool is a bash script that explicitly launches the mergetool once for each conflict
+          and waits for it to exit before launching the next one.
+          This means that standard git-mergetool can't be used for the objective unless a fake tool is created
+          that exits unconditionally except for on the last file. This tool would have to open VIM in another process
+          and make sure to NOT exit on the last file. The last file would have to be found by examining the time
+          between invocations of the tool. If a certain time has elapsed it would have to assume the last file has been passed.
+          The alternative is to modify git-mergetool
+          * git mergetool lives under <GIT_BIN_DIR>/../libexec/git-core/mergetools/vimdiff
