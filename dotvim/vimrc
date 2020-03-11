@@ -1,7 +1,7 @@
 " TODO:s
 " sort out the git origin checking and formatting/compilation
 " - options depending on git repo and path and file-type
-" - color background according to a files git repo? color files outside current repo? 
+" - color background according to current files git repo? color files outside current repo?
 " where to store custom compiler 'plugins'?
 " - compiler configs are sort-of repo- or project-specific
 " - keep them on github or not?
@@ -23,12 +23,14 @@ exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
 " we add on gui stuff when we enter gui
 au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
 
-" for :Man command
+" Global extras
 runtime ftplugin/man.vim
-
-runtime emacs-keymappings-for-command-editing.vim
-
 if has("terminal") | packadd termdebug | endif
+
+" Local extras (from configs repo)
+runtime emacs-keymappings-for-command-editing.vim
+runtime right-click-menu.vim
+runtime git-mergetool-tweaks.vim
 
 " X window title / task bar text (also for console mode!)
 set iconstring=VIM:\ %t
@@ -105,9 +107,9 @@ set list
 " Stuff that we always want to do when a new window is created
 " TODO: disable/enable EOL-space error while typing (?)
 " XXX this adds additional autocommands every time this file is reloaded. FIXME!
-au VimEnter * call g:InitWindow()
-au WinEnter * call g:InitWindow()
-function! g:InitWindow()
+au VimEnter * call g:InitWindow(expand("<afile>"), expand("<amatch>"))
+au WinEnter * call g:InitWindow(expand("<afile>"), expand("<amatch>"))
+function! g:InitWindow(filename, pattern)
   if exists('w:is_initialised')
     return
   endif
@@ -142,6 +144,7 @@ nnoremap <C-S-F11> :setlocal buftype=nofile<CR>
 nnoremap <F9> :make<CR>
 if has("terminal")
   nnoremap <F9> :Tmake<CR>
+  nnoremap <S-F9> :Trun<CR>
 else
   nnoremap <F9> :make<CR>
 endif
@@ -186,92 +189,6 @@ nnoremap <C-S-F8> :set foldlevel=99<CR>
 " the following works only if xterm mappings have been set up in Xresources
 map <Esc>[64~ <C-I>
 map <Esc>[65~ <C-O>
-
-" Mouse browsing features (wishlist)
-"  tnext / tprev
-" Toggle :cwin
-" Git grep
-" Git blame
-" gD / gd (goto definition)
-menu PopUp.Search\ forward :call feedkeys("*")
-menu PopUp.Search\ backward :call feedkeys("#")
-menu PopUp.Go\ to\ def 
-menu PopUp.Go\ to\ def\ (new\ win) 
-menu PopUp.Go\ to\ filename gf
-menu PopUp.Go\ to\ filename\ (new\ win) f
-menu PopUp.Git\ grep \G
-menu PopUp.Git\ blame :Gblame
-menu PopUp.Git\ blame :Gblame
-menu PopUp.Split\ horizontally s
-menu PopUp.Split\ vertically v
-menu PopUp.Close\ window c
-menu PopUp.Toggle\ search\ highlight :set hls!
-menu PopUp.Toggle\ quickfix :ToggleQuickFix
-menu PopUp.Jump\ back 
-"menu PopUp.subMenu.test :echo test
-map <expr> <RightMouse> RightClickFunc()
-
-function! PopUpWithHighLight(line, col)
-  call setpos(".", [0, a:line, a:col, 0])
-  let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
-  redraw
-  popup PopUp
-  call matchdelete(mat)
-  call clearmatches()
-  redraw
-endfunction
-
-function! RightClickFunc()
-  call feedkeys("\<LeftMouse>")
-  let c          = getchar()
-  let s = ':call feedkeys(":call PopUpWithHighLight(' . v:mouse_lnum . ',' . v:mouse_col . ')\<CR>")'
-  return s
-endfunction
-
-function! GetDmenuVersion(cmd)
-  let tmp = system(a:cmd . " -v")
-  if v:shell_error != 0
-    return [0, 0]
-  else
-    let tmp2 = substitute(tmp, "^dmenu-", "", "")
-    return [str2nr(tmp2[0]), str2nr(tmp2[2])]
-  endif
-endfunction
-
-function! g:GetDmenuOptions()
-  if g:dmenuversion[0] >= 4 && g:dmenuversion[1] >= 7
-    return " -i -l 50 -p '' -w " . $WINDOWID
-  else
-    return " -i -l 50 -p ''"
-  endif
-endfunction
-
-let system_dmenu_path = "dmenu"
-let local_dmenu_path = expand("<sfile>:h:h") . "/submodules/dmenu/dmenu"
-
-let system_dmenu_version = GetDmenuVersion(system_dmenu_path)
-let local_dmenu_version = GetDmenuVersion(local_dmenu_path)
-
-let g:dmenucmd="false"
-if system_dmenu_version[0] == local_dmenu_version[0]
-  if system_dmenu_version[1] == local_dmenu_version[1]
-    if system_dmenu_version[0] == 0 && system_dmenu_version[1] == 0
-      " versions are equal and = 0.0. no dmenu available :(
-      let g:dmenucmd="false"
-    else
-      " versions are equal and both are runnable. pick system dmenu
-      let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
-    endif
-  elseif system_dmenu_version[1] > local_dmenu_version[1]
-    let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
-  else
-    let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
-  endif
-elseif system_dmenu_version[0] > local_dmenu_version[0]
-  let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
-else
-  let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
-endif
 
 vnoremap <Leader>f          <Esc>:call SearchForVisualSelection(0)<CR>
 vnoremap <Leader>F          <Esc>:call SearchForVisualSelection(1)<CR>
@@ -344,6 +261,51 @@ function! CallDmenu(system_cmd)
 
   return split(fname, " ")[0]
 endfunction
+
+function! GetDmenuVersion(cmd)
+  let tmp = system(a:cmd . " -v")
+  if v:shell_error != 0
+    return [0, 0]
+  else
+    let tmp2 = substitute(tmp, "^dmenu-", "", "")
+    return [str2nr(tmp2[0]), str2nr(tmp2[2])]
+  endif
+endfunction
+
+function! g:GetDmenuOptions()
+  if g:dmenuversion[0] >= 4 && g:dmenuversion[1] >= 7
+    return " -i -l 50 -p '' -w " . $WINDOWID
+  else
+    return " -i -l 50 -p ''"
+  endif
+endfunction
+
+let system_dmenu_path = "dmenu"
+let local_dmenu_path = expand("<sfile>:h:h") . "/submodules/dmenu/dmenu"
+
+let system_dmenu_version = GetDmenuVersion(system_dmenu_path)
+let local_dmenu_version = GetDmenuVersion(local_dmenu_path)
+
+let g:dmenucmd="false"
+if system_dmenu_version[0] == local_dmenu_version[0]
+  if system_dmenu_version[1] == local_dmenu_version[1]
+    if system_dmenu_version[0] == 0 && system_dmenu_version[1] == 0
+      " versions are equal and = 0.0. no dmenu available :(
+      let g:dmenucmd="false"
+    else
+      " versions are equal and both are runnable. pick system dmenu
+      let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
+    endif
+  elseif system_dmenu_version[1] > local_dmenu_version[1]
+    let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
+  else
+    let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
+  endif
+elseif system_dmenu_version[0] > local_dmenu_version[0]
+  let g:dmenucmd=system_dmenu_path | let g:dmenuversion=system_dmenu_version
+else
+  let g:dmenucmd=local_dmenu_path | let g:dmenuversion=local_dmenu_version
+endif
 
 " Find a tag and pass it to cmd
 " XXX TODO get more fields from dumptags.
@@ -425,45 +387,4 @@ endfunction
 let g:GitTop = g:GitTopLevel()
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
-endif
-
-function! g:IsMergetool()
-  if &diff == 0
-    return 0
-  endif
-  if match(argv(0), 'LOCAL') == -1
-    return 0
-  endif
-  if argc() == 3
-    if match(argv(1), 'REMOTE') == -1
-      return 0
-    endif
-  elseif argc() == 4
-    if match(argv(1), 'BASE') == -1
-      return 0
-    endif
-    if match(argv(2), 'REMOTE') == -1
-      return 0
-    endif
-  else
-    return 0
-  endif
-  return 1
-endfunction
-
-function! g:SetupMergetool()
-  " assume we are in the "MERGED" window when this function is called
-  nnoremap <F9> :diffget LOCAL<CR>
-  nnoremap <F10> :diffget BASE<CR>
-  nnoremap <F11> :diffget REMOTE<CR>
-  setlocal statusline=%<%f\ %h%m%r%=F9=LOCAL\ F10=BASE\ F11=REMOTE\ [%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:val)'))}]\ %-14.(%l,%c%V%)\ %P
-  " Can't figure out a better way to jump to the first merge conflict
-  " except feedkeys(). simply calling vimgrep seems to be eaten up before UI
-  " is ready for it to take effect
-  call feedkeys(":vimgrep /^=======$/ %\<CR>")
-endfunction
-
-if g:IsMergetool()
-  " postpone setup until windows are layed out correctly
-  autocmd VimEnter * call g:SetupMergetool()
 endif
