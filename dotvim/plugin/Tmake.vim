@@ -54,7 +54,7 @@ function s:Tmake()
     let termOptions = extend(termOptions, { "term_rows": 5 })
 
   endif
-  let ret = term_start(&makeprg, termOptions)
+  topleft let ret = term_start(expand(&makeprg), termOptions)
   if !exists("w:original_statusline")
     let w:original_statusline = &statusline
   endif

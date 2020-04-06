@@ -1,8 +1,6 @@
 #!/bin/env python3
 import itertools
-
-print("\x1b[0m")
-print("\x1b[2J", end="")
+import sys
 
 def drawbox(x, y, rgb):
     xs = 20
@@ -37,12 +35,14 @@ def draw_intensity_level(n):
     print("\x1b[%d;%dH" % (ypos, xpos), end="")
     print("\x1b[0m")
 
-import sys
 level = -1
 try:
     level = int(sys.argv[1])
 except:
     print("Which color intensity?")
     exit(1)
+
+print("\x1b[0m")
+print("\x1b[2J", end="")
 draw_intensity_level(level)
 print("\x1b[%d;%dH" % (61, 1), end="")
