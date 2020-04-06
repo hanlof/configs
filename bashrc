@@ -96,7 +96,9 @@ ff()
   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
+  set_xterm_icon vim o
   vim ${s}/${fname}
+  set_xterm_icon term-base-centered
 }
 
 run-prompt()
@@ -238,6 +240,26 @@ function __prompt_format_jobs()
   #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
 }
 
+function set_xterm_icon()
+{
+  printf -v X "%q" "${1}"
+# Add text to image:
+# convert term-base-centered-64x64.png -font FreeMono-Bold -pointsize 32 -fill white -draw 'text 8,35 ls' -background none -resize 64x64 -depth 8 -extent 64x64 -geometry 64x64 -size 64x64 bgra:
+  if [ ! -f "${CONFIGS_PATH}/graphics/${X}.svg" ]; then
+    return 1
+  fi
+  # produce term-base.bgra
+  SIZE=64x64
+  if [ -z "$2" ]; then
+    BGRA_NAME=raster/"${1}-${SIZE}.bgra"
+  else
+    BGRA_NAME=raster_overlay/"${1}-${SIZE}.bgra"
+  fi
+  make --quiet -C ${CONFIGS_PATH}/graphics ${BGRA_NAME}
+  # set it using xseticon
+  ${CONFIGS_PATH}/c-programs/xseticon -s ${SIZE} -w $WINDOWID < ${CONFIGS_PATH}/graphics/${BGRA_NAME}
+}
+
 # reference: https://github.com/git/git/blame/master/contrib/completion/git-prompt.sh
 function __git_color_path()
 {
@@ -271,8 +293,10 @@ function __prompt_command()
 {
   __exit_status="$?"
 
+  # TODO: wouldn't it be fancy to display number of background jobs overlayed on the icon?! hmmm
+  # TODO: also it would be fancy to fetch icon from the actual window if starting a windowed-app
   # reset window icon to standard bash when prompt is shown
-  set_xterm_icon ${CONFIGS_PATH}/graphics/term-base.svg
+  set_xterm_icon term-base-centered
   # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
@@ -319,15 +343,14 @@ function __prompt_command()
 __pre_line_accept_command()
 {
   set_xterm_title "${READLINE_LINE}"
-  command_name="${READLINE_LINE%% *}"
-  SIZE=64x64
-  if [ -f ${CONFIGS_PATH}/graphics/${command_name}.svg ]; then
-    # make the overlayed image
-    make --quiet -C ${CONFIGS_PATH}/graphics raster_overlay/${command_name}-${SIZE}.bgra
-    # set it using xseticon
-    ${CONFIGS_PATH}/c-programs/xseticon -s ${SIZE} -w $WINDOWID < ${CONFIGS_PATH}/graphics/raster_overlay/${command_name}-${SIZE}.bgra
-  fi
 }
+
+# use DEBUG trap for changing icon properly when starting stuff in a pipe
+__debug_command()
+{
+  set_xterm_icon "${BASH_COMMAND%% *}" o
+}
+trap "__debug_command; " DEBUG
 
 # dummy bindings to work around shortcomings in libreadline
 # XXX Maybe have a look at the numbers some time :)
@@ -377,22 +400,15 @@ export MAKEFLAGS="-j $(nproc)"
 export MAN_POSIXLY_CORRECT=1
 export MANPATH=${MANPATH}:/usr/share/man
 export PATH=${CONFIGS_PATH}/in-path:${PATH}
-export EDITOR="gvim -f"
-
-function set_xterm_icon()
-{
-  # produce xterm-base.bgra
-  SIZE=64x64
-  SVGNAME=term-base-centered
-  make --quiet -C ${CONFIGS_PATH}/graphics raster/${SVGNAME}-${SIZE}.bgra
-  # set it using xseticon
-  ${CONFIGS_PATH}/c-programs/xseticon -s ${SIZE} -w $WINDOWID < ${CONFIGS_PATH}/graphics/raster/${SVGNAME}-${SIZE}.bgra
-}
+export EDITOR="vim"
 
 # if xterm do xterm stuff
 read PCMD < /proc/$PPID/comm
 if [ "$PCMD" == "xterm" ]; then
   rand_xterm_bg
   rand_xterm_geometry
-  set_xterm_icon ${CONFIGS_PATH}/graphics/term-base.svg
+  # TODO xterm icon is not strictly 'xterm' icon. make it work in other terms??!?
+  # - actually $WINDOWID is only set in xterm :$
+  #   * Active window can be fetched by: xprop -root -notype -f _NET_ACTIVE_WINDOW 32x ' $0\n' _NET_ACTIVE_WINDOW
+  ### XXX HOWEVER how can we know that the active window is the one we should set icon for? haha
 fi
