@@ -31,7 +31,7 @@ fr ()
   {
     git ls-files
     git submodule foreach --quiet --recursive "PREFIX=\${PWD##$SUPERREPO}/; git ls-files | ${CONFIGS_PATH}/c-programs/prefix \$PREFIX"
-  } | ${DMENU_PATH} -w $WINDOWID -l 40 -i | xargs gvim
+  } | ${DMENU_PATH} -w $WINDOWID -l 40 -i | xargs vim
 }
 
 ggrep ()
@@ -82,10 +82,10 @@ ft()
   tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${DMENU_PATH} -w $WINDOWID -sb purple -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$tagname" ]; then return; fi
 
-  gvim --cmd set\ tags+=${s}/.git/tags -t ${tagname}
+  vim --cmd set\ tags+=${s}/.git/tags -t ${tagname}
 }
 
-ff()
+find_git_file()
 {
   s=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ -z "$s" ]; then
@@ -228,7 +228,7 @@ function v()
   filedir=$(dirname "$1")
   gitdir=$(git -C "${dir}" rev-parse --show-toplevel)
 
-  gvim --servername ${gitdir} --remote-tab-silent "$1"
+  vim --servername ${gitdir} --remote-tab-silent "$1"
 }
 
 # Prompt stuff: format the number of jobs and hide if 0
@@ -264,6 +264,7 @@ function set_xterm_icon()
 function __git_color_path()
 {
   printf -v red  '\[\e[1;31m\]'
+  printf -v yellow  '\[\e[1;33m\]'
   printf -v pink '\[\e[1;35m\]'
   printf -v rst '\[\e[0m\]'
   out="$PWD"
@@ -275,7 +276,7 @@ function __git_color_path()
          -f "${repo}/.git/CHERRY_PICK_HEAD" -o \
          -f "${repo}/.git/REVERT_HEAD" -o \
          -d "${repo}/.git/sequencer" ]; then
-      col=${red}
+      col=${yellow}
     else
       col=${pink}
     fi
@@ -340,6 +341,7 @@ function __prompt_command()
   export PS1
 }
 
+# rebind 'enter' to set xterm title to the whole command being typed, regardless of pipes
 __pre_line_accept_command()
 {
   set_xterm_title "${READLINE_LINE}"
@@ -353,10 +355,10 @@ __debug_command()
 trap "__debug_command; " DEBUG
 
 # dummy bindings to work around shortcomings in libreadline
-# XXX Maybe have a look at the numbers some time :)
+# TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
 bind -x $'"\201": "run_menu"'
-bind -x $'"\202": "ff"'
+bind -x $'"\202": "find_git_file"'
 bind -x $'"\203": "insert_git_top"'
 bind -x $'"\204": "insert_from_file ~/bin/paths"'
 bind -x $'"\205": "insert_filename"'
@@ -371,15 +373,21 @@ bind '"\e[18~":'$'"\204"'        # F7
 bind '"\e[19;2~":'$'"\205"'      # S-F8
 bind '"\eOS":'$'"\206"'          # F4
 
-bind '"p": history-search-backward'
-bind '"n": history-search-forward'
+bind '"\ep": history-search-backward'
+bind '"\en": history-search-forward'
 
 # Remap enter to run the "pre-command" hook.
 bind $'"\C-m": "\200\307"'
 bind $'"\C-j": accept-line'
 
-alias xvim='xterm -tn xterm-256color -fa "Bitstream Vera Sans Mono" -fg Black -bg White -fs 10 +sb -e vim &'
-alias vp='gvim -c "set buftype=nofile|0put *"'
+alias xvim='xterm -tn xterm-256color +sb -e vim &'
+alias tvim='vim -c "set buftype=nofile"'
+alias cvim='vim -c "set buftype=nofile|0put *"'
+function xvim()
+{
+  xterm -e vim "$@" &
+}
+
 alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
