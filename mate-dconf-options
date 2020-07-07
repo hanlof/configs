@@ -1,0 +1,7 @@
+[org/mate/desktop/peripherals/keyboard/kbd]
+layouts=['us\tdvorak', 'se']
+options=['caps\tcaps:ctrl_modifier']
+[org/mate/desktop/applications/terminal]
+exec='xterm'
+[org/mate/marco/global-keybindings]
+run-command-terminal='<Primary><Alt>t'

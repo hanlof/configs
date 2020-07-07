@@ -9,8 +9,8 @@
 # DONE: install gitconfig include using git config mechanism
 
 # TODO: consider global (system-wide) git options (hooks) that may interfere with this local git repo and/or other repos
-# TODO: sudo apt-get install vim vim-gtk3 git gitk gcc make. what else??
-# TODO: build universal-ctags
+# TODO: sudo apt-get install vim vim-gtk3 git gitk build-essential gcc make incscape. what else??
+# TODO: build universal-ctags (in background process?!)
 # TODO: do some SED magic for paths and install template files. gonna need some interactivity if files exists
 # TODO: set up ~/.vimrc to properly include $CONFIGS_PATH/dotvim/vimrc
 # TODO: set up ~/.bashrc to properly include $CONFIGS_PATH/bashrc
@@ -31,30 +31,32 @@ git -C ${CONFIGS_PATH} submodule update --init submodules/dmenu
 # dmenu
 which dmenu > /dev/null || { # first try systme-wide dmenu
 	printf $'\e[1mTrying to install dmenu...\e[0m\n'
-	sudo apt-get install dmenu
+	if sudo -v; then
+		sudo apt-get install dmenu
+	else
+		printf 'Unsuccessful.'
+	fi
 }
 # did we get a dmenu with a satisfactory version?
 which dmenu > /dev/null && DMENU_VER=$(dmenu -v) || DMENU_VER=0.0
 DMENU_VER=${DMENU_VER##dmenu-}
 if [ "${DMENU_VER%%.*}" -lt 4 -o "${DMENU_VER##*.}" -lt 7 ]; then
-	${CONFIGS_PATH}/build_dmenu.sh
+	if ${CONFIGS_PATH}/build_dmenu.sh; then
+		ln -s ../submodules/dmenu/dmenu ${CONFIGS_PATH}/in-path/dmenu
+	fi
 fi
 which dmenu > /dev/null || test -x ${CONFIGS_PATH}/submodules/dmenu/dmenu || {
   printf $'\n\e[1mFAILED to install and/or build dmenu from source. Sorry!\n\n\e[0m'
 }
 
 
-echo Set up vim plugins
-# fugitive documentation
-vim -n -e --noplugin --cmd  'helptags submodules/vim-fugitive/doc|quit'
-
 echo Build helper programs
 # c-program helpers
 (
-	make -C ${CONFIGS_PATH}/c-programs insdirs2 prefix dumptags || {
+	make -s -C ${CONFIGS_PATH}/c-programs all || {
 		printf $'\n\e[1mFAILED to build helper programs for shell dmenu integration. Sorry!\n\n'
 	}
-	make -C ${CONFIGS_PATH}/c-programs/mmenu mmenu || {
+	make -s -C ${CONFIGS_PATH}/c-programs/mmenu mmenu || {
 		printf $'\n\e[1mFAILED to build mmenu. Sorry!\n\n'
 	}
 )
@@ -70,8 +72,16 @@ done <<< "$(git config --global --get-all include.path)"
 
 ${INSTALL_GIT_INCLUDE} && git config --global --add include.path "$GITCONFIG_PATH"
 
+echo Set up vim plugins
+# fugitive documentation
+vim -n -e --noplugin --cmd  'helptags submodules/vim-fugitive/doc|quit' > /dev/null
+
 echo vimrc
 test -e ~/.vimrc || cp ${CONFIGS_PATH_ABS}/vimrc_template ~/.vimrc
 
 echo Xresources
 test -e ~/.Xresources || ln -s ${CONFIGS_PATH_ABS}/Xresources ~/.Xresources
+xrdb -merge ~/.Xresources
+
+echo MATE configuration
+dconf load / < mate-dconf-options

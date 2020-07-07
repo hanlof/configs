@@ -8,6 +8,10 @@ $ dconf dump /org/mate/desktop/applications/terminal/
 [/]
 exec='xterm'
 
+$ dconf dump /org/mate/marco/global-keybindings/
+[/]
+run-command-terminal='<Primary><Alt>t'
+
 XFCE:
 xfconf-query -c keyboard-layout -p /Default/XkbVariant
 xfconf-query -c keyboard-layout -p /Default/XkbDisable
