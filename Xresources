@@ -15,18 +15,18 @@ XTerm.VT100*foreground: white
 XTerm*font1: Monospace
 XTerm*faceSize1: 2
 XTerm*font2: Monospace
-XTerm*faceSize2: 4
+XTerm*faceSize2: 6
 XTerm*font3: Monospace
-XTerm*faceSize3: 6
+XTerm*faceSize3: 8
 XTerm*font4: Monospace
-XTerm*faceSize4: 8
+XTerm*faceSize4: 12
 XTerm*font5: Monospace
 XTerm*faceSize5: 14
 XTerm*font6: Monospace
 XTerm*faceSize6: 18
-#XTerm*iconHint: /home/ehanlof/xterm.xpm
+# what characters are selected on double-click:
 XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
-
+# custom mouse-wheel bindings: (interacts with Vim configuration)
 *VT100.Translations: #override \n\
   Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
   Ctrl Shift <Btn5Down>: string("0x1b") string("[67~") \n\
