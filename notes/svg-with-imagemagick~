@@ -1,0 +1,29 @@
+# convert -size 100x100 xc:white -fill none -stroke '#000000' -strokewidth 3 -draw "path 'M10,10 a 80,80 0 0,0 80,80'" -stroke '#111111' -draw "path 'M10,10 a 60,60 0 0,0 80,80'" -strokewidth 0.4 -antialias -stroke '#555555' -draw "path 'M50,50 a 20,20 90 1,1 1,0'" png: | display png:
+A=50,50
+B=5,5
+C="M100,50 l 10,10
+  l 0,20"
+DRAW="path 'M100,50 c 0,20 20,40 40,40 c -20,0 -40,20 -40,40 c 0,-20 -20,-40 -40,-40 c 20,0 40,-20 40,-40'
+'M100,50 m 0,80 c 30,30 20,50 0,50'
+'M100,50 m 0,80 c -30,30 -20,50 0,50'
+'M100,180 m -10,0 c -30,30 -20,60 10,60'
+'M100,180 m 10,0 c 30,30 20,60 -10,60'
+"
+convert -size 200x400 xc:white \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,50 c 0,20 20,40 40,40 c -20,0 -40,20 -40,40 c 0,-20 -20,-40 -40,-40 c 20,0 40,-20 40,-40'" \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,50 m 0,80 c 30,30 20,50 0,50'" \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,50 m 0,80 c -30,30 -20,50 0,50'" \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,180 m -10,0 c -30,30 -20,60 10,60'" \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,180 m 10,0 c 30,30 20,60 -10,60'" \
+-stroke green        -strokewidth 2 -fill none -draw "path 'M100,180 m 10,0 c 30,30 20,60 -10,60'" \
+/tmp/slask.png
+display -window 0x36000fb -remote /tmp/slask.png
+#-stroke blue        -strokewidth 3              -fill none -draw "path 'M90,50 a $B 0 1,1 $A'" \
+#-stroke black        -strokewidth 1              -fill none -draw "path 'M90,50 l $A'" \
+#-stroke red        -strokewidth 3              -fill none -draw "path 'M90,50 a 60,60 1 1,0 1,0'" \
+#-stroke '#eeeeee' -strokewidth 0.4 -antialias            -draw "path 'M50,50 a 20,20 90 1,1 1,0'" \
+# :set makeprg=sh\ -c\ \"bash\ <\ notes/svg-with-imagemagick\"
+#$ display -debug X11 xterm.xpm 2>&1 | grep Window\ id.*context
+#  Window id: 0x48000fb (context)
+#$ display -window 0x48000fb -remote <imagespec>
+
