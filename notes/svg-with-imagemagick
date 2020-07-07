@@ -26,7 +26,7 @@ DRAW="path '
 convert -size ${C}x${C} xc:white \
 -stroke green          -strokewidth 2 -fill none -draw "$DRAW" \
 /tmp/slask.png
-display -window 0x36000fb -remote /tmp/slask.png
+display -window 0x34000fb -remote /tmp/slask.png
 #-stroke blue        -strokewidth 3              -fill none -draw "path 'M90,50 a $B 0 1,1 $A'" \
 # color/simple primitives within -draw: stroke red circle 100,60 100,37
 #-stroke black        -strokewidth 1              -fill none -draw "path 'M90,50 l $A'" \
