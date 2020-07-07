@@ -34,5 +34,6 @@ XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
   Shift <Btn5Down>: string("0x1b") string("[65~") \n\
   Ctrl <Btn4Down>: larger-vt-font() \n\
   Ctrl <Btn5Down>: smaller-vt-font() \n\
+  Shift <KeyPress> Delete: insert-selection(PRIMARY,SECONDARY)
 
 

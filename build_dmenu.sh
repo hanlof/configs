@@ -7,9 +7,14 @@ CONFIGS_PATH=$(dirname $0)
 git -C ${CONFIGS_PATH} submodule update --init submodules/dmenu
 
 make -C ${CONFIGS_PATH}/submodules/dmenu || {
-	# if build fails, assume we are missing headers,
-	# so attempt to fetch them and try again
-	sudo apt-get install libx11-dev libxinerama-dev libxft-dev
+	printf 'Missing headers/libs or other build error. Attempting to use apt-get to retrieve them...\n'
+	printf 'sudo: '
+	sudo -v || {
+		printf 'Please authenticate using sudo and try again to apt-get needed headers\n'
+		printf 'E.g: sudo -v'
+		return
+	}
+	sudo apt-get install build-essential libx11-dev libxinerama-dev libxft-dev
 	make -C ${CONFIGS_PATH}/submodules/dmenu
 }
 

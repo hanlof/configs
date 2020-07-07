@@ -87,6 +87,7 @@ ft()
 
 find_git_file()
 {
+  find_dmenu
   s=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ -z "$s" ]; then
     echo "Enter a git repo first."

@@ -38,7 +38,8 @@ def draw_intensity_level(n):
 level = -1
 try:
     level = int(sys.argv[1])
-except:
+except Exception as e:
+    print(e)
     print("Which color intensity?")
     exit(1)
 
