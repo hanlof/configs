@@ -1,0 +1,462 @@
+diff --git a/bashrc b/bashrc
+index ca61233..7420584 100644
+--- a/bashrc
++++ b/bashrc
+@@ -25,6 +25,15 @@ find_dmenu()
+ }
+ 
+ # git helpers
++check_cwd_in_gitrepo()
++{
++  s=$(git rev-parse --show-toplevel 2> /dev/null)
++  if [ -z "$s" ]; then
++    echo "$*"
++    return 1
++  fi
++}
++
+ fr ()
+ {
+   SUPERREPO="$PWD"/
+@@ -74,11 +83,8 @@ gls()
+ 
+ ft()
+ {
+-  s=$(git rev-parse --show-toplevel 2> /dev/null)
+-  if [ -z "$s" ]; then
+-    echo "Enter a git repo first."
+-    return 1
+-  fi
++  check_cwd_in_gitrepo "Enter git repo first." || return 1
++
+   tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${DMENU_PATH} -w $WINDOWID -sb purple -i -l 50 -p ">" 2> /dev/null)
+   if [ -z "$tagname" ]; then return; fi
+ 
+@@ -87,18 +93,13 @@ ft()
+ 
+ find_git_file()
+ {
+-  s=$(git rev-parse --show-toplevel 2> /dev/null)
+-  if [ -z "$s" ]; then
+-    echo "Enter a git repo first."
+-    git rev-parse --show-toplevel
+-    return 1
+-  fi
++  check_cwd_in_gitrepo "Enter git repo first." || return 1
++
+   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
+   if [ -z "$fname" ]; then return; fi
+ 
+-  set_xterm_icon vim o
+-  vim ${s}/${fname}
+-  set_xterm_icon term-base-centered
++  history -s vim ${s}/${fname}
++  fc -s
+ }
+ 
+ run-prompt()
+diff --git a/c-programs/perf.py b/c-programs/perf.py
+index 263f907..a2db2dc 100755
+--- a/c-programs/perf.py
++++ b/c-programs/perf.py
+@@ -109,7 +109,7 @@ try:
+     tot_usertime = tot_usertime + usertime
+     tot_realtime = tot_realtime + realtime
+     tot_cputime = tot_cputime + cputime
+-    print up + "%d - %.1f %.1f %.1f %.1f" % (samples, 1000 * tot_systime / samples, 1000 * tot_usertime / samples, 1000 * tot_realtime / samples, 100 * tot_cputime / tot_realtime)
++    print up + "%d - S%.1f U%.1f R%.1f CPU%.1f" % (samples, 1000 * tot_systime / samples, 1000 * tot_usertime / samples, 1000 * tot_realtime / samples, 100 * tot_cputime / tot_realtime)
+ except KeyboardInterrupt as k:
+   print "Stopped after %i iterations" % samples
+   sys.exit(1)
+diff --git a/dotvim/experimental.vim b/dotvim/experimental.vim
+index 9e668ba..4bf5efa 100644
+--- a/dotvim/experimental.vim
++++ b/dotvim/experimental.vim
+@@ -2,7 +2,9 @@ set statusline=%<%f\ %h%m%r%=[%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:v
+ 
+ "efm for gerrit reviews: set efm=%E\ \ \ \ \ \ file:\ %f,%Z\ \ \ \ \ \ line:\ "%l
+ set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:%s,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %m,%Z%m
++" gerriturl = system("git remote get-url --push origin")
+ "command for fetching gerrit reviews into errorlist
++"echo matchlist("ssh://ehanlof@selngerrit.mo.sw.ericcsson.se:29418/pc/gateway/epg", "ssh://\\([0-9A-Za-z@\\.]\\+\\):\\(\\d\\+\\)/")
+ cexpr system('ssh gerrit.site.se -p 29418 gerrit query --comments --patch-sets commit:`git show --pretty=%H --no-patch --no-notes --no-abbrev`')
+ 
+ " define tab stuff in language specific files like after/ftplugin/c.vim etc
+@@ -62,11 +64,6 @@ function! g:SwapExists()
+   let v:swapchoice=''
+ endfunction
+ 
+-function! g:IsXRepo(path)
+-  silent execute '!git --git-dir ' . a:path . '/.git rev-parse -q --verify XXXXXXX^{commit}'
+-  return v:shell_error
+-endfunction
+-
+ " au! CursorMoved * call MarkIfWide()
+ function! MarkIfWide()
+   if virtcol("$") > &textwidth
+@@ -76,10 +73,6 @@ function! MarkIfWide()
+   endif
+ endfunction
+ 
+-function! g:Hans()
+-  echom 'hej :)'
+-endfunction
+-
+ "au! BufEnter * call g:SetColorOnBuffer()
+ function! g:SetColorOnBuffer()
+   let GitTop = g:GitTopLevel(fnamemodify(expand('%'), ':p:s?[\/]$??'))
+@@ -94,7 +87,10 @@ function! g:SetColorOnBuffer()
+   endif
+ endfunction
+ 
+-" a dict...
++" function in dict
++function! g:Hans()
++  echom 'hej :)'
++endfunction
+ let custom = {
+   \'kalle' : {
+     \'apa' : function('g:Hans'),
+@@ -171,13 +167,36 @@ function! CallMmenu2()
+     return ""
+   endif
+ 
+-
+   call feedkeys(":call system('/home/ocp/configs/submodules/dmenu/mmenu', 'apa')\<CR>")
+   set mouse=
+   if empty(output)
+     return ""
+   endif
++endfunction
+ 
++" print syntax elements at cursor, as cursor moves
++function! g:T(s)
++  let s = {'cParen': '(',
++        \  'cCppParen': '(',
++        \  'cBlock': '{',
++        \  'cBracket': '[',
++        \  'cString': '""',
++        \  'cInclude': '#inc',
++        \  'cPreCondit': '#if',
++        \}
++  if exists("s['" . a:s . "']")
++    return s[a:s]
++  else
++    return "?" . a:s . "?"
++  endif
+ endfunction
++au CursorMoved * echo join(map(synstack(line("."), col(".")), "g:T(synIDattr(v:val, 'name'))"), " ")
++
++" set search pattern when grepping
++au QuickfixCmdPost *
++      \ let d = getqflist({'all': 1}) |
++      \ echo d['title'] |
++      \ if match(d['title'], 'grep') |
++      \   "let @/ =
++      \ endif
+ 
+-" colorscheme siennaterm
+diff --git a/dotvim/right-click-menu.vim b/dotvim/right-click-menu.vim
+index 10781f1..2748479 100644
+--- a/dotvim/right-click-menu.vim
++++ b/dotvim/right-click-menu.vim
+@@ -4,46 +4,60 @@
+ " Git grep
+ " Git blame
+ " gD / gd (goto definition)
+-menu PopUp.Search\ forward :call feedkeys("*")
+-menu PopUp.Search\ backward :call feedkeys("#")
+-menu PopUp.-Sep1- :
+-menu PopUp.Go\ to\ def 
+-menu PopUp.Go\ to\ def\ (new\ win) 
+-menu PopUp.Go\ to\ filename gf
+-menu PopUp.Go\ to\ filename\ (new\ win) f
+-menu PopUp.-Sep2- :
+-menu PopUp.Git\ grep \G
+-menu PopUp.Git\ blame :Gblame
+-menu PopUp.-Sep3- :
+-menu PopUp.Split\ horizontally s
+-menu PopUp.Split\ vertically v
+-menu PopUp.Close\ window c
+-menu PopUp.-Sep4- :
+-menu PopUp.Toggle\ search\ highlight :set hls!
+-menu PopUp.Toggle\ quickfix :ToggleQuickFix
+-"menu PopUp.-Sep5- :
+-"menu PopUp.Jump\ back <C-o>
+-"menu PopUp.Jump\ forward <C-o>
+-"menu PopUp.subMenu.test :echo test
++menu RightClickMenu.Search\ forward :call feedkeys("*")
++menu RightClickMenu.Search\ backward :call feedkeys("#")
++menu RightClickMenu.-Sep1- :
++menu RightClickMenu.Go\ to\ def 
++menu RightClickMenu.Go\ to\ def\ (new\ win) 
++menu RightClickMenu.Go\ to\ filename gf
++menu RightClickMenu.Go\ to\ filename\ (new\ win) f
++menu RightClickMenu.-Sep2- :
++menu RightClickMenu.Git\ grep \G
++menu RightClickMenu.Git\ blame :Gblame
++menu RightClickMenu.-Sep3- :
++menu RightClickMenu.Split\ horizontally s
++menu RightClickMenu.Split\ vertically v
++menu RightClickMenu.Close\ window c
++menu RightClickMenu.-Sep4- :
++menu RightClickMenu.Toggle\ search\ highlight :set hls!
++menu RightClickMenu.Toggle\ quickfix :ToggleQuickFix
++"menu RightClickMenu.-Sep5- :
++"menu RightClickMenu.Jump\ back <C-o>
++"menu RightClickMenu.Jump\ forward <C-o>
++"menu RightClickMenu.subMenu.test :echo test
+ map <expr> <RightMouse> RightClickFunc()
+ 
+-function! PopUpWithHighLight(line, col, win)
++function! PopUpWithHighLight(line, col, win, mode)
++  echom "mode:" . a:mode
+   exec a:win . "wincmd w"
+-  call setpos(".", [0, a:line, a:col, 0])
+-  let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
+-  redraw
++  let wlastline  = line('w$')
++  let lastline   = line('$')
++  "echom "line:" . a:line . " wlast:" . wlastline . " last:" . lastline
+   let winid = win_getid()
+-  popup PopUp
+-  if win_id2win(winid) != 0
+-    call matchdelete(mat, winid)
++  if a:line > wlastline
++    " on title bar?
++  else
++    call setpos(".", [0, a:line, a:col, 0])
++    let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
+     redraw
++    popup RightClickMenu
++    if win_id2win(winid) != 0
++      call matchdelete(mat, winid)
++      redraw
++    endif
+   endif
+ endfunction
+ 
++" this function fetches all state and returns the command to feed the keys to
++" pop up a menu.  we do not want vim to be in the state of executing a mapping
++" when the menu is popped up because it causes problems.
++" OTOH the state must be fetched here. this is why it's a two-stage thing!
+ function! RightClickFunc()
++  let mode = mode()
+   call feedkeys("\<LeftMouse>")
+   let c          = getchar()
+-  let s = ':call feedkeys(":call PopUpWithHighLight(' . v:mouse_lnum . ',' . v:mouse_col . ',' . v:mouse_win . ')\<CR>")'
++  let command = ':call PopUpWithHighLight(' . v:mouse_lnum . ',' . v:mouse_col . ',' . v:mouse_win . ', "' . mode() . '")'
++  let s = ":call feedkeys('" . command . "\<C-v>\<CR>')\<CR>"
+   return s
+ endfunction
+ 
+diff --git a/dotvim/vimrc b/dotvim/vimrc
+index 2cc6673..558f5fc 100644
+--- a/dotvim/vimrc
++++ b/dotvim/vimrc
+@@ -1,7 +1,7 @@
+ " TODO:s
+ " sort out the git origin checking and formatting/compilation
+ " - options depending on git repo and path and file-type
+-" - color background according to current files git repo? color files outside current repo?
++" - color background according to a files git repo? color files outside current repo?
+ " where to store custom compiler 'plugins'?
+ " - compiler configs are sort-of repo- or project-specific
+ " - keep them on github or not?
+@@ -25,7 +25,10 @@ au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
+ 
+ " Global extras
+ runtime ftplugin/man.vim
+-if has("terminal") | packadd termdebug | endif
++if has("packages")
++  packadd termdebug
++  packadd cfilter
++endif
+ 
+ " Local extras (from configs repo)
+ runtime emacs-keymappings-for-command-editing.vim
+@@ -35,15 +38,11 @@ runtime git-mergetool-tweaks.vim
+ " X window title / task bar text (also for console mode!)
+ set iconstring=VIM:\ %t
+ set titlestring=%t\ ~\ [%f]
+-set title
+-set icon
++set title icon
+ 
+ " statusline / command interface related stuff
+ set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
+-set laststatus=2
+-set ruler
+-set showcmd
+-set wildmenu
++set laststatus=2 ruler showcmd wildmenu
+ 
+ set backspace=2
+ 
+@@ -60,6 +59,7 @@ set sessionoptions+=resize,localoptions
+ set autowrite
+ 
+ set cscopequickfix=s-,c-,d-,i-,t-,e-
++" cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
+ 
+ " syntax plugin options
+ let g:is_bash = 1
+@@ -100,8 +100,50 @@ filetype plugin on
+ filetype indent on
+ 
+ " ### Stuff related to whitespace and special characters begin here ###
++function! g:SystemList(cmd)
++  let out = system(a:cmd)
++  return split(out, '\n')
++endfunction
++
++function! g:GitTopLevel()
++  " systemlist() seems like a convenient way to get rid of the newline in the
++  " output from the git command
++  let git_output = g:SystemList("git rev-parse --show-toplevel")
++  if v:shell_error == 0
++    return git_output[0]
++  endif
++  return ''
++endfunction
++
++" maybe chdir if in wrong repo?! but only when no server available! otherwise
++" assume that the remote vim is in the correct WD
++" get git top-level dir
++if argc() == 1
++  " TODO find repo of file being opened
++  let fileName = expand("%:p")
++  if v:servername == ""
++    " TODO! check git toplevel of FILE BEING OPENED! not current dir
++    " XXX   ALSO! should handle multiple files! somehow... consider -o -O -p
++    let serverName = g:GitTopLevel()
++    if serverName == ""
++      let serverName = "VIM"
++    endif
++    let slist = serverlist()
++    if match(slist, serverName) != -1
++      call remote_expr(serverName, "execute('tabedit " . fileName . "')")
++      silent !echo -en "\e[?1049lFile opened in vim session for current repo\n"
++      quit
++    endif
++    call remote_startserver(serverName)
++  endif
++endif
+ 
++
++" NOTE this line needs to go after the check-running-server stuff above or the
++" screen will blink when open stuff in another window which is not cool!
++" very weird!
+ let &listchars="tab:‣\ " "set this one using let so it doesn't show up as a space error!
++
+ set list
+ 
+ " Stuff that we always want to do when a new window is created
+@@ -127,8 +169,6 @@ function! g:ToggleListCharsEOL()
+   endif
+ endfunction
+ 
+-cscope add /repo/hans/slask/.git/cscope.out /repo/hans/slask
+-
+ nnoremap <F12> :set hls!<CR>
+ inoremap <F12> <C-o>:set hls!<CR>
+ nnoremap <expr> <S-F12> g:ToggleListCharsEOL()
+@@ -176,8 +216,8 @@ map <F4> :call DmenuTag("tag")<CR>
+ map <S-F4> :call DmenuTag("tjump")<CR>
+ cmap <F3> =CallDmenu("git ls-files --full-name ". g:GitTopLevel())<CR>
+ 
+-map <F6> :let kalle="vert stag ".expand('<cword>')<CR>:exec kalle<CR>
+-map <S-F6> :let kalle="tab stag ".expand('<cword>')<CR>:exec kalle<CR>
++map <F6> :let tmp="vert stag ".expand('<cword>')<CR>:exec tmp<CR>
++map <S-F6> :let tmp="tab stag ".expand('<cword>')<CR>:exec tmp<CR>
+ 
+ cmap <F8> <C-r>=g:GitTop<CR>
+ 
+@@ -202,7 +242,7 @@ function! SearchForVisualSelection(backward)
+     return
+   endif
+ 
+-  let l:sel = getline(lnum1)[ col1 - 1 : col2 - 1]
++  let l:sel = getline(lnum1)[col1 - 1 : col2 - 1]
+   let l:searchchar = '/'
+   if a:backward == 1
+     let l:searchchar = '?'
+@@ -213,7 +253,7 @@ function! SearchForVisualSelection(backward)
+   " to get around the ":help function-search-undo" problem which is that
+   " last-search pattern and last-search direction is reset when returning
+   " from a function.
+-  " using ":normal /pat<CR>" did not work and neither did search() and/or
++  " using ":normal /pat<CR>" does not work and neither does search() and/or
+   " assigning to the "/ register.
+   call feedkeys(l:searchchar . l:sel . "\<CR>")
+ endfunction
+@@ -223,7 +263,7 @@ function! g:IncludeExprExample(in)
+   let top = g:GitTopLevel()
+   let t2=substitute(a:in,'^b/',top,'g')
+   let t=substitute(t2,'^a/',top,'g')
+-"  let t2=substitute(t,'^/',top . '/','g')
++  "  let t2=substitute(t,'^/',top . '/','g')
+   return t2
+ endfunction
+ 
+@@ -248,7 +288,7 @@ function! CallDmenu(system_cmd)
+     return ""
+   endif
+ 
+-"  Xlib:  extension "XINERAMA" missing on display ":1011.0"
++  "  Xlib:  extension "XINERAMA" missing on display ":1011.0"
+   let fname2 = substitute(fname, '\n$', '', '')
+   " first substitute in the case of two "lines" (<CR> or NULL character present at the end)
+   let fname = substitute(fname2, "Xlib:  extension \"XINERAMA\" missing.*\".*.\"\..", '', '')
+@@ -341,11 +381,6 @@ function! DmenuFile(cmd)
+   execute a:cmd . " " . g:GitTopLevel() . "/" . fname
+ endfunction
+ 
+-function! g:SystemList(cmd)
+-  let out = system(a:cmd)
+-  return split(out, '\n')
+-endfunction
+-
+ " get .git dir
+ function! g:GitDir()
+   " systemlist() seems like a convenient way to get rid of the newline in the
+@@ -357,16 +392,6 @@ function! g:GitDir()
+   return ''
+ endfunction
+ 
+-" get git top-level dir
+-function! g:GitTopLevel()
+-  " systemlist() seems like a convenient way to get rid of the newline in the
+-  " output from the git command
+-  let git_output = g:SystemList("git rev-parse --show-toplevel")
+-  if v:shell_error == 0
+-    return git_output[0]
+-  endif
+-  return ''
+-endfunction
+ 
+ function! g:GitUniqueId()
+   let git_output = g:SystemList("git remote get-url origin")
+@@ -376,15 +401,8 @@ function! g:GitUniqueId()
+   return ''
+ endfunction
+ 
+-function! g:SetUpLocalRepoOptions(options)
+-  " Here we do stuff!
+-  " XXX figure out what the options struct should contain.
+-  "     > probably it should map repo fetch urls to vim options
+-  "       and/or vim commands.
+-  "     > maybe run the commands using :sandbox for extra safety!
+-endfunction
+-
+ let g:GitTop = g:GitTopLevel()
+ if g:GitTop != ''
+   exec 'set path+=' . g:GitTop
+ endif
++
+diff --git a/submodules/vim-fugitive b/submodules/vim-fugitive
+--- a/submodules/vim-fugitive
++++ b/submodules/vim-fugitive
+@@ -1 +1 @@
+-Subproject commit 5d99841b22928f1597d447c68de844989bf9a804
++Subproject commit 5d99841b22928f1597d447c68de844989bf9a804-dirty
