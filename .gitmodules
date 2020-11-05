@@ -17,3 +17,6 @@
 [submodule "submodules/universal-ctags"]
 	path = submodules/universal-ctags
 	url = https://github.com/universal-ctags/ctags
+[submodule "submodules/YouCompleteMe"]
+	path = submodules/YouCompleteMe
+	url = https://github.com/ycm-core/YouCompleteMe
