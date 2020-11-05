@@ -39,7 +39,7 @@ function s:Tmake()
     return
   endif
   cexpr ""
-  call setqflist([], 'a', { 'title': 'Tmake: "' . &makeprg . '"'})
+  call setqflist([], 'a', { 'title': 'Tmake: ' . &makeprg})
   let tmakeWin = bufwinnr('tmakebuffer')
   let g:startbuf = bufnr('%')
   if &autowrite
@@ -52,9 +52,9 @@ function s:Tmake()
     let termOptions = extend(termOptions, { 'curwin': 1 })
   else
     let termOptions = extend(termOptions, { "term_rows": 5 })
-
   endif
-  topleft let ret = term_start(expand(&makeprg), termOptions)
+  let cmd = 'sh -c "' . &makeprg . '"'
+  topleft let ret = term_start(cmd, termOptions)
   if !exists("w:original_statusline")
     let w:original_statusline = &statusline
   endif
