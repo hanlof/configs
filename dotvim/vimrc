@@ -20,7 +20,7 @@ exec "set runtimepath+=" . g:configsPath . "/submodules/vim-bitbake"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-clang"
 exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
 
-" we add on gui stuff when we enter gui
+" we add on gui stuff when/if we enter gui
 au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
 
 " Global extras

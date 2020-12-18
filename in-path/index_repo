@@ -27,7 +27,7 @@ GIT_COMMIT=$(git show-ref --head --heads HEAD -s)
 CSCOPE=$(which cscope)
 CSCOPE_RETVALUE=$?
 
-CTAGS=$(which ctags)
+CTAGS=${HOME}/configs/submodules/universal-ctags/ctags #$(which ctags)
 CTAGS_RETVALUE=$?
 
 #this is fed to into the git submodule foreach command
