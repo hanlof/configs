@@ -2,6 +2,15 @@
 import itertools
 import sys
 
+# IDEAS
+# Scaling
+# - draw in a defined area regandless of which intensity is being drawn
+#   - make the "defined area" fill up the terminal
+# - make the text output play nice with smaller squares!
+# - draw different intensities next to each other
+# - make interactive. switch intensity with keys.
+# - draw the squares as proper hexagons (fancy characters can be used)
+
 def drawbox(x, y, rgb):
     xs = 20
     ys = 10
