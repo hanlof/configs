@@ -1,16 +1,16 @@
 " Mouse browsing features (wishlist)
 "  tnext / tprev
-" Toggle :cwin
-" Git grep
-" Git blame
 " gD / gd (goto definition)
+menu PopUp.Jump\ back <C-o>
+menu PopUp.Jump\ forward <C-i>
+menu PopUp.-Sep0- :
 menu PopUp.Search\ forward :call feedkeys("*")
 menu PopUp.Search\ backward :call feedkeys("#")
 menu PopUp.-Sep1- :
 menu PopUp.Go\ to\ def 
-menu PopUp.Go\ to\ def\ (new\ win) 
+menu PopUp.Go\ to\ def\ [new\ win] 
 menu PopUp.Go\ to\ filename gf
-menu PopUp.Go\ to\ filename\ (new\ win) f
+menu PopUp.Go\ to\ filename\ [new\ win] f
 menu PopUp.-Sep2- :
 menu PopUp.Git\ grep \G
 menu PopUp.Git\ blame :Gblame
@@ -21,9 +21,6 @@ menu PopUp.Close\ window c
 menu PopUp.-Sep4- :
 menu PopUp.Toggle\ search\ highlight :set hls!
 menu PopUp.Toggle\ quickfix :ToggleQuickFix
-"menu PopUp.-Sep5- :
-"menu PopUp.Jump\ back <C-o>
-"menu PopUp.Jump\ forward <C-o>
 "menu PopUp.subMenu.test :echo test
 map <expr> <RightMouse> RightClickFunc()
 
