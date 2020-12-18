@@ -1,5 +1,11 @@
 command Tmake :call s:Tmake()
 command Trun :call s:Trun(g:Trun_command)
+" XXX not same semantics as TermdebugCommand. oops! maybe change it
+command! -nargs=+ TrunCommand :call s:SetTrunCommand(<q-args>)
+
+function! s:SetTrunCommand(cmd)
+  let g:Trun_command = a:cmd
+endfunction
 
 function s:TmakeWriteWin()
   if &modifiable && &modified
@@ -23,8 +29,9 @@ function s:Trun(command)
   else
     let termOptions = extend(termOptions, { 'term_rows': 10 })
   endif
-  let ret = term_start(a:command, termOptions)
-  menu WinBar.Run :call <SID>:Tmake()
+  let cmd = 'sh -c "' . a:command . '; RET="$?"; echo [Trun] Command returned: "${RET}'
+  let ret = term_start(cmd, termOptions)
+  menu WinBar.Run :call <SID>:Trun()
   let &l:winfixheight = 1
   let &l:foldcolumn = 0
   call clearmatches()
@@ -86,6 +93,7 @@ function g:Tmake_exit(job, code)
   else
     let sl .= "%#ErrorMsg#"
   endif
+  let sl .= a:code . " "
   let sl .= w:original_statusline
   let &l:statusline = sl
   exec bufwinnr(g:startbuf) . "wincmd w"
