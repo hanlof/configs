@@ -9,8 +9,8 @@ XTerm*utf8: true
 XTerm*fontDoublesize: true
 XTerm*allowWindowOps: true
 XTerm*allowFontOps: true
-XTerm.VT100*background: black
-XTerm.VT100*foreground: white
+XTerm.VT100*background: white
+XTerm.VT100*foreground: black
 
 XTerm*font1: Monospace
 XTerm*faceSize1: 2
@@ -24,9 +24,9 @@ XTerm*font5: Monospace
 XTerm*faceSize5: 14
 XTerm*font6: Monospace
 XTerm*faceSize6: 18
-# what characters are selected on double-click:
+!what characters are selected on double-click:
 XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
-# custom mouse-wheel bindings: (interacts with Vim configuration)
+!custom mouse-wheel bindings: (interacts with Vim configuration)
 *VT100.Translations: #override \n\
   Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
   Ctrl Shift <Btn5Down>: string("0x1b") string("[67~") \n\
@@ -34,6 +34,7 @@ XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
   Shift <Btn5Down>: string("0x1b") string("[65~") \n\
   Ctrl <Btn4Down>: larger-vt-font() \n\
   Ctrl <Btn5Down>: smaller-vt-font() \n\
-  Shift <KeyPress> Delete: insert-selection(PRIMARY,SECONDARY)
-
+  Shift <KeyPress> Delete: insert-selection(PRIMARY,SECONDARY) \n\
+  Shift Ctrl <KeyPress> D: interpret("\033]11;#000000\007\033]10;#ffffff\007\033]17;#000000\007\033]19;#ffffff\007") \n\
+  Shift Ctrl <KeyPress> L: interpret("\033]10;#000000\007\033]11;#ffffff\007\033]17;#000000\007\033]19;#ffffff\007")
 
