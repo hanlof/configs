@@ -79,7 +79,7 @@ endif
 " set xterm cursor 'color' to value "XtDefaultBackground"
 " without it the cursor is white which sucks
 " "\e]12;XtDefaultBackground^G"
-silent !echo -en '\e]12;XtDefaultBackground\a'
+silent !echo -en '\e]12;XtDefaultForeground\a'
 " make cursor blink upon startup
 silent !echo -en '\e[1 q'
 " output '<CSI>5 q' (set cursor to blinking solid block) when exiting insert-mode
@@ -388,3 +388,4 @@ let g:GitTop = g:GitTopLevel()
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop
 endif
+silent !echo -en '\e[1 q'

@@ -1,7 +1,7 @@
 command OneShot call s:Oneshot()
 
 function s:Oneshot()
-  let name = systemlist("mktemp /tmp/XXX.c")[0]
+  let name = systemlist("mktemp /tmp/temp-prog-XXXXXX.c")[0]
   exec "tabedit " . name
   set filetype=c
   let t:progname = fnamemodify(name, ":r")
