@@ -140,7 +140,7 @@ function rand_xterm_bg()
     C=50
     let base=0
   else
-    C=30
+    C=8
     let base=256-C
   fi
   r=$((base + (RANDOM * C) / 32767))
