@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -e
 # Placeholder file with some notes...
 
 # DONE: fetch subrepos (skip dmenu if it can be found or installed globally (using apt-get)
