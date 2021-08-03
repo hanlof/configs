@@ -85,4 +85,4 @@ test -e ~/.Xresources || ln -s ${CONFIGS_PATH_ABS}/Xresources ~/.Xresources
 xrdb -merge ~/.Xresources
 
 echo MATE configuration
-dconf load / < mate-dconf-options
+dconf load / < ${CONFIGS_PATH_ABS}/mate-dconf-options

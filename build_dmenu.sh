@@ -15,6 +15,6 @@ make -C ${CONFIGS_PATH}/submodules/dmenu || {
 		return
 	}
 	sudo apt-get install build-essential libx11-dev libxinerama-dev libxft-dev
-	make -C ${CONFIGS_PATH}/submodules/dmenu
+	make -C ${CONFIGS_PATH}/submodules/dmenu dmenu
 }
 
