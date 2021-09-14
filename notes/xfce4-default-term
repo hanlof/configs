@@ -1,0 +1,13 @@
+Store in .local/share/xfce4/helpers/custom-TerminalEmulator.desktop
+
+[Desktop Entry]
+NoDisplay=true
+Version=1.0
+Encoding=UTF-8
+Type=X-XFCE-Helper
+X-XFCE-Category=TerminalEmulator
+X-XFCE-CommandsWithParameter=xterm "%s"
+Icon=xterm
+Name=xterm
+X-XFCE-Commands=xterm
+
