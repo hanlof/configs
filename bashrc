@@ -29,6 +29,15 @@ find_dmenu()
 }
 
 # git helpers
+check_cwd_in_gitrepo()
+{
+  s=$(git rev-parse --show-toplevel 2> /dev/null)
+  if [ -z "$s" ]; then
+    echo "$*"
+    return 1
+  fi
+}
+
 fr ()
 {
   SUPERREPO="$PWD"/
@@ -78,11 +87,8 @@ gls()
 
 ft()
 {
-  s=$(git rev-parse --show-toplevel 2> /dev/null)
-  if [ -z "$s" ]; then
-    echo "Enter a git repo first."
-    return 1
-  fi
+  # TODO if not in git repo try just ./tags then
+  check_cwd_in_gitrepo "Enter git repo first." || return 1
   tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${DMENU_PATH} -w $WINDOWID -sb purple -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$tagname" ]; then return; fi
 
@@ -92,18 +98,12 @@ ft()
 find_git_file()
 {
   find_dmenu
-  s=$(git rev-parse --show-toplevel 2> /dev/null)
-  if [ -z "$s" ]; then
-    echo "Enter a git repo first."
-    git rev-parse --show-toplevel
-    return 1
-  fi
+  check_cwd_in_gitrepo "Enter git repo first." || return 1
   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
-  set_xwindows_icon vim o
-  vim ${s}/${fname}
-  set_xwindows_icon term-base-centered
+  history -s vim ${s}/${fname}
+  fc -s
 }
 
 run-prompt()

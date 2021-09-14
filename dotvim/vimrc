@@ -376,14 +376,6 @@ function! g:GitUniqueId()
   return ''
 endfunction
 
-function! g:SetUpLocalRepoOptions(options)
-  " Here we do stuff!
-  " XXX figure out what the options struct should contain.
-  "     > probably it should map repo fetch urls to vim options
-  "       and/or vim commands.
-  "     > maybe run the commands using :sandbox for extra safety!
-endfunction
-
 let g:GitTop = g:GitTopLevel()
 if g:GitTop != ''
   exec 'set path+=' . g:GitTop

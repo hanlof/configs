@@ -1,60 +1,3 @@
-diff --git a/bashrc b/bashrc
-index ca61233..7420584 100644
---- a/bashrc
-+++ b/bashrc
-@@ -25,6 +25,15 @@ find_dmenu()
- }
- 
- # git helpers
-+check_cwd_in_gitrepo()
-+{
-+  s=$(git rev-parse --show-toplevel 2> /dev/null)
-+  if [ -z "$s" ]; then
-+    echo "$*"
-+    return 1
-+  fi
-+}
-+
- fr ()
- {
-   SUPERREPO="$PWD"/
-@@ -74,11 +83,8 @@ gls()
- 
- ft()
- {
--  s=$(git rev-parse --show-toplevel 2> /dev/null)
--  if [ -z "$s" ]; then
--    echo "Enter a git repo first."
--    return 1
--  fi
-+  check_cwd_in_gitrepo "Enter git repo first." || return 1
-+
-   tagname=$(${CONFIGS_PATH}/c-programs/dumptags -t ${s}/.git/tags -l | ${DMENU_PATH} -w $WINDOWID -sb purple -i -l 50 -p ">" 2> /dev/null)
-   if [ -z "$tagname" ]; then return; fi
- 
-@@ -87,18 +93,13 @@ ft()
- 
- find_git_file()
- {
--  s=$(git rev-parse --show-toplevel 2> /dev/null)
--  if [ -z "$s" ]; then
--    echo "Enter a git repo first."
--    git rev-parse --show-toplevel
--    return 1
--  fi
-+  check_cwd_in_gitrepo "Enter git repo first." || return 1
-+
-   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
-   if [ -z "$fname" ]; then return; fi
- 
--  set_xterm_icon vim o
--  vim ${s}/${fname}
--  set_xterm_icon term-base-centered
-+  history -s vim ${s}/${fname}
-+  fc -s
- }
- 
- run-prompt()
 diff --git a/c-programs/perf.py b/c-programs/perf.py
 index 263f907..a2db2dc 100755
 --- a/c-programs/perf.py
@@ -160,52 +103,8 @@ diff --git a/dotvim/right-click-menu.vim b/dotvim/right-click-menu.vim
 index 10781f1..2748479 100644
 --- a/dotvim/right-click-menu.vim
 +++ b/dotvim/right-click-menu.vim
-@@ -4,46 +4,60 @@
- " Git grep
- " Git blame
- " gD / gd (goto definition)
--menu PopUp.Search\ forward :call feedkeys("*")
--menu PopUp.Search\ backward :call feedkeys("#")
--menu PopUp.-Sep1- :
--menu PopUp.Go\ to\ def 
--menu PopUp.Go\ to\ def\ (new\ win) 
--menu PopUp.Go\ to\ filename gf
--menu PopUp.Go\ to\ filename\ (new\ win) f
--menu PopUp.-Sep2- :
--menu PopUp.Git\ grep \G
--menu PopUp.Git\ blame :Gblame
--menu PopUp.-Sep3- :
--menu PopUp.Split\ horizontally s
--menu PopUp.Split\ vertically v
--menu PopUp.Close\ window c
--menu PopUp.-Sep4- :
--menu PopUp.Toggle\ search\ highlight :set hls!
--menu PopUp.Toggle\ quickfix :ToggleQuickFix
--"menu PopUp.-Sep5- :
--"menu PopUp.Jump\ back <C-o>
--"menu PopUp.Jump\ forward <C-o>
--"menu PopUp.subMenu.test :echo test
-+menu RightClickMenu.Search\ forward :call feedkeys("*")
-+menu RightClickMenu.Search\ backward :call feedkeys("#")
-+menu RightClickMenu.-Sep1- :
-+menu RightClickMenu.Go\ to\ def 
-+menu RightClickMenu.Go\ to\ def\ (new\ win) 
-+menu RightClickMenu.Go\ to\ filename gf
-+menu RightClickMenu.Go\ to\ filename\ (new\ win) f
-+menu RightClickMenu.-Sep2- :
-+menu RightClickMenu.Git\ grep \G
-+menu RightClickMenu.Git\ blame :Gblame
-+menu RightClickMenu.-Sep3- :
-+menu RightClickMenu.Split\ horizontally s
-+menu RightClickMenu.Split\ vertically v
-+menu RightClickMenu.Close\ window c
-+menu RightClickMenu.-Sep4- :
-+menu RightClickMenu.Toggle\ search\ highlight :set hls!
-+menu RightClickMenu.Toggle\ quickfix :ToggleQuickFix
-+"menu RightClickMenu.-Sep5- :
-+"menu RightClickMenu.Jump\ back <C-o>
-+"menu RightClickMenu.Jump\ forward <C-o>
-+"menu RightClickMenu.subMenu.test :echo test
+@@ -24,23 +24,37 @@
+ "menu RightClickMenu.subMenu.test :echo test
  map <expr> <RightMouse> RightClickFunc()
  
 -function! PopUpWithHighLight(line, col, win)
@@ -219,7 +118,7 @@ index 10781f1..2748479 100644
 +  let lastline   = line('$')
 +  "echom "line:" . a:line . " wlast:" . wlastline . " last:" . lastline
    let winid = win_getid()
--  popup PopUp
+-  popup RightClickMenu
 -  if win_id2win(winid) != 0
 -    call matchdelete(mat, winid)
 +  if a:line > wlastline
@@ -437,26 +336,3 @@ index 2cc6673..558f5fc 100644
  
  function! g:GitUniqueId()
    let git_output = g:SystemList("git remote get-url origin")
-@@ -376,15 +401,8 @@ function! g:GitUniqueId()
-   return ''
- endfunction
- 
--function! g:SetUpLocalRepoOptions(options)
--  " Here we do stuff!
--  " XXX figure out what the options struct should contain.
--  "     > probably it should map repo fetch urls to vim options
--  "       and/or vim commands.
--  "     > maybe run the commands using :sandbox for extra safety!
--endfunction
--
- let g:GitTop = g:GitTopLevel()
- if g:GitTop != ''
-   exec 'set path+=' . g:GitTop
- endif
-+
-diff --git a/submodules/vim-fugitive b/submodules/vim-fugitive
---- a/submodules/vim-fugitive
-+++ b/submodules/vim-fugitive
-@@ -1 +1 @@
--Subproject commit 5d99841b22928f1597d447c68de844989bf9a804
-+Subproject commit 5d99841b22928f1597d447c68de844989bf9a804-dirty

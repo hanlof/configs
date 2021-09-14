@@ -1,27 +1,27 @@
 " Mouse browsing features (wishlist)
 "  tnext / tprev
 " gD / gd (goto definition)
-menu PopUp.Jump\ back <C-o>
-menu PopUp.Jump\ forward <C-i>
-menu PopUp.-Sep0- :
-menu PopUp.Search\ forward :call feedkeys("*")
-menu PopUp.Search\ backward :call feedkeys("#")
-menu PopUp.-Sep1- :
-menu PopUp.Go\ to\ def 
-menu PopUp.Go\ to\ def\ [new\ win] 
-menu PopUp.Go\ to\ filename gf
-menu PopUp.Go\ to\ filename\ [new\ win] f
-menu PopUp.-Sep2- :
-menu PopUp.Git\ grep \G
-menu PopUp.Git\ blame :Gblame
-menu PopUp.-Sep3- :
-menu PopUp.Split\ horizontally s
-menu PopUp.Split\ vertically v
-menu PopUp.Close\ window c
-menu PopUp.-Sep4- :
-menu PopUp.Toggle\ search\ highlight :set hls!
-menu PopUp.Toggle\ quickfix :ToggleQuickFix
-"menu PopUp.subMenu.test :echo test
+menu RightClickMenu.Jump\ back <C-o>
+menu RightClickMenu.Jump\ forward <C-i>
+menu RightClickMenu.-Sep0- :
+menu RightClickMenu.Search\ forward :call feedkeys("*")
+menu RightClickMenu.Search\ backward :call feedkeys("#")
+menu RightClickMenu.-Sep1- :
+menu RightClickMenu.Go\ to\ def 
+menu RightClickMenu.Go\ to\ def\ [new\ win] 
+menu RightClickMenu.Go\ to\ filename gf
+menu RightClickMenu.Go\ to\ filename\ [new\ win] f
+menu RightClickMenu.-Sep2- :
+menu RightClickMenu.Git\ grep \G
+menu RightClickMenu.Git\ blame :Gblame
+menu RightClickMenu.-Sep3- :
+menu RightClickMenu.Split\ horizontally s
+menu RightClickMenu.Split\ vertically v
+menu RightClickMenu.Close\ window c
+menu RightClickMenu.-Sep4- :
+menu RightClickMenu.Toggle\ search\ highlight :set hls!
+menu RightClickMenu.Toggle\ quickfix :ToggleQuickFix
+"menu RightClickMenu.subMenu.test :echo test
 map <expr> <RightMouse> RightClickFunc()
 
 function! PopUpWithHighLight(line, col, win)
@@ -30,7 +30,7 @@ function! PopUpWithHighLight(line, col, win)
   let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
   redraw
   let winid = win_getid()
-  popup PopUp
+  popup RightClickMenu
   if win_id2win(winid) != 0
     call matchdelete(mat, winid)
     redraw
