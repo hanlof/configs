@@ -2,9 +2,9 @@
 
 CONFIGS_PATH=~/configs
 
-source ${CONFIGS_PATH}/xwindows-icon-functions.sh
-source ${CONFIGS_PATH}/xterm-functions.sh
-source ${CONFIGS_PATH}/prompt-functions.sh
+source ${CONFIGS_PATH}/bash/xwindows-icon-functions.sh
+source ${CONFIGS_PATH}/bash/xterm-functions.sh
+source ${CONFIGS_PATH}/bash/prompt-functions.sh
 
 _complete_repos() {
   local cur
