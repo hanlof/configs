@@ -230,8 +230,6 @@ function __prompt_command()
 {
   __exit_status="$?"
 
-  # TODO: wouldn't it be fancy to display number of background jobs overlayed on the icon?! hmmm
-  # TODO: also it would be fancy to fetch icon from the actual window if starting a windowed-app
   # reset window icon to standard bash when prompt is shown
 
   set_xwindows_icon term-base-centered
@@ -247,6 +245,7 @@ function __prompt_command()
   PS1=""
   PS1+='\[\033[0m\]'                                     # reset all color
   PS1+='\[\033[1m\]\h '                                  # hostname
+  PS1+=${TERM_EMU_MSG}
 
   PS1+='\[\033[0m\]'                                     # reset color
   PS1+="${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"  # build env
@@ -320,12 +319,11 @@ export PATH=${CONFIGS_PATH}/in-path:${PATH}
 export EDITOR="vim"
 
 # if xterm do xterm stuff
-read PCMD < /proc/$PPID/comm
-if [ "$PCMD" == "xterm" ]; then
+read PARENT_CMD < /proc/$PPID/comm
+if [ "$PARENT_CMD" == "xterm" ]; then
+  TERM_EMU_MSG=""
   rand_xterm_bg white
   rand_xterm_geometry
-  # TODO xterm icon is not strictly 'xterm' icon. make it work in other terms??!?
-  # - actually $WINDOWID is only set in xterm :$
-  #   * Active window can be fetched by: xprop -root -notype -f _NET_ACTIVE_WINDOW 32x ' $0\n' _NET_ACTIVE_WINDOW
-  ### XXX HOWEVER how can we know that the active window is the one we should set icon for? haha
+else
+  TERM_EMU_MSG='\[\033[31m\]!${PARENT_CMD}!\[\033[0m\] '
 fi
