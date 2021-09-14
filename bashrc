@@ -2,6 +2,10 @@
 
 CONFIGS_PATH=~/configs
 
+source ${CONFIGS_PATH}/xwindows-icon-functions.sh
+source ${CONFIGS_PATH}/xterm-functions.sh
+source ${CONFIGS_PATH}/prompt-functions.sh
+
 _complete_repos() {
   local cur
   pushd ~/repos > /dev/null
@@ -97,9 +101,9 @@ find_git_file()
   fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
-  set_xterm_icon vim o
+  set_xwindows_icon vim o
   vim ${s}/${fname}
-  set_xterm_icon term-base-centered
+  set_xwindows_icon term-base-centered
 }
 
 run-prompt()
@@ -214,16 +218,6 @@ insert_from_file ()
   let READLINE_POINT+=${#fname}
 }
 
-xr ()
-{
-  xterm -geometry 65x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
-}
-
-xw ()
-{
-  xterm -geometry 130x150+10+10 -font -*-*-*-*-*-*-7-*-*-*-*-*-*-* -e "$* ; read i " &
-}
-
 function v()
 {
   filedir=$(dirname "$1")
@@ -232,75 +226,13 @@ function v()
   vim --servername ${gitdir} --remote-tab-silent "$1"
 }
 
-# Prompt stuff: format the number of jobs and hide if 0
-function __prompt_format_jobs()
-{
-  a="$*"
-  b=${a%0}
-  printf "${b:+[$a] }"
-  #printf ${b:+\\e[1;34m<\\e[0m}${b:=$*}
-}
-
-# TODO xterm icon is not strictly 'xterm' icon. make it work in other terms??!?
-# must fetch windowid using X property _NET_WM_PID and stuff
-function set_xterm_icon()
-{
-  printf -v X "%q" "${1}"
-# Add text to image:
-# convert term-base-centered-64x64.png -font FreeMono-Bold -pointsize 32 -fill white -draw 'text 8,35 ls' -background none -resize 64x64 -depth 8 -extent 64x64 -geometry 64x64 -size 64x64 bgra:
-  if [ ! -f "${CONFIGS_PATH}/graphics/${X}.svg" ]; then
-    return 1
-  fi
-  # produce term-base.bgra
-  SIZE=64x64
-  if [ -z "$2" ]; then
-    BGRA_NAME=raster/"${1}-${SIZE}.bgra"
-  else
-    BGRA_NAME=raster_overlay/"${1}-${SIZE}.bgra"
-  fi
-  make --quiet -C ${CONFIGS_PATH}/graphics ${BGRA_NAME}
-  # set it using xseticon
-  ${CONFIGS_PATH}/c-programs/xseticon -s "${SIZE}" -w "${WINDOWID}" < ${CONFIGS_PATH}/graphics/${BGRA_NAME}
-}
-
-# reference: https://github.com/git/git/blame/master/contrib/completion/git-prompt.sh
-function __git_color_path()
-{
-  printf -v red  '\[\e[1;31m\]'
-  printf -v yellow  '\[\e[1;33m\]'
-  printf -v pink '\[\e[1;35m\]'
-  printf -v rst '\[\e[0m\]'
-  out="$PWD"
-  repo=$(git rev-parse --show-toplevel 2> /dev/null)
-  while [ "$?" == "0" ]; do
-    if [ -d "${repo}/.git/rebase-merge" -o \
-         -d "${repo}/.git/rebase-apply" -o \
-         -f "${repo}/.git/MERGE_HEAD" -o \
-         -f "${repo}/.git/CHERRY_PICK_HEAD" -o \
-         -f "${repo}/.git/REVERT_HEAD" -o \
-         -d "${repo}/.git/sequencer" ]; then
-      col=${yellow}
-    else
-      col=${pink}
-    fi
-    tail=${out#${repo}}
-    repo_name=${repo##*/}
-    repo_prefix=${repo%$repo_name}
-    out="${repo_prefix}${col}${repo_name}${rst}${tail}"
-
-    repo=$(git -C $repo/.. rev-parse --show-toplevel 2> /dev/null)
-  done
-  echo $out
-}
-
-# TODO: wouldn't it be fancy to display number of background jobs overlayed on the icon?! hmmm
-# TODO: also it would be fancy to fetch icon from the actual window if starting a windowed-app
 function __prompt_command()
 {
   __exit_status="$?"
 
   # reset window icon to standard bash when prompt is shown
-  set_xterm_icon term-base-centered
+
+  set_xwindows_icon term-base-centered
   # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
@@ -318,28 +250,11 @@ function __prompt_command()
   PS1+='\[\033[0m\]'                                     # reset color
   PS1+="${OECORE_SDK_VERSION:+{$OECORE_SDK_VERSION\} }"  # build env
   PS1+="${BUILDDIR:+{${BUILDDIR##*/build}\} }"           # bitbake env
-
   PS1+='$(__prompt_format_jobs \j)'                      # active jobs
 
-  _trimmed_pwd=${PWD:0-30}                               # trim path (this line returns empty string of not enough characters are available)
-  #_git_colored_path=$(__git_color_path "$PWD")
-
-  # XXX TODO trimming gone?! maybe fix inside __git_color_path
+  # TODO trim long path? may have to do it inside __git_color_path
   PS1+="$(__git_color_path)"
-
-  if [ "$__exit_status" != "0" ]; then                   # exit status from previous command
-    if [ "$__exit_status" -gt 128 ]; then                # find signal name if exit status > 128
-      signame=$(2>/dev/null kill -l $((__exit_status - 128)))
-      if [ "$?" == "0" ]; then                           # verify that signal name could be found
-        M=SIG${signame}
-      else
-        M=$__exit_status
-      fi
-    else
-      M=$__exit_status
-    fi
-      PS1+=' [\[\e[1;31m\]'"$M"'\[\e[0m\]]'
-  fi
+  PS1+="$(__prompt_exit_status ${__exit_status})"
 
   PS1+=' \[\033[36;1m\]\$\[\033[0m\] '                       # display the $ and reset color
   export PS1
@@ -354,7 +269,7 @@ __pre_line_accept_command()
 # use DEBUG trap for changing icon properly when starting stuff in a pipe
 __debug_command()
 {
-  set_xterm_icon "${BASH_COMMAND%% *}" o
+  set_xwindows_icon "${BASH_COMMAND%% *}" o
 }
 trap "__debug_command; " DEBUG
 
@@ -369,39 +284,28 @@ bind -x $'"\205": "insert_filename"'
 bind -x $'"\206": "ft"'
 bind $'"\307": accept-line'
 
-# real bindings, make use of dummy bindings above to get something done
+# real bindings, maps to intermediate bindings above to work around libreadline limitations
 bind '"\e[20~":'$'"\201"'        # F9
 bind '"\eOR":'$'"\202"'          # F3
 bind '"\e[19~":'$'"\203"'        # F8
 bind '"\e[18~":'$'"\204"'        # F7
 bind '"\e[19;2~":'$'"\205"'      # S-F8
 bind '"\eOS":'$'"\206"'          # F4
-
 bind '"\ep": history-search-backward'
 bind '"\en": history-search-forward'
-
 # Remap enter to run the "pre-command" hook.
 bind $'"\C-m": "\200\307"'
 bind $'"\C-j": accept-line'
 
-alias xvim='xterm -tn xterm-256color +sb -e vim &'
+function xvim() { xterm -e vim "$@" & }
 alias tvim='vim -c "set buftype=nofile"'
 alias cvim='vim -c "set buftype=nofile|0put *"'
-function xvim()
-{
-  xterm -e vim "$@" &
-}
-
 alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/repos; cd "
 
 complete -F _complete_repos rcd
-
-# TODO: fix name, put in subdir
-# TODO: break out other sh*t as well!
-source ${CONFIGS_PATH}/xterm-functions.sh
 
 find_dmenu
 
@@ -418,8 +322,7 @@ export EDITOR="vim"
 read PARENT_CMD < /proc/$PPID/comm
 if [ "$PARENT_CMD" == "xterm" ]; then
   TERM_EMU_MSG=""
-
-  rand_xterm_bg
+  rand_xterm_bg white
   rand_xterm_geometry
 else
   TERM_EMU_MSG='\[\033[31m\]!${PARENT_CMD}!\[\033[0m\] '

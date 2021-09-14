@@ -8,7 +8,9 @@ _query_xterm_debug() {
   # -t    -- timeout (seconds)
   # -s    -- silent
   # -d t  -- read until 't' is received
+  _IFS="$IFS"
   IFS=";" read -t 0.1 -d t a b c d e f
+  IFS="$_IFS"
   if [ $? -gt 128 ]; then
     echo empty reply
   else
@@ -20,7 +22,9 @@ _query_xterm_debug() {
 _get_workarea() {
   cd_prop=($(xprop -notype -root _NET_CURRENT_DESKTOP))
   desktop_number=${cd_prop[2]}
+  _IFS="$IFS"
   IFS=", " wa_prop=($(xprop -notype -root _NET_WORKAREA))
+  IFS="$_IFS"
   let ofs=2+desptop_number*4
   let x=wa_prop[ofs+0]
   let y=wa_prop[ofs+1]
@@ -36,6 +40,7 @@ _get_workarea() {
 res() {
   _get_workarea
   echo -n $'\e['18t
+  _IFS="$IFS"
   IFS=";" read -t 0.1 -d t -s _ h w _
   mode=SIZE
   while true; do
@@ -75,6 +80,7 @@ res() {
       POS) let x=_x y=_y; echo -ne "\e[3;${x};${y}t"
     esac
   done
+  IFS="$_IFS"
   echo " Bye!"
 }
 
@@ -164,6 +170,8 @@ function rand_xterm_bg()
 
 function get_xterm_bg()
 {
+  _IFS="$IFS"
   echo -en '\e]11;?\a'; IFS=\; read -s -d $'\a' _ col _
   echo $col
+  IFS="$_IFS"
 }
