@@ -109,7 +109,7 @@ try:
     tot_usertime = tot_usertime + usertime
     tot_realtime = tot_realtime + realtime
     tot_cputime = tot_cputime + cputime
-    print up + "%d - %.1f %.1f %.1f %.1f" % (samples, 1000 * tot_systime / samples, 1000 * tot_usertime / samples, 1000 * tot_realtime / samples, 100 * tot_cputime / tot_realtime)
+    print up + "%d - S%.1f U%.1f R%.1f CPU%.1f" % (samples, 1000 * tot_systime / samples, 1000 * tot_usertime / samples, 1000 * tot_realtime / samples, 100 * tot_cputime / tot_realtime)
 except KeyboardInterrupt as k:
   print "Stopped after %i iterations" % samples
   sys.exit(1)
