@@ -25,25 +25,40 @@ au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
 
 " Global extras
 runtime ftplugin/man.vim
-if has("terminal") | packadd termdebug | endif
+if has("packages")
+  packadd termdebug
+  packadd cfilter
+endif
 
 " Local extras (from configs repo)
 runtime emacs-keymappings-for-command-editing.vim
 runtime right-click-menu.vim
 runtime git-mergetool-tweaks.vim
 
+function WindowsPerTab()
+  let tmp = map(gettabinfo(),'len(v:val["windows"])')
+  return join(tmp, ' ')
+endfunc
+
+function GitRepoOrCWD()
+  " XXX g:GitTopLevel() messes with terminal. use fugitive for now i guess.
+  let tmp = FugitiveWorkTree()
+  if tmp == ''
+    return getcwd()
+  else
+    return '<' . fnamemodify(tmp, ':t') . '>'
+  endif
+endfunc
+
 " X window title / task bar text (also for console mode!)
 set iconstring=VIM:\ %t
-set titlestring=%t\ ~\ [%f]
+set titlestring=VIM:\ [%{WindowsPerTab()}]\ %{GitRepoOrCWD()}
 set title
 set icon
 
 " statusline / command interface related stuff
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
-set laststatus=2
-set ruler
-set showcmd
-set wildmenu
+set laststatus=2 ruler showcmd wildmenu
 
 set backspace=2
 

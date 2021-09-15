@@ -52,27 +52,6 @@ diff --git a/dotvim/vimrc b/dotvim/vimrc
 index 2cc6673..558f5fc 100644
 --- a/dotvim/vimrc
 +++ b/dotvim/vimrc
-@@ -1,7 +1,7 @@
- " TODO:s
- " sort out the git origin checking and formatting/compilation
- " - options depending on git repo and path and file-type
--" - color background according to current files git repo? color files outside current repo?
-+" - color background according to a files git repo? color files outside current repo?
- " where to store custom compiler 'plugins'?
- " - compiler configs are sort-of repo- or project-specific
- " - keep them on github or not?
-@@ -25,7 +25,10 @@ au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
- 
- " Global extras
- runtime ftplugin/man.vim
--if has("terminal") | packadd termdebug | endif
-+if has("packages")
-+  packadd termdebug
-+  packadd cfilter
-+endif
- 
- " Local extras (from configs repo)
- runtime emacs-keymappings-for-command-editing.vim
 @@ -35,15 +38,11 @@ runtime git-mergetool-tweaks.vim
  " X window title / task bar text (also for console mode!)
  set iconstring=VIM:\ %t
