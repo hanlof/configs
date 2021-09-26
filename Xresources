@@ -1,7 +1,7 @@
 XTerm*termName: xterm-256color
 XTerm*faceName: Monospace
 XTerm*faceSize: 10
-XTerm.vt100.geometry: 170x45+200+100
+!XTerm.vt100.geometry: 170x45+200+100
 XTerm*saveLines: 200000
 XTerm*scrollKey: true
 XTerm*scrollTtyOutput: false

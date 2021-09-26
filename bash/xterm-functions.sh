@@ -19,17 +19,53 @@ _query_xterm_debug() {
   #echo "$a $b $c $d $e $f"
 }
 
+_get_monitor_info() {
+  local desktop_number current_desk_string monitors_string winx winy
+  local workarea_string winx winy
+  # get current window position using xterm control sequence (to determine which monitor we're on)
+  echo -n $'\e[13t'
+  read -sd ";" _ # consume response header
+  IFS=";" read -s -t 0.01 -d t winx winy # get the coordinates
+
+  # get current desktop from root window X properties
+  current_desk_string=( $(xprop -notype -root _NET_CURRENT_DESKTOP) )
+  desktop_number=${current_desk_string[2]}
+  IFS=", " workarea_string=( $(xprop -notype -root _NET_WORKAREA) ) : # the : prevents IFS from being permanently changed
+
+  # get monitor layout information using xrandr
+  monitors_string="$(xrandr --current | grep '\<connected\>')"
+  declare -Ag _monitor_info
+  while read a; do # iterate the found monitors
+    [[ "$a" =~ ([[:digit:]]+)x([[:digit:]]+)\+([[:digit:]]+)\+([[:digit:]]+) ]] # extract geometry info
+    w=${BASH_REMATCH[1]}
+    h=${BASH_REMATCH[2]}
+    xofs=${BASH_REMATCH[3]}
+    yofs=${BASH_REMATCH[4]}
+    if [ $winx -ge $xofs -a $winx -lt $((w+xofs)) -a $winy -ge $yofs -a $winy -lt $((h+yofs)) ]; then
+      # store values for the monitor that contains the top-left corner of current window
+      _monitor_info['x_offset']=$xofs
+      _monitor_info['y_offset']=$yofs
+      _monitor_info['width']=$w
+      _monitor_info['height']=$h
+    fi
+  done <<< "$monitors_string"
+}
+
 _get_workarea() {
   cd_prop=($(xprop -notype -root _NET_CURRENT_DESKTOP))
   desktop_number=${cd_prop[2]}
   _IFS="$IFS"
   IFS=", " wa_prop=($(xprop -notype -root _NET_WORKAREA))
+  RES=$(xrandr --current | grep -m 1 '\<connected\>' | grep -o '[[:digit:]]\+x[[:digit:]]\+')
+  IFS="x" A=( $RES )
   IFS="$_IFS"
-  let ofs=2+desptop_number*4
+  let ofs=2+desktop_number*4
   let x=wa_prop[ofs+0]
   let y=wa_prop[ofs+1]
   let w=wa_prop[ofs+2]
   let h=wa_prop[ofs+3]
+  let w=A[0]
+  let h=A[1]
   declare -g x y w h
 }
 
@@ -109,24 +145,20 @@ wr() {
 
 function rand_xterm_geometry()
 {
-  _get_workarea # in pixels
-
-  # xmargin and ymargin is being used as both the "margin" and the "random"
-  # part of the offset from the edge of the screen
-  # could change that... possibly... maybe
-  let xmargin="((w*100)/(10))/100" # fixed point math is being employed because bash can't handle decimals
-  let ymargin="((h*100)/(10))/100"
-  xpos=$((xmargin+(RANDOM*xmargin)/32767))
-  ypos=$((ymargin+(RANDOM*ymargin)/32767))
+  local xmargin ymargin xpos ypos rightdist botdist xsize ysize
+  _get_monitor_info # passes info in _monitor_info associative array
+  let xmargin="((_monitor_info['width']*100)/(10))/100" # fixed point math stuff here because bash can't handle floats
+  let ymargin="((_monitor_info['height']*100)/(10))/100"
+  xpos=$((xmargin+_monitor_info['x_offset']+(RANDOM*xmargin)/32767))
+  ypos=$((ymargin+_monitor_info['y_offset']+(RANDOM*ymargin)/32767))
   rightdist=$((xmargin+(RANDOM*xmargin)/32767))
   botdist=$((ymargin+(RANDOM*ymargin)/32767))
-  xsize=$((w-xpos-rightdist))
-  ysize=$((h-ypos-botdist))
+  xsize=$((_monitor_info['width']-(xpos-_monitor_info['x_offset'])-rightdist))
+  ysize=$((_monitor_info['height']-(ypos-_monitor_info['y_offset'])-botdist))
 
-  # set new position
-  echo -ne "\e[3;${xpos};${ypos}t"
-  # set new size
-  echo -ne "\e[4;${ysize};${xsize}t"
+  #echo Setting xterm geometry ${xsize}x${ysize}+${xpos}+${ypos}
+  echo -ne "\e[3;${xpos};${ypos}t" # set position
+  echo -ne "\e[4;${ysize};${xsize}t" # set size
 }
 
 function set_xterm_title()
