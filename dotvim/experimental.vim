@@ -2,7 +2,9 @@ set statusline=%<%f\ %h%m%r%=[%n/%{len(filter(range(1,bufnr('$')),'buflisted(v:v
 
 "efm for gerrit reviews: set efm=%E\ \ \ \ \ \ file:\ %f,%Z\ \ \ \ \ \ line:\ "%l
 set efm=%E\ %#file:\ %f,%C\ %#line:\ %l,%-C\ %#reviewer:,%C\ %#name:%s,%C\ %#email:\ %s,%C\ %#email:\ %s,%C\ %#username:\ %m,%Z%m
+" gerriturl = system("git remote get-url --push origin")
 "command for fetching gerrit reviews into errorlist
+"echo matchlist("ssh://ehanlof@selngerrit.mo.sw.ericcsson.se:29418/pc/gateway/epg", "ssh://\\([0-9A-Za-z@\\.]\\+\\):\\(\\d\\+\\)/")
 cexpr system('ssh gerrit.site.se -p 29418 gerrit query --comments --patch-sets commit:`git show --pretty=%H --no-patch --no-notes --no-abbrev`')
 
 " define tab stuff in language specific files like after/ftplugin/c.vim etc
@@ -62,11 +64,6 @@ function! g:SwapExists()
   let v:swapchoice=''
 endfunction
 
-function! g:IsXRepo(path)
-  silent execute '!git --git-dir ' . a:path . '/.git rev-parse -q --verify XXXXXXX^{commit}'
-  return v:shell_error
-endfunction
-
 " au! CursorMoved * call MarkIfWide()
 function! MarkIfWide()
   if virtcol("$") > &textwidth
@@ -74,10 +71,6 @@ function! MarkIfWide()
   else
     let &l:colorcolumn=""
   endif
-endfunction
-
-function! g:Hans()
-  echom 'hej :)'
 endfunction
 
 "au! BufEnter * call g:SetColorOnBuffer()
@@ -94,7 +87,10 @@ function! g:SetColorOnBuffer()
   endif
 endfunction
 
-" a dict...
+" function in dict
+function! g:Hans()
+  echom 'hej :)'
+endfunction
 let custom = {
   \'kalle' : {
     \'apa' : function('g:Hans'),
@@ -171,13 +167,36 @@ function! CallMmenu2()
     return ""
   endif
 
-
   call feedkeys(":call system('/home/ocp/configs/submodules/dmenu/mmenu', 'apa')\<CR>")
   set mouse=
   if empty(output)
     return ""
   endif
-
 endfunction
 
-" colorscheme siennaterm
+" print syntax elements at cursor, as cursor moves
+function! g:T(s)
+  let s = {'cParen': '(',
+        \  'cCppParen': '(',
+        \  'cBlock': '{',
+        \  'cBracket': '[',
+        \  'cString': '""',
+        \  'cInclude': '#inc',
+        \  'cPreCondit': '#if',
+        \}
+  if exists("s['" . a:s . "']")
+    return s[a:s]
+  else
+    return "?" . a:s . "?"
+  endif
+endfunction
+au CursorMoved * echo join(map(synstack(line("."), col(".")), "g:T(synIDattr(v:val, 'name'))"), " ")
+
+" set search pattern when grepping
+au QuickfixCmdPost *
+      \ let d = getqflist({'all': 1}) |
+      \ echo d['title'] |
+      \ if match(d['title'], 'grep') |
+      \   "let @/ =
+      \ endif
+

@@ -67,6 +67,8 @@ function s:Tmake()
   endif
   let sl="%#Todo#"
   menu WinBar.Build :Tmake
+  menu WinBar.Small :4wincmd _
+  menu WinBar.Big :15wincmd _
   let sl.=w:original_statusline
   let &l:statusline = sl
   let &l:winfixheight = 1
