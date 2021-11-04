@@ -87,9 +87,12 @@ let g:clang_c_completeopt="longest,menuone,preview"
 
 syn on
 
-if $TERM == "xterm-256color"
-  colorscheme siennaterm
-endif
+"if $TERM == "xterm-256color"
+  "colorscheme siennaterm
+"endif
+
+set background=dark
+colorscheme solarized
 
 " set xterm cursor 'color' to value "XtDefaultBackground"
 " without it the cursor is white which sucks
