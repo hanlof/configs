@@ -42,7 +42,7 @@ which dmenu > /dev/null || { # first try systme-wide dmenu
 which dmenu > /dev/null && DMENU_VER=$(dmenu -v) || DMENU_VER=0.0
 DMENU_VER=${DMENU_VER##dmenu-}
 if [ "${DMENU_VER%%.*}" -lt 4 -o "${DMENU_VER##*.}" -lt 7 ]; then
-	if ${CONFIGS_PATH}/build_dmenu.sh; then
+	if ${CONFIGS_PATH}/install/build_dmenu.sh; then
 		ln -s ../submodules/dmenu/dmenu ${CONFIGS_PATH}/in-path/dmenu
 	fi
 fi
@@ -85,4 +85,4 @@ test -e ~/.Xresources || ln -s ${CONFIGS_PATH_ABS}/Xresources ~/.Xresources
 xrdb -merge ~/.Xresources
 
 echo MATE configuration
-dconf load / < ${CONFIGS_PATH_ABS}/mate-dconf-options
+dconf load / < ${CONFIGS_PATH_ABS}/install/mate-dconf-options
