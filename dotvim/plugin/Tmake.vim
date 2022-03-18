@@ -1,10 +1,16 @@
+" TODO: support command Tmake with optional make command and likewise :Trun " with optional run command!
+" XXX TODO: maybe use 'autowriteall' instead of just 'autowrite' ?!?
 command Tmake :call s:Tmake()
-command Trun :call s:Trun(g:Trun_command)
-" XXX not same semantics as TermdebugCommand. oops! maybe change it
+command Trun :call s:Trun()
 command! -nargs=+ TrunCommand :call s:SetTrunCommand(<q-args>)
+command! -nargs=+ TmakeCommand :call s:SetTmakeCommand(<q-args>)
 
 function! s:SetTrunCommand(cmd)
   let g:Trun_command = a:cmd
+endfunction
+
+function! s:SetTmakeCommand(cmd)
+  let g:Tmake_command = a:cmd
 endfunction
 
 function s:TmakeWriteWin()
@@ -13,15 +19,18 @@ function s:TmakeWriteWin()
   endif
 endfunction
 
-" XXX TODO show return value (segfault etc.) after execution
-function s:Trun(command)
-  if term_getstatus(a:command) == "running"
-    call term_sendkeys(a:command, "\<C-C>")
+function s:Trun()
+  if !exists('g:Trun_command')
+    echom "Please set g:Trun_command. Hint: :TrunCommand"
     return
   endif
-  let tmakeWin = bufwinnr(a:command)
+  if term_getstatus(g:Trun_command) == "running"
+    call term_sendkeys(g:Trun_command, "\<C-C>")
+    return
+  endif
+  let tmakeWin = bufwinnr(g:Trun_command)
   let g:startbuf = bufnr('%')
-  let termOptions = { "term_name": a:command }
+  let termOptions = { "term_name": g:Trun_command, 'exit_cb': function('s:Trun_exit') }
   if tmakeWin != -1
     " Open in current tmakebuffer if it exists.
     exec tmakeWin . "wincmd w"
@@ -29,17 +38,19 @@ function s:Trun(command)
   else
     let termOptions = extend(termOptions, { 'term_rows': 10 })
   endif
-  let cmd = 'sh -c "' . a:command . '; RET="$?"; echo [Trun] Command returned: "${RET}'
+  let cmd = 'sh -c "' . g:Trun_command . '"'
   let ret = term_start(cmd, termOptions)
-  menu WinBar.Run :call <SID>:Trun()
+  menu WinBar.Run :Trun
+  menu WinBar.Cgetbuf :cgetbuffer
+  menu WinBar.Close :wincmd c
+  let g:Trun_exitcode = '?'
+  let &l:statusline = "%<Trun: %f [%{g:Trun_exitcode}] %m%r%=%n %-14.(%l,%c%V%) %P"
   let &l:winfixheight = 1
   let &l:foldcolumn = 0
   call clearmatches()
   exec bufwinnr(g:startbuf) . "wincmd w"
 endfunction
 
-" XXX TODO: can the callbacks be defined as s: (script local) functions somehow?
-" XXX TODO: maybe use 'autowriteall' instead of just 'autowrite' ?!?
 function s:Tmake()
   if term_getstatus('tmakebuffer') == "running"
     call term_sendkeys('tmakebuffer', "\<C-C>")
@@ -52,7 +63,7 @@ function s:Tmake()
   if &autowrite
     windo call s:TmakeWriteWin()
   endif
-  let termOptions = { "term_name": "tmakebuffer", "callback": "g:Tmake_processoutput", "exit_cb": "g:Tmake_exit" }
+  let termOptions = { "term_name": "tmakebuffer", "callback": function('s:Tmake_processoutput'), "exit_cb": function('s:Tmake_exit') }
   if tmakeWin != -1
     " Open in current tmakebuffer if it exists.
     exec tmakeWin . "wincmd w"
@@ -60,22 +71,25 @@ function s:Tmake()
   else
     let termOptions = extend(termOptions, { "term_rows": 5 })
   endif
-  let cmd = 'sh -c "' . &makeprg . '"'
-  topleft let ret = term_start(cmd, termOptions)
-  if !exists("w:original_statusline")
-    let w:original_statusline = &statusline
+  if exists('g:Tmake_command')
+    let makecmd = g:Tmake_command
+  else
+    let makecmd = &makeprg
   endif
+  let cmd = 'sh -c "' . makecmd . '"'
+  topleft let ret = term_start(cmd, termOptions)
+  hi link Tmake Todo
+  let &l:statusline = "%#Tmake#%<%f  %m%r%=%n %-14.(%l,%c%V%) %P"
   let sl="%#Todo#"
   menu WinBar.Build :Tmake
   menu WinBar.Small :4wincmd _
   menu WinBar.Big :15wincmd _
-  let sl.=w:original_statusline
-  let &l:statusline = sl
+  menu WinBar.Cwin :cwin
   let &l:winfixheight = 1
   exec bufwinnr(g:startbuf) . "wincmd w"
 endfunction
 
-function g:Tmake_processoutput(chan, msg)
+function s:Tmake_processoutput(chan, msg)
   let msgs = split(a:msg, "\r")
   for msg in msgs
     if msg[0] == "\n"
@@ -86,18 +100,25 @@ function g:Tmake_processoutput(chan, msg)
   endfor
 endfunc
 
-function g:Tmake_exit(job, code)
+function s:Tmake_exit(job, code)
   let tmakeWin = bufwinnr('tmakebuffer')
   exec tmakeWin . "wincmd w"
-  let sl = ""
   if a:code == 0
-    let sl .= "%#StatusLineTerm#"
+    hi link Tmake StatusLineTerm
   else
-    let sl .= "%#ErrorMsg#"
+    hi link Tmake ErrorMsg
   endif
-  let sl .= a:code . " "
-  let sl .= w:original_statusline
-  let &l:statusline = sl
   exec bufwinnr(g:startbuf) . "wincmd w"
 endfunction
 
+" TODO: parse exitcode and show signal numbers etc
+" TODO: try to avoid using g:, rather use a window variable
+function s:Trun_exit(job, code)
+  let a = job_info(a:job)
+  if a['termsig'] != ''
+    let g:Trun_exitcode = 'sig' . a['termsig']
+  else
+    let g:Trun_exitcode = a:code
+  endif
+  " echom 'sig ' . a['termsig'] . " - val " . a['exitval']
+endfunction
