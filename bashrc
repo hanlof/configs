@@ -305,6 +305,14 @@ alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/repos; cd "
 
+function gstatus()
+{
+  check_cwd_in_gitrepo "Enter git repo first." || return 1
+  vim -c "call FugitiveDetect('.') | tab 1Gstatus | 1tabclose"
+}
+# alias gstatus='vim -c "call FugitiveDetect(\".\") | tab 1Gstatus | 1tabclose"'
+alias gstat=gstatus
+
 complete -F _complete_repos rcd
 
 find_dmenu
