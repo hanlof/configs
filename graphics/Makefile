@@ -19,6 +19,8 @@ overlay_dir_stamp=$(OVERLAY_DIR)/.STAMP
 DEFAULT_SIZE?=64x64
 # XXX TODO make geom return default size, maybe $(DEFAULT_SIZE), if last part is not valid size
 #          or just give a proper error
+#     TODO make overlay more generic, have a base_image-WxH/overlayed_image-WxH.bgra file scructure
+#          remove hard-coded term-base-centered base image filename
 geom = $(word $(words $(subst -, , $1)),$(subst -, ,$1))
 base = $(1:-$(call geom,$1)=)
 

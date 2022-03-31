@@ -1,3 +1,4 @@
 *.sw?
+*.pyc
 dotvim/doc/tags
 __pycache__/
