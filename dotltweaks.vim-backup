@@ -1,0 +1,76 @@
+" when opening any file
+"   check absolute path or git repo and then  filetype or local path for tab settings
+"   check the same for make options
+
+" autoconfig.vim structure:
+
+if g:RepoMatches("github.com/hanlof")
+  " Default repo actions
+  if g:FiletypeIs("vim")
+    " Default filetype actions for github.com/hanlof
+    setlocal   expandtab softtabstop=2 tabstop=2 shiftwidth=2
+    TrunCommand source %
+  elseif g:FiletypeIs("c")
+    setlocal noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
+  endif
+  if     g:LocalGitPathMatches("c-programs/insdirs.c")
+    TrunCommand ./insdirs
+  elseif g:LocalGitPathMatches("bashrc")
+    TrunCommand bash -c "xterm &"
+  elseif g:LocalGitPathMatches("graphics")
+    TrunCommand make -C graphics
+  endif
+elseif g:RepoMatches("csp-gerrit-ssh")
+  au Filetype c      setl noexpandtab softtabstop=0 tabstop=8 shiftwidth=8
+elseif g:RepoMatches("github.com/SigmaEE/botanium")
+    TrunCommand make flash
+elseif g:RepoMatches("github.com:SigmaEE/fresaflo")
+    TrunCommand make flashall ; JLinkRTTClient
+    " call term_sendkeys(g:jlinkbuf, 'r^M')|sleep 100m|call term_sendkeys(g:jlinkbuf, 'g^M')
+    if g:LocalGitPathMatches("sensor_unit")
+      let g:jlinkbuf = term_start("JLinkExe -device NRF52 -if SWD -speed 4000 -autoconnect 1", {'term_name': 'JLinkExe'})
+      wincmd T
+      tabfirst
+      function Tapi_slask(a,b)
+        echom 'Tapi_slask called'
+        call g:Jlinkreset()
+      endfunction
+      function! g:Jlinkreset()
+        call term_sendkeys(g:jlinkbuf, 'r')
+        sleep 100m
+        call term_sendkeys(g:jlinkbuf, 'g')
+      endfunction
+      " let g:rttlogbuf = term_start("JLinkRTTClient")
+      "map! <S-F9> :call term_sendkeys(g:jlinkbuf, 'r\<CR>g\<CR>'):Trun
+      TrunCommand make flashall ; echo -en '\\\e]51\;[\"call\",\"Tapi_slask\",[1]]\\\a' ; JLinkRTTClient
+    endif
+    if g:FiletypeIs("c")
+      set expandtab ts=4 sts=4 shiftwidth=4
+    endif
+elseif g:RepoMatches("github.com/SigmaEE/fresaflo/")
+    if g:LocalGitPathMatches("sensor_unit")
+      let g:jlinkbuf = term_start("JLinkExe -device NRF52 -if SWD -speed 4000 -autoconnect 1")
+      map! <S-F9> :call term_sendkeys(g:jlinkbuf, 'r\<CR>g\<CR>'):Trun
+      TrunCommand make flashall ; JLinkRTTClient
+    endif
+    if g:FiletypeIs("c")
+      set expandtab ts=4 sts=4 shiftwidth=4
+    endif
+endif
+
+" path overrides repo so first check repo. then check path.
+if g:AbsPathMatches("/home/hlofving/gh/atmega4809")
+  TrunCommand make flash
+elseif g:AbsPathMatches("/home/hlofving/Arduino/greenstar-fan-control")
+  let $ino_fqbn='arduino:megaavr:nona4809'
+  " cause arduino-cli gets confused if the name is not ttyACM*
+  let port=resolve('/dev/nano-every-latest')
+  let $ino_port=port
+  TmakeCommand ~/local/bin/arduino-cli compile -b $ino_fqbn -v
+  TrunCommand ~/local/bin/arduino-cli upload -b $ino_fqbn -p $ino_port -v ; ~/local/bin/arduino-cli monitor -b $ino_fqbn -p $ino_port
+elseif g:AbsPathMatches(".ino")
+  map <S-F10> :let $ino_fqbn=g:GCallDmenu("arduino-cli board search")
+  TmakeCommand ~/local/bin/arduino-cli compile -b $ino_fqbn -v
+  TrunCommand ~/local/bin/arduino-cli upload -b $ino_fqbn -p $ino_port -v ; ~/local/bin/arduino-cli monitor -b $ino_fqbn -p $ino_port
+endif
+

@@ -1,10 +1,10 @@
-
 function RepoMatches(test_repo)
   let this_repo = g:SystemList("git remote get-url origin")
   if v:shell_error != 0
       return 0
   endif
-  if match(this_repo, a:test_repo) >= 0
+  let a = join(this_repo, ' ')
+  if match(a, a:test_repo) >= 0
     return 1
   endif
   return 0
