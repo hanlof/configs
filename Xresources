@@ -1,7 +1,7 @@
+#include "xres.def"
 XTerm*termName: xterm-256color
 XTerm*faceName: Monospace
 XTerm*faceSize: 10
-!XTerm.vt100.geometry: 170x45+200+100
 XTerm*saveLines: 200000
 XTerm*scrollKey: true
 XTerm*scrollTtyOutput: false
@@ -9,9 +9,10 @@ XTerm*utf8: true
 XTerm*fontDoublesize: true
 XTerm*allowWindowOps: true
 XTerm*allowFontOps: true
-XTerm.VT100*background: white
-XTerm.VT100*foreground: black
+XTerm*internalBorder: 0
+#include "solarized-xr"
 
+XTerm*cursorBlink: 1
 XTerm*font1: Monospace
 XTerm*faceSize1: 2
 XTerm*font2: Monospace
@@ -24,6 +25,35 @@ XTerm*font5: Monospace
 XTerm*faceSize5: 14
 XTerm*font6: Monospace
 XTerm*faceSize6: 18
+
+xterm*activeIcon: true
+
+#define STR(s) STR_(s)
+#define STR_(s) #s
+
+#define setfg(col) \033]10;col\007
+#define setbg(col) \033]11;col\007
+#define setcurfg(col) \033]17;col\007
+#define setcurbg(col) \033]19;col\007
+
+XTerm*background:                  S_base03
+XTerm*foreground:                  S_base0
+XTerm*color0:                  S_base02
+XTerm*color1:                  S_red
+XTerm*color2:                  S_green
+XTerm*color3:                  S_yellow
+XTerm*color4:                  S_blue
+XTerm*color5:                  S_magenta
+XTerm*color6:                  S_cyan
+XTerm*color7:                  S_base2
+XTerm*color9:                  S_orange
+XTerm*color8:                  S_base03
+XTerm*color10:                 S_base01
+XTerm*color11:                 S_base00
+XTerm*color12:                 S_base0
+XTerm*color13:                 S_violet
+XTerm*color14:                 S_base1
+XTerm*color15:                 S_base3
 !what characters are selected on double-click:
 XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
 !custom mouse-wheel bindings (btn4 and btn5) interacts with Vim configuration
@@ -34,8 +64,39 @@ XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
   Shift <Btn5Down>: string("0x1b") string("[65~") \n\
   Ctrl <Btn4Down>: larger-vt-font() \n\
   Ctrl <Btn5Down>: smaller-vt-font() \n\
-  Shift <KeyPress> Delete: insert-selection(PRIMARY,SECONDARY) \n\
+  Shift <KeyPress> Delete: insert-selection(CLIPBOARD,CUT_BUFFER0) \n\
+  Shift <KeyPress> Insert: insert-selection(PRIMARY,SECONDARY) \n\
   Shift Ctrl <KeyPress> C: copy-selection(PRIMARY,SECONDARY,CLIPBOARD,CUT_BUFFER0) \n\
-  Shift Ctrl <KeyPress> D: interpret("\033]11;#000000\007\033]10;#ffffff\007\033]17;#000000\007\033]19;#ffffff\007") \n\
-  Shift Ctrl <KeyPress> L: interpret("\033]10;#000000\007\033]11;#ffffff\007\033]17;#000000\007\033]19;#ffffff\007")
+  Shift Ctrl <KeyPress> L: interpret( STR(setbg(S_base3)) ) \n\
+  Shift Ctrl <KeyPress> D: interpret( STR(setbg(S_base02)) )
 
+!  <Enter>: string(" EnterNotify") \n\
+!  <EnterWindow>: string(" EnterNotify") \n\
+!  <FocusIn>: string(" FocusIn") \n\
+!  <FocusOut>: string(" FocusOut") \n\
+!  <Keymap>: string(" KeymapNotify") \n\
+!  <Expose>: string(" Expose") \n\
+!  <GrExp>: string(" GraphicsExpose") \n\
+!  <NoExp>: string(" NoExpose") \n\
+!  <Visible>: string(" VisibilityNotify") \n\
+!  <Create>: string(" CreateNotify") \n\
+!  <Destroy>: string(" DestroyNotify") \n\
+!  <Unmap>: string(" UnmapNotify") \n\
+!  <Map>: string(" MapNotify") \n\
+!  <MapReq>: string(" MapRequest") \n\
+!  <Reparent>: string(" ReparentNotify") \n\
+!  <Configure>: string(" ConfigureNotify") \n\
+!  <ConfigureReq>: string(" ConfigureRequest") \n\
+!  <Grav>: string(" GravityNotify") \n\
+!  <ResReq>: string(" ResizeRequest") \n\
+!  <Circ>: string(" CirculateNotify") \n\
+!  <CircReq>: string(" CirculateRequest") \n\
+!  <Prop>: string(" PropertyNotify") \n\
+!  <SelClr>: string(" SelectionClear") \n\
+!  <SelReq>: string(" SelectionRequest") \n\
+!  <Select>: string(" SelectionNotify") \n\
+!  <Clrmap>: string(" ColormapNotify") \n\
+!  <Message>: string(" ClientMessage") \n\
+!  <Mapping>: string(" MappingNotify") \n\
+
+!  Shift Ctrl <KeyPress> T: interpret( STR(setbg(S_base02)setfg(S_base00)setcurfg(S_base00)setcurbg(S_base02)) )
