@@ -536,7 +536,8 @@ endif
 " note that link syntax to avoid duplicate configuration doesn't work with the
 " exe compiled formats
 
-exe "hi! Normal"         .s:fmt_none   .s:fg_base0  .s:bg_back
+"exe "hi! Normal"         .s:fmt_none   .s:fg_base0  .s:bg_back
+exe "hi! Normal"         .s:fmt_none   .s:fmt_none  .s:bg_base03
 
 exe "hi! Comment"        .s:fmt_ital   .s:fg_base01 .s:bg_none
 "       *Comment         any comment
@@ -589,7 +590,7 @@ exe "hi! Underlined"     .s:fmt_none   .s:fg_violet .s:bg_none
 exe "hi! Ignore"         .s:fmt_none   .s:fg_none   .s:bg_none
 "       *Ignore          left blank, hidden  |hl-Ignore|
 
-exe "hi! Error"          .s:fmt_bold   .s:fg_red    .s:bg_none
+exe "hi! Error"          .s:fmt_bold   .s:fg_red    .s:bg_red
 "       *Error           any erroneous construct
 
 exe "hi! Todo"           .s:fmt_bold   .s:fg_magenta.s:bg_none
@@ -600,17 +601,25 @@ exe "hi! Todo"           .s:fmt_bold   .s:fg_magenta.s:bg_none
 " Extended highlighting "{{{
 " ---------------------------------------------------------------------
 if      (g:solarized_visibility=="high")
-    exe "hi! SpecialKey" .s:fmt_revr   .s:fg_red    .s:bg_none
+    "exe "hi! SpecialKey" .s:fmt_revr   .s:fg_red    .s:bg_none
+    exe "hi! SpecialKey" .s:fmt_none   .s:fg_none    .s:bg_none
     exe "hi! NonText"    .s:fmt_bold   .s:fg_red    .s:bg_none
 elseif  (g:solarized_visibility=="low")
-    exe "hi! SpecialKey" .s:fmt_bold   .s:fg_base02 .s:bg_none
+    "exe "hi! SpecialKey" .s:fmt_bold   .s:fg_base02 .s:bg_none
+    exe "hi! SpecialKey" .s:fmt_none   .s:fg_base01   .s:bg_none
     exe "hi! NonText"    .s:fmt_bold   .s:fg_base02 .s:bg_none
 else
-    exe "hi! SpecialKey" .s:fmt_bold   .s:fg_base00 .s:bg_base02
+    exe "hi! SpecialKey" .s:fmt_none   .s:fg_none .s:bg_none
     exe "hi! NonText"    .s:fmt_bold   .s:fg_base00 .s:bg_none
 endif
-exe "hi! StatusLine"     .s:fmt_none   .s:fg_base1  .s:bg_base02 .s:fmt_revbb
-exe "hi! StatusLineNC"   .s:fmt_none   .s:fg_base00 .s:bg_base02 .s:fmt_revbb
+exe "hi! StatusLine"        . s:fmt_none   .  s:fg_cyan     . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineNC"      . s:fmt_none   . " ctermfg=24 " . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineTerm"    . s:fmt_none   .  s:fg_cyan     . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineTermNC"  . s:fmt_none   . " ctermfg=24 " . s:bg_base03 . s:fmt_revbb
+
+hi! ToolbarButton ctermbg=3 ctermfg=8
+hi! ToolbarLine ctermbg=8
+
 exe "hi! Visual"         .s:fmt_none   .s:fg_base01 .s:bg_base03 .s:fmt_revbb
 exe "hi! Directory"      .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! ErrorMsg"       .s:fmt_revr   .s:fg_red    .s:bg_none
@@ -625,6 +634,7 @@ if ( has("gui_running") || &t_Co > 8 )
 else
     exe "hi! VertSplit"  .s:fmt_revbb  .s:fg_base00 .s:bg_base02
 endif
+hi! VertSplit ctermbg=24 ctermfg=24
 exe "hi! Title"          .s:fmt_bold   .s:fg_orange .s:bg_none
 exe "hi! VisualNOS"      .s:fmt_stnd   .s:fg_none   .s:bg_base02 .s:fmt_revbb
 exe "hi! WarningMsg"     .s:fmt_bold   .s:fg_red    .s:bg_none
