@@ -4,8 +4,8 @@
 menu RightClickMenu.Jump\ back <C-o>
 menu RightClickMenu.Jump\ forward <C-i>
 menu RightClickMenu.-Sep0- :
-menu RightClickMenu.Search\ forward :call feedkeys("*")
-menu RightClickMenu.Search\ backward :call feedkeys("#")
+menu RightClickMenu.Search\ forward :let @/="\\<" . expand("<cword>") . "\\>":call feedkeys("*")
+menu RightClickMenu.Search\ backward :let @/="\\<" . expand("<cword>") . "\\>":call feedkeys("#")
 menu RightClickMenu.-Sep1- :
 menu RightClickMenu.Go\ to\ def 
 menu RightClickMenu.Go\ to\ def\ [new\ win] 
@@ -27,7 +27,7 @@ map <expr> <RightMouse> RightClickFunc()
 function! PopUpWithHighLight(line, col, win)
   exec a:win . "wincmd w"
   call setpos(".", [0, a:line, a:col, 0])
-  let mat = matchadd("SpellBad", "\\<\\w*\\%#\\w*\\>*")
+  let mat = matchadd("IncSearch", "\\<\\w*\\%#\\w*\\>*")
   redraw
   let winid = win_getid()
   popup RightClickMenu
