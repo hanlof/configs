@@ -99,10 +99,11 @@ find_git_file()
 {
   find_dmenu
   check_cwd_in_gitrepo "Enter git repo first." || return 1
-  fname=$(git ls-files --full-name ${s} | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
+  gittop=$(git rev-parse --show-toplevel 2> /dev/null)
+  fname=$(git ls-files "${gittop}" | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
 
-  history -s vim ${s}/${fname}
+  history -s vim ${fname}
   fc -s
 }
 
@@ -243,6 +244,9 @@ function __prompt_command()
   set_xterm_title "$ ${xterm_title}"                 # xterm title
 
   PS1=""
+  if [ ! -z "$VIRTUAL_ENV_PROMPT" ]; then
+    PS1+="(zvenv) "
+  fi
   PS1+='\[\033[0m\]'                                     # reset all color
   PS1+='\[\033[33m\]\h '                                  # hostname
   PS1+=${TERM_EMU_MSG}
