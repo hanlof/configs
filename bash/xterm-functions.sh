@@ -147,8 +147,8 @@ function rand_xterm_geometry()
 {
   local xmargin ymargin xpos ypos rightdist botdist xsize ysize
   _get_monitor_info # passes info in _monitor_info associative array
-  let xmargin="((_monitor_info['width']*100)/(10))/100" # fixed point math stuff here because bash can't handle floats
-  let ymargin="((_monitor_info['height']*100)/(10))/100"
+  let xmargin="((_monitor_info['width']*100)/(11))/100" # fixed point math stuff here because bash can't handle floats
+  let ymargin="((_monitor_info['height']*100)/(11))/100"
   xpos=$((xmargin+_monitor_info['x_offset']+(RANDOM*xmargin)/32767))
   ypos=$((ymargin+_monitor_info['y_offset']+(RANDOM*ymargin)/32767))
   rightdist=$((xmargin+(RANDOM*xmargin)/32767))
