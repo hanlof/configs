@@ -17,20 +17,6 @@ transform_opts = {
     'use_proportional_connected': False,
     'use_proportional_projected': False }
 
-moon_radius=1.7371
-moon_diameter = 2 * moon_radius
-
-# clear scene
-bpy.ops.object.select_all(action='SELECT')
-bpy.ops.object.delete(use_global=False)
-
-# create bend origin point
-bpy.ops.object.empty_add(type='PLAIN_AXES', align='WORLD',
-    location=(0, 0, 0),
-    scale=(1, 1, 1))
-origin_obj = bpy.context.active_object
-origin_obj.name="Origin"
-
 def create_plane_easy():
     bpy.ops.mesh.primitive_plane_add(
         size=1, align='WORLD',
@@ -40,9 +26,8 @@ def create_plane_easy():
     moon_obj.name="Moon"
     bpy.ops.transform.resize(value=(2, 1, 1), **transform_opts)
     return moon_obj
-    
 
-def create_plane_messy():
+def create_plane_noops():
     mesh=bpy.data.meshes.new("Moonmesh")
     mesh.from_pydata( 
         (( -2, 0, -1), (2, 0, -1), (2, 0, 1), (-2, 0, 1),
@@ -51,7 +36,6 @@ def create_plane_messy():
         ((0, 4, 5, 3), (4, 1, 2, 5)) )
     o = bpy.data.objects.new("Moon", mesh)
     bpy.context.collection.objects.link(o)
-    
     return o
 
 def apply_mods(obj):
@@ -69,50 +53,44 @@ def get_center(obj):
     for v in obj.data.vertices:
         sum += v.co
     return sum / len(obj.data.vertices)
-#bpy.ops.mesh.loopcut_slide(MESH_OT_loopcut={"number_cuts":1, "smoothness":0, "falloff":'INVERSE_SQUARE', "object_index":0, "edge_index":3, "mesh_select_mode_init":(False, False, True)}, TRANSFORM_OT_edge_slide={"value":0, "single_side":False, "use_even":False, "flipped":False, "use_clamp":True, "mirror":True, "snap":False, "snap_target":'CLOSEST', "snap_point":(0, 0, 0), "snap_align":False, "snap_normal":(0, 0, 0), "correct_uv":True, "release_confirm":True, "use_accurate":False})
+     
+def add_mod(obj, name, type, opts):
+    mod = obj.modifiers.new(name, type)
+    for key, val in opts.items():
+        setattr(mod, key, val)
 
-#moon_obj = create_plane_easy()
-moon_obj = create_plane_messy()
-bpy.context.view_layer.objects.active = moon_obj
+moon_radius=1.7371
+moon_diameter = 2 * moon_radius
 
-# create uv map
-bpy.ops.mesh.uv_texture_add()    
+# clear scene
+bpy.ops.object.select_all(action='SELECT')
+bpy.ops.object.delete(use_global=False)
+
+origin_obj = bpy.data.objects.new("Origin", None)
+bpy.context.collection.objects.link(origin_obj)
+
+
+moon_obj = create_plane_noops()
 
 # create the UV map (have to use bmesh i guess...)
-me = moon_obj.data
 bm = bmesh.new()
 bm.from_mesh(moon_obj.data)
-
 uv_layer = bm.loops.layers.uv.verify()
-print(uv_layer, type(uv_layer), dir(uv_layer))
-# adjust uv coordinates
+uv_scale  = Vector( (0.25, 0.5) )
+uv_offset = Vector( (0.5, 0.5) )
 for face in bm.faces:
     for loop in face.loops:
-        loop_uv = loop[uv_layer]
-        # use xy position of the vertex as a uv coordinate
-        loop_uv.uv = loop.vert.co.xz / 2
-        loop_uv.uv *= Vector( (0.5, 1) )
-        loop_uv.uv += Vector( (0.5, 0.5) )
-bm.to_mesh(me)
+        loop[uv_layer].uv = loop.vert.co.xz * uv_scale + uv_offset
+bm.to_mesh(moon_obj.data)
 
-# do the bending to create the sphere
-mod=moon_obj.modifiers.new("Subsurf", "SUBSURF")
-mod.subdivision_type = 'SIMPLE'
-mod.levels = 6
-mod.render_levels = 6
-
-mod=moon_obj.modifiers.new("Bend X", "SIMPLE_DEFORM")
-mod.deform_axis = 'X'
-mod.deform_method = 'BEND'
-mod.origin = bpy.data.objects["Origin"]
-mod.angle = pi
-
-mod=moon_obj.modifiers.new("Bend Z", "SIMPLE_DEFORM")
-mod.deform_axis = 'Z'
-mod.deform_method = 'BEND'
-mod.origin = bpy.data.objects["Origin"]
-mod.angle = tau
-
+add_mod(moon_obj, "Subsurf", "SUBSURF", \
+    { 'subdivision_type': 'SIMPLE', 'levels': 6, 'render_levels': 6 } )
+add_mod(moon_obj, "Bend X", "SIMPLE_DEFORM",
+    { 'deform_axis': 'X', 'deform_method': 'BEND',
+      'origin': bpy.data.objects['Origin'], 'angle': pi } )
+add_mod(moon_obj, "Bend Z", "SIMPLE_DEFORM",
+    { 'deform_axis': 'Z', 'deform_method': 'BEND',
+      'origin': bpy.data.objects['Origin'], 'angle': tau } )
 apply_mods(moon_obj)
 
 """
