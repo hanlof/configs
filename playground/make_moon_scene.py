@@ -126,9 +126,13 @@ moon_radius=1.7371
 moon_diameter = 2 * moon_radius
 
 
-# TODO: pick one of these ways to clear the scene
-#clear_data('worlds', 'cameras', 'meshes', 'objects', 'lights', 'images', 'textures', 'materials')
-#clear_scene()
+
+# TODO: clear world data from scene
+# TODO: adjust sun strength
+# TODO: add earthlight
+# TODO: adjust bump map to scale correctly
+# TODO: probably use linear colorspace for bump map?!
+# TODO: get the shading/colors correct
 
 moonscene = bpy.context.scene
 
@@ -136,9 +140,9 @@ default_props = {
     'camfov': 0.6,
     'resx': 1024,
     'resy': 1024,
-    'colormap': '/home/hlofving/Downloads/MoonColorMap.png',
-    'heightmap': '/home/hlofving/Downloads/MoonReliefMap.png', }
-    
+    'sunstr': 7.5,
+    'colormap': '/home/hlofving/Downloads/lroc_color_poles_4k.tif',
+    'heightmap': '/home/hlofving/Downloads/ldem_16_uint.tif', }
 
 moonprops = default_props
 
@@ -147,13 +151,15 @@ if 'moon_params' in moonscene:
     moonprops.update(moonscene['moon_params'])
 
 print("fov", moonprops['camfov'])
+print(moonprops)
 
 moonscene.render.film_transparent = True
 moonscene.render.resolution_x = moonprops['resx']
 moonscene.render.resolution_y = moonprops['resy']
 
 for o in moonscene.collection.all_objects:
-    bpy.data.objects.remove(o)
+    if o is not None:
+        bpy.data.objects.remove(o)
 
 # Camera
 cam = make_camera("Earth Viewpoint", lens_unit='FOV', angle=radians(moonprops['camfov']), clip_end=500,
@@ -221,35 +227,66 @@ moonmat.use_nodes = True
 mat_nodes = moonmat.node_tree.nodes
 clear_nodes(mat_nodes)
 
-mat_nodes.new("ShaderNodeOutputMaterial").name = "Material Output"
-mat_nodes["Material Output"].is_active_output = True
+mynodes = {
+    0: mat_nodes.new("ShaderNodeOutputMaterial"),
+    1: mat_nodes.new("ShaderNodeBsdfPrincipled"),
+    2: mat_nodes.new("ShaderNodeTexImage"),
+    3: mat_nodes.new("ShaderNodeTexImage"),
+    4: mat_nodes.new("ShaderNodeBump") }
+    
+mynodes[0].name = "Material Output"
+mynodes[0].is_active_output = True
 
-mat_nodes.new("ShaderNodeBsdfPrincipled").name = "Principled BSDF"
-mat_nodes["Principled BSDF"].inputs["Specular"].default_value = 1
-mat_nodes["Principled BSDF"].inputs["Roughness"].default_value = 1
+mynodes[1].inputs["Specular"].default_value = 1
+mynodes[1].inputs["Roughness"].default_value = 1
+mynodes[1].location = mynodes[0].location + Vector ( ( -300, 0 ) )
 
-mat_nodes.new("ShaderNodeTexImage").name = "Image Texture Color"
-mat_nodes['Image Texture Color'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -300, 0 ) )
-mat_nodes['Image Texture Color'].image = bpy.data.images.load(moonprops['colormap'])
-mat_nodes['Image Texture Color'].label = "Moon Color Image"
+mynodes[2].location = mynodes[1].location + Vector ( ( -300, 0 ) )
+mynodes[2].image = bpy.data.images.load(moonprops['colormap'])
+mynodes[2].label = "Moon Color Image"
 
-mat_nodes.new("ShaderNodeTexImage").name = 'Image Texture Heightmap'
-mat_nodes['Image Texture Heightmap'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -600, -300 ) )
-mat_nodes['Image Texture Heightmap'].image = bpy.data.images.load(moonprops['heightmap'])
-mat_nodes['Image Texture Heightmap'].label = "Moon Height Map"
+mynodes[3].location = mynodes[1].location + Vector ( ( -600, -300 ) )
+mynodes[3].image = bpy.data.images.load(moonprops['heightmap'])
+mynodes[3].label = "Moon Height Map"
 
-mat_nodes.new("ShaderNodeVectorDisplacement").name = 'Vector Displacement'
-mat_nodes['Vector Displacement'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -300, -300 ) )
-mat_nodes['Vector Displacement'].inputs["Scale"].default_value = 0.02
+mynodes[4].location = mynodes[1].location + Vector ( ( -300, -300 ) )
+mynodes[4].inputs["Strength"].default_value = 0.25
 
-moonmat.node_tree.links.new(mat_nodes['Image Texture Color'].outputs["Color"], mat_nodes["Principled BSDF"].inputs['Base Color'])
-moonmat.node_tree.links.new(mat_nodes['Vector Displacement'].outputs["Displacement"], mat_nodes["Material Output"].inputs['Displacement'])
-moonmat.node_tree.links.new(mat_nodes['Image Texture Heightmap'].outputs["Color"], mat_nodes['Vector Displacement'].inputs['Vector'])
-moonmat.node_tree.links.new(mat_nodes['Principled BSDF'].outputs["BSDF"], mat_nodes["Material Output"].inputs['Surface'])
+moonmat.node_tree.links.new(mynodes[2].outputs["Color"],  mynodes[1].inputs['Base Color'])
+moonmat.node_tree.links.new(mynodes[4].outputs["Normal"], mynodes[1].inputs['Normal'])
+moonmat.node_tree.links.new(mynodes[3].outputs["Color"],  mynodes[4].inputs['Height'])
+moonmat.node_tree.links.new(mynodes[1].outputs["BSDF"],   mynodes[0].inputs['Surface'])
+
+#mat_nodes.new("ShaderNodeOutputMaterial").name = "Material Output"
+#mat_nodes["Material Output"].is_active_output = True
+
+#mat_nodes.new("ShaderNodeBsdfPrincipled").name = "Principled BSDF"
+#mat_nodes["Principled BSDF"].inputs["Specular"].default_value = 1
+#mat_nodes["Principled BSDF"].inputs["Roughness"].default_value = 1
+#mat_nodes['Principled BSDF'].location = mat_nodes["Material Output"].location + Vector ( ( -300, 0 ) )
+
+#mat_nodes.new("ShaderNodeTexImage").name = "Image Texture Color"
+#mat_nodes['Image Texture Color'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -300, 0 ) )
+#mat_nodes['Image Texture Color'].image = bpy.data.images.load(moonprops['colormap'])
+#mat_nodes['Image Texture Color'].label = "Moon Color Image"
+
+#mat_nodes.new("ShaderNodeTexImage").name = 'Image Texture Heightmap'
+#mat_nodes['Image Texture Heightmap'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -600, -300 ) )
+#mat_nodes['Image Texture Heightmap'].image = bpy.data.images.load(moonprops['heightmap'])
+#mat_nodes['Image Texture Heightmap'].label = "Moon Height Map"
+
+#mat_nodes.new("ShaderNodeBump").name = 'Bump'
+#mat_nodes['Bump'].location = mat_nodes["Principled BSDF"].location + Vector ( ( -300, -300 ) )
+#mat_nodes['Bump'].inputs["Strength"].default_value = 0.25
+
+#moonmat.node_tree.links.new(mat_nodes['Image Texture Color'].outputs["Color"], mat_nodes["Principled BSDF"].inputs['Base Color'])
+#moonmat.node_tree.links.new(mat_nodes['Bump'].outputs["Normal"], mat_nodes["Principled BSDF"].inputs['Normal'])
+#moonmat.node_tree.links.new(mat_nodes['Image Texture Heightmap'].outputs["Color"], mat_nodes['Bump'].inputs['Height'])
+#moonmat.node_tree.links.new(mat_nodes['Principled BSDF'].outputs["BSDF"], mat_nodes["Material Output"].inputs['Surface'])
 
 # Light
 moonscene.collection.objects.link(bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN")))
-bpy.data.lights["Sun"].energy = 8.4
+bpy.data.lights["Sun"].energy = moonprops['sunstr']
 bpy.data.lights["Sun"].angle = 0
 
 
