@@ -298,6 +298,34 @@ c.lock_axis = 'LOCK_Z'
 
 
 # Add moon trajectory path
+def get_moon_trajectory_coords(nowtime, delta_time, points_on_each_side):
+    """Returns a list of moon positions relative to @param nowtime"""
+    print("func")
+    coordlist = list()
+    POINTS = 1 + points_on_each_side * 2
+    TIMESPAN = delta_time
+    for i in range(POINTS):
+        time = now - (TIMESPAN / 2) + (TIMESPAN / POINTS) * (i + 0.5)
+        moonaltaz = get_moon(time).transform_to(AltAz(obstime=time, location=gothenburg_el))
+        alt_delta = moonaltaz.alt - moon_altaz_now.alt
+        az_delta = moonaltaz.az - moon_altaz_now.az
+        dist_delta = moonaltaz.distance - moon_altaz_now.distance
+        dist_delta = dist_delta.to(u.Mm).value
+        #print(az_delta.degree, alt_delta.degree, moonaltaz.distance.to(u.km))
+
+        M = (
+          # Matrix.Diagonal( (1,) * 3).to_4x4() @ # Scaling can be fun?!
+            Matrix.Translation(observervec) @
+            Matrix.Rotation(alt_delta.rad, 4, rotaxis_alt) @
+            Matrix.Rotation(az_delta.rad, 4, rotaxis_az) @
+            Matrix.Translation(moon_obj.location - observervec) )
+
+        pointcoords = (M @ Vector( [0, 0, 0] )) - moon_obj.location
+        coordlist.append(pointcoords)
+        #print(pointcoords)
+    return coordlist
+
+
 camdirection = moon_obj.location - observervec
 rotaxis_alt = camdirection.cross(observervec)
 rotaxis_az = Vector(observervec)
@@ -320,6 +348,9 @@ spline.bezier_points.add(POINTS -1)
 
 # bpy.context.object.data.pixel_factor = 30
 
+# Clear out the old
+for i in bpy.data.grease_pencils:
+    bpy.data.grease_pencils.remove(i, do_unlink=True)
 
 gpencil_data = bpy.data.grease_pencils.new("Moon Trajectory")
 gpencil = bpy.data.objects.new(gpencil_data.name, gpencil_data)
@@ -337,41 +368,19 @@ gp_stroke.use_cyclic = False
 
 gp_stroke.points.add(POINTS)
 
-for i in range(POINTS):
-    time = now - (TIMESPAN / 2) + (TIMESPAN / POINTS) * (i + 0.5)
+gpencil.location =  moon_obj.location
 
-    moonaltaz = get_moon(time).transform_to(AltAz(obstime=time, location=gothenburg_el))
-    alt_delta = moonaltaz.alt - moon_altaz_now.alt
-    az_delta = moonaltaz.az - moon_altaz_now.az
-    dist_delta = moonaltaz.distance - moon_altaz_now.distance
-    dist_delta = dist_delta.to(u.Mm).value
-    print(az_delta.degree, alt_delta.degree, moonaltaz.distance.to(u.km))
-
-    pathobj = bpy.data.objects.new("Moon Path " + str(i), None)
-
-#    moonscene.collection.objects.link(pathobj)
-
-    M = (
-#        Matrix.Diagonal( (1,) * 3).to_4x4() @ # Scaling can be fun?!
-        Matrix.Translation(observervec) @
-        Matrix.Rotation(alt_delta.rad, 4, rotaxis_alt) @
-        Matrix.Rotation(az_delta.rad, 4, rotaxis_az) @
-        Matrix.Translation(moon_obj.location - observervec) )
-
-    pathobj.matrix_world = M @ pathobj.matrix_world
-#    spline.bezier_points[i].co = pathobj.location - moon_obj.location
-    spline.bezier_points[i].handle_left_type = 'AUTO'
-    spline.bezier_points[i].handle_right_type = 'AUTO'
-    
-    gp_stroke.points[i].co = pathobj.location - moon_obj.location
+tc = get_moon_trajectory_coords(now, datetime.timedelta(seconds=300), 3)
+for i, value in enumerate(tc):
+    gp_stroke.points[i].co = value
     gp_stroke.points[i].pressure = 1
     gp_stroke.points[i].vertex_color = (0.0193818, 0.258183, 0.64448, 0.5)
 
-
-gpencil.location =  moon_obj.location
-#pts = [(0.0, 0.0, -1.0), (0.0, 0.0, 1.0), (-1.0, 0.0, -0.5), (0.5, 0.0, -0.5)]
-#for item, value in enumerate(pts):
-#    gp_stroke.points[item].co = value
+"""
+    spline.bezier_points[i].co = pathobj.location - moon_obj.location
+    spline.bezier_points[i].handle_left_type = 'AUTO'
+    spline.bezier_points[i].handle_right_type = 'AUTO'
+"""
 
 mat = bpy.data.materials.new(name="Black")
 bpy.data.materials.create_gpencil_data(mat)
@@ -379,7 +388,7 @@ gpencil.data.materials.append(mat)
 
 mat.grease_pencil.show_fill = False
 mat.grease_pencil.fill_color = (1.0, 0.0, 1.0, 1.0)
-mat.grease_pencil.color = (0.0193818, 0.258183, 0.64448, 1) # solarized blue
+#mat.grease_pencil.color = (0.0193818, 0.258183, 0.64448, 1) # solarized blue
 
 bpy.context.scene.view_layers["ViewLayer"].use_pass_z = True # needed for grease pencil
 
@@ -387,6 +396,12 @@ def jdn():
     return astropy.time.Time(datetime.datetime.now()).jd
 
 moonscene['jdn'] = astropy.time.Time(datetime.datetime.now()).jd
-what=moonscene.id_properties_ui('jdn')
+what = moonscene.id_properties_ui('jdn')
 what.update(min=0, step=1)
 bpy.app.driver_namespace['jdn'] = jdn
+
+# set outliner to camera view in outliner
+for area in bpy.context.screen.areas:
+    if area.type == 'VIEW_3D':
+        area.spaces[0].region_3d.view_perspective = 'CAMERA'
+        break
