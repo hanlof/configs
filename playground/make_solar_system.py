@@ -7,7 +7,7 @@ import sys
 import mathutils
 import astropy
 import astropy.coordinates
-from astropy.coordinates import get_sun, get_moon, EarthLocation, Longitude, Latitude, GCRS
+from astropy.coordinates import get_sun, get_moon, EarthLocation, Longitude, Latitude, GCRS, ICRS, HeliocentricTrueEcliptic
 from astropy.coordinates import AltAz
 import astropy.units as u
 import datetime
@@ -225,9 +225,8 @@ def make_planet(planetname):
         spline.bezier_points[i].handle_left_type = 'AUTO'
         spline.bezier_points[i].handle_right_type = 'AUTO'
 
-    to_gp(obj, color=(0.651406, 0.0368892, 0.223228, 1))
-    
-
+    # to_gp(obj, color=(0.651406, 0.0368892, 0.223228, 1))
+    to_gp(obj, color=(0.0, 0.0, 1.0, 1))
     
 
 # clear out the old!
@@ -249,39 +248,161 @@ make_planet("Neptune")
 astropy.coordinates.solar_system_ephemeris.set("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de440.bsp")
 make_planet("Pluto")
 
+#    to_gp(obj, color=(0.651406, 0.0368892, 0.223228, 1))
+
+
+
+
+def make_earth_marker(earthlocation, color=(0, 0, 0, 1)):
+    elh = earthlocation.get_itrs(now).transform_to(astropy.coordinates.HeliocentricTrueEcliptic(obstime=now))
+    elvec = Vector(elh.cartesian.xyz.to(u.au).value)
+    eldir = elvec - bpy.data.objects['Earth'].location
+    eldir.length = 1.0
+
+    curve = bpy.data.objects.new("EL", bpy.data.curves.new("EL", "CURVE"))
+    curve.location = bpy.data.objects['Earth'].location
+    moonscene.collection.objects.link(curve)
+    spline = curve.data.splines.new("BEZIER")
+    spline.bezier_points.add(1)
+    spline.bezier_points[0].co = Vector( [0, 0, 0] )
+    spline.bezier_points[1].co = eldir
+    to_gp(curve, color=color)
+
+gbg = astropy.coordinates.EarthLocation(lat=57.71788*u.deg, lon=11.93394*u.deg, height=80*u.m)
+make_earth_marker(gbg, color=(1, 0, 0, 1))
+gbg = astropy.coordinates.EarthLocation(lat=90*u.deg, lon=0*u.deg, height=80*u.m)
+make_earth_marker(gbg, color=(0, 1, 0, 1))
+gbg = astropy.coordinates.EarthLocation(lat=-90*u.deg, lon=-0*u.deg, height=80*u.m)
+make_earth_marker(gbg, color=(1, 1, 0, 1))
+
+
+
 #POINTS = 7
 #TIMESPAN = datetime.timedelta(seconds=300)
 
-spicaicrs = astropy.coordinates.SkyCoord(ra=201.29824736*u.deg, dec=-11.16131948*u.deg, distance=260.9*u.lightyear)
-spicapos = spicaicrs.transform_to(astropy.coordinates.GeocentricTrueEcliptic)
-print(spicapos)
-spicavec = Vector(spicapos.cartesian.xyz.to(u.au).value)
-print(spicavec)
-spicavec.length = 10
-print(spicavec)
 
-chitra = bpy.data.objects.new("Chitra", bpy.data.curves.new("Chitra", "CURVE"))
-curve = chitra.data
-moonscene.collection.objects.link(chitra)
-spline = curve.splines.new("BEZIER")
-POINTS = 24
-spline.bezier_points.add(1)
-spline.bezier_points[0].co = Vector( [0, 0, 0] )
-spline.bezier_points[1].co = spicavec
-chitra.location = bpy.data.objects["Earth"].location
-to_gp(chitra, color=(0, 0, 0, 0),)
+def make_star_pointer(ra=0, dec=0, dist=10, col=(0, 0, 0, 0)):
+    spicaicrs = astropy.coordinates.SkyCoord(ra=ra*u.deg, dec=dec*u.deg, distance=dist*u.lightyear)
+    spicapos = spicaicrs.transform_to(astropy.coordinates.HeliocentricTrueEcliptic)
+    spicavec = Vector(spicapos.cartesian.xyz.to(u.au).value)
+    spicavec.length = 300
+
+    starobj = bpy.data.objects.new("Star", bpy.data.curves.new("Star", "CURVE"))
+    curve = starobj.data
+    moonscene.collection.objects.link(starobj)
+    spline = curve.splines.new("BEZIER")
+
+    spline.bezier_points.add(1)
+    spline.bezier_points[0].co = Vector( [0, 0, 0] )
+    spline.bezier_points[1].co = spicavec
+    starobj.location = bpy.data.objects["Earth"].location
+    to_gp(starobj, color=col,)
+
+make_star_pointer(ra=201.29824736, dec=-11.16131948, dist=260.9) # Spica
+# make_star_pointer(ra=279.23473479, dec=38.78368896, dist=25) # Vega
+# make_star_pointer(ra=10.6847083, dec=41.26875, col=(0, 0, 1, 1) ) # Andromeda
+# make_star_pointer(ra=266.41500889, dec=-29.00611111) # Galactic Center
+
 
 # Camera
-cam = make_camera("Cam", lens_unit='FOV', angle=0.888, clip_end=500,
-                         object_props={'location': 3.8 * bpy.data.objects['Earth'].location})
+cam = make_camera("Cam", lens_unit='FOV', angle=radians(90), clip_end=500,
+                         object_props={'location': 2.22 * bpy.data.objects['Earth'].location})
 moonscene.camera = cam
-cam.location.z = 0.4
+cam.location.z = 0.50
 # make sun track the moon
 c = bpy.data.objects['Cam'].constraints.new("TRACK_TO")
 c.target = bpy.data.objects['Sun']
 
+# Background!
+world = bpy.data.worlds.new("Milky Way")
+bpy.context.scene.world = world
+world.use_nodes = True
+nodes = bpy.context.scene.world.node_tree.nodes
 
-    
+for n in nodes: nodes.remove(n)
+
+mynodes = {
+    0: nodes.new(type="ShaderNodeOutputWorld"),
+    1: nodes.new(type="ShaderNodeBackground"),
+    2: nodes.new(type="ShaderNodeMix"),
+    3: nodes.new(type="ShaderNodeMix"),
+    4: nodes.new(type="ShaderNodeTexImage"),
+    5: nodes.new(type="ShaderNodeTexImage"),
+    6: nodes.new(type="ShaderNodeTexImage"),
+    7: nodes.new(type="ShaderNodeMapping"),
+    8: nodes.new(type="ShaderNodeVectorRotate"),
+    9: nodes.new(type="ShaderNodeVectorRotate"),
+    10: nodes.new(type="ShaderNodeVectorMath"),
+    11: nodes.new(type="ShaderNodeTexCoord"),
+}
+
+links = bpy.context.scene.world.node_tree.links
+
+from itertools import pairwise
+
+for r, l in pairwise(mynodes.values()):
+    l.location = r.location - Vector( [l.width + 20, 0] )
+
+links.new(mynodes[1].outputs[0], mynodes[0].inputs[0])
+links.new(mynodes[2].outputs[2], mynodes[1].inputs[0])
+links.new(mynodes[3].outputs[2], mynodes[2].inputs[1])
+links.new(mynodes[3].outputs[2], mynodes[2].inputs[6])
+links.new(mynodes[4].outputs[0], mynodes[2].inputs[7])
+links.new(mynodes[5].outputs[0], mynodes[3].inputs[7])
+links.new(mynodes[6].outputs[0], mynodes[3].inputs[6])
+links.new(mynodes[7].outputs[0], mynodes[4].inputs[0])
+links.new(mynodes[7].outputs[0], mynodes[5].inputs[0])
+links.new(mynodes[7].outputs[0], mynodes[6].inputs[0])
+#links.new(mynodes[8].outputs[0], mynodes[7].inputs[0])
+links.new(mynodes[9].outputs[0], mynodes[7].inputs[0])
+links.new(mynodes[10].outputs[0], mynodes[9].inputs[0])
+links.new(mynodes[11].outputs[0], mynodes[10].inputs[0])
+
+
+bpy.app.driver_namespace['links'] = links
+bpy.app.driver_namespace['nodes'] = nodes
+bpy.app.driver_namespace['mynodes'] = nodes
+
+mynodes[0].is_active_output = True
+
+mynodes[1].inputs[1].default_value = 4
+
+mynodes[2].data_type = "RGBA"
+mynodes[2].blend_type = "ADD"
+mynodes[2].inputs[0].default_value = 0
+mynodes[3].data_type = "RGBA"
+mynodes[3].blend_type = "ADD"
+mynodes[3].inputs[0].default_value = 0
+
+mynodes[4].projection = 'SPHERE'
+mynodes[4].image = bpy.data.images.load("/home/hlofving/Downloads/celestial_grid_16k.tif")
+mynodes[5].projection = 'SPHERE'
+mynodes[5].image = bpy.data.images.load("/home/hlofving/Downloads/constellation_figures_4k.tif")
+mynodes[6].projection = 'SPHERE'
+mynodes[6].image = bpy.data.images.load("/home/hlofving/Downloads/starmap_2020_8k.exr")
+
+mynodes[7].vector_type = 'TEXTURE'
+mynodes[7].inputs[3].default_value[0] = -1
+mynodes[7].inputs[3].default_value[1] = 1
+mynodes[7].inputs[3].default_value[2] = 1
+
+
+#mynodes[8].rotation_type = 'AXIS_ANGLE'
+#mynodes[8].inputs[1].default_value = Vector( [-0.5, 0.5, 0.5] )
+#mynodes[8].inputs[2].default_value = Vector( [ 0.5, 0.0, 1.0] ) # need correct axis
+#mynodes[8].inputs[3].default_value = radians(-270)
+mynodes[9].rotation_type = 'EULER_XYZ'
+mynodes[9].inputs[1].default_value = Vector( [-0.5, 0.5, 0.5] )
+
+bg_correction = HeliocentricTrueEcliptic(lon=0*u.deg, lat=90*u.deg, distance=1*u.lyr).transform_to(ICRS)
+print(bg_correction)
+
+mynodes[9].inputs[4].default_value[0] = radians(90 - bg_correction.dec.deg)
+mynodes[9].inputs[4].default_value[2] = -bg_correction.ra.rad
+
+mynodes[10].operation = 'ADD'
+mynodes[10].inputs[1].default_value = Vector( [-0.5, 0.5, 0.5] )
+
 
 #moonscene.collection.objects.link(
 #    bpy.data.objects.new("Moon Trajectory", bpy.data.curves.new('Moon Trajectory', "CURVE")))
