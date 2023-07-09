@@ -391,14 +391,21 @@ def make_star_pointer_flat(ra=0, dec=0, dist=10, col=(0, 0, 0, 0)):
     spline.bezier_points[1].co = spicavec
     starobj.location = bpy.data.objects["Earth"].location
     to_gp(starobj, color=col,)
-    
-# make_star_pointer(ra=201.29824736, dec=-11.16131948, dist=260.9) # Spica
-# make_star_pointer_flat(ra=201.29824736, dec=-11.16131948, dist=260.9) # Spica
-# make_star_pointer(ra=101.28715533, dec=-16.71611586, dist=8) # Sirius
-# make_star_pointer(ra=279.23473479, dec=38.78368896, dist=25) # Vega
-# make_star_pointer(ra=10.6847083, dec=41.26875, col=(0, 0, 1, 1) ) # Andromeda
-# make_star_pointer(ra=266.41500889, dec=-29.00611111) # Galactic Center
 
+
+starcatalog = { # ICRS positions
+    "Spica":         dict(ra=201.29824736, dec=-11.16131948, dist=260.9),
+    "Sirius":        dict(ra=101.28715533, dec=-16.71611586, dist=8),
+    "Vega":          dict(ra=279.23473479, dec=38.78368896, dist=25), 
+    "Andromeda":     dict(ra=10.6847083, dec=41.26875, dist=1000),
+    "Galactic Center":
+                     dict(ra=266.41500889, dec=-29.00611111, dist=1000),
+    "Pleiades":      dict(ra=56.601, dec=24.114, dist=444),
+    "M33":           dict(ra=23.46206906, dec=30.66017511),
+    "Arcturus":      dict(ra=213.91530029, dec=19.18240916),
+}
+ 
+make_star_pointer_flat(**starcatalog["Spica"], col=(1, .5, 0, 1))
 
 # Camera
 cam = make_camera("Cam", lens_unit='FOV', angle=radians(90), clip_end=500,
@@ -409,60 +416,55 @@ cam.data.shift_y = 0.1
 cam.data.shift_x = -0.05
 moonscene.camera = cam
 
-# Track Sun
 c = bpy.data.objects['Cam'].constraints.new("TRACK_TO")
-c.target = bpy.data.objects['Sun']
+c.target = bpy.data.objects['Sun'] # Track Sun
 
 # Background!
+class ShaderNode():
+    class Node(dict):
+        aliases = dict()    
+        _slot = 0
+        def __rmatmul__(s, o):
+            s._slot = o
+            return s
+        def makenode(n, nodetree, loc=Vector( [0, 0] )):
+            if isinstance(n, ShaderNode.NodeReference):
+                return ShaderNode.Node.aliases[n["_target"]]
+            typestr = "ShaderNode" + str(n.__class__).split("'")[-2].split(".")[-1]
+            curnode = nodetree.nodes.new(type=typestr)
+            loc = Vector( [loc.x - curnode.width - 20, loc.y] )
+            curnode.location = Vector( [loc.x, loc.y] )
+            for name, val in n.items():
+                if name == "_alias":
+                    SN.Node.aliases[val] = n, curnode
+                    continue
+                obj = curnode
+                attrname = name
+                if name.startswith("input_"):
+                    inputidx = int(name.split("_")[-1])
+                    obj = curnode.inputs[inputidx]
+                    attrname = "default_value"
+                if isinstance(val, ShaderNode.Node):
+                    wrapper, childnode = val.makenode(nodetree, loc=Vector( [loc.x, loc.y] ) )
+                    loc = Vector( [loc.x, loc.y - childnode.height - 200] ) # XXX .height is always 100 as of version 3.5
+                    nodetree.links.new(childnode.outputs[wrapper._slot], obj)
+                else:
+                    setattr(obj, attrname, val)
+            return n, curnode
 
+    class NodeReference(Node): pass
+    l = [a for a in dir(bpy.types) if a.startswith("ShaderNode")]
+    for i in l:
+        n = i[10:]
+        locals()[n] = type(n, (Node,), {'a': int})
 
+    def __init__(s):
+        pass
 
-class Node(dict):
-    aliases = dict()    
-    _slot = 0
-    def __rmatmul__(s, o):
-        s._slot = o
-        return s
-
-class ShaderNodeOutputWorld(Node): pass
-class ShaderNodeBackground(Node): pass
-class ShaderNodeMix(Node): pass
-class ShaderNodeTexImage(Node): pass
-class ShaderNodeMapping(Node): pass
-class ShaderNodeVectorRotate(Node): pass
-class ShaderNodeVectorMath(Node): pass
-class ShaderNodeTexCoord(Node): pass
-class ShaderNodeReference(Node): pass
-
-def makenode(nodetree, n, loc=Vector( [0, 0] )):
-    if isinstance(n, ShaderNodeReference):
-        return Node.aliases[n["_target"]]
-    typestr = str(n.__class__).split("'")[-2].split(".")[-1]
-    curnode = nodetree.nodes.new(type=typestr)
-    loc = Vector( [loc.x - curnode.width - 20, loc.y] )
-    curnode.location = Vector( [loc.x, loc.y] )
-    for name, val in n.items():
-        if name == "_alias":
-            Node.aliases[val] = n, curnode
-            continue
-        obj = curnode
-        attrname = name
-        if name.startswith("input_"):
-            inputidx = int(name.split("_")[-1])
-            obj = curnode.inputs[inputidx]
-            attrname = "default_value"
-        if isinstance(val, Node):
-            wrapper, childnode = makenode(nodetree, val, loc=Vector( [loc.x, loc.y] ) )
-            print(childnode, childnode.height)
-            loc = Vector( [loc.x, loc.y - childnode.height - 200] ) # XXX .height is always 100 as of version 3.5
-            nodetree.links.new(childnode.outputs[wrapper._slot], obj)
-        else:
-            setattr(obj, attrname, val)
-    return n, curnode
-
+SN = ShaderNode
 
 bg_correction = HeliocentricTrueEcliptic(lon=0*u.deg, lat=90*u.deg, distance=1*u.lyr).transform_to(ICRS)
-ra, dec, dist = 201.29824736, -11.16131948, 260.9 # Spica
+ra, dec, dist = 201.29824736, -11.16131948, 260.9
 spicaicrs = astropy.coordinates.SkyCoord(ra=ra*u.deg, dec=dec*u.deg, distance=dist*u.lightyear)
 spicapos = spicaicrs.transform_to(astropy.coordinates.HeliocentricTrueEcliptic)
 
@@ -473,43 +475,43 @@ nodes = bpy.context.scene.world.node_tree.nodes
 links = bpy.context.scene.world.node_tree.links
 for n in nodes: nodes.remove(n)
 
-n = ShaderNodeOutputWorld(
+n = SN.OutputWorld(
     is_active_output = 1,
-    input_0 = 0 @ ShaderNodeBackground(
+    input_0 = 0 @ SN.Background(
         input_1 = 2.5,
-        input_0 = 2 @ ShaderNodeMix(
+        input_0 = 2 @ SN.Mix(
             data_type = "RGBA", blend_type = "ADD", input_0 = .05,
-            input_7 = 0 @ ShaderNodeTexImage(
+            input_7 = 0 @ SN.TexImage(
                 projection =  'SPHERE',
                 image = bpy.data.images.load("/home/hlofving/signs_overlay.png"),
-                input_0 = 0 @ ShaderNodeMapping(
+                input_0 = 0 @ SN.Mapping(
                     vector_type = 'TEXTURE', input_3 = Vector( [-1, 1, 1] ),
-                    input_0 = ShaderNodeVectorRotate(
+                    input_0 = SN.VectorRotate(
                         rotation_type = 'EULER_XYZ', input_1 = Vector( [-0.5, 0.5, 0.5] ),
                         input_4 = Vector( [0, 0, (pi / 2) - spicapos.lon.rad] ),
-                        input_0 = 0 @ ShaderNodeVectorMath(
+                        input_0 = 0 @ SN.VectorMath(
                             operation = 'ADD',
                             input_1 = Vector( [-0.5, 0.5, 0.65] ),
-                            input_0 = 0 @ ShaderNodeTexCoord() ) ) ) ),
-            input_6 = 2 @ ShaderNodeMix(
+                            input_0 = 0 @ SN.TexCoord() ) ) ) ),
+            input_6 = 2 @ SN.Mix(
                 data_type = "RGBA", blend_type = "ADD", input_0 = 0,
-                input_7 = 0 @ ShaderNodeTexImage(
-                    projection =  'SPHERE',
+                input_7 = 0 @ SN.TexImage(
+                    projection = 'SPHERE',
                     image = bpy.data.images.load("/home/hlofving/Downloads/constellation_figures_4k.tif"),
-                    input_0 = 0 @ ShaderNodeMapping( _alias="ICRS_CORRECTION",
+                    input_0 = 0 @ SN.Mapping( _alias="ICRS_CORRECTION",
                         vector_type = 'TEXTURE', input_3 = Vector( [-1, 1, 1] ),
-                        input_0 = ShaderNodeVectorRotate(
+                        input_0 = SN.VectorRotate(
                             rotation_type = 'EULER_XYZ', input_1 = Vector( [-0.5, 0.5, 0.5] ),
                             input_4 = Vector( [radians(90 - bg_correction.dec.deg), 0, -bg_correction.ra.rad] ),
-                            input_0 = 0 @ ShaderNodeVectorMath(
+                            input_0 = 0 @ SN.VectorMath(
                                 operation = 'ADD', input_1 = Vector( [-0.5, 0.5, 0.5] ),
-                                input_0 = 0 @ ShaderNodeTexCoord() ) ) ) ),
-                input_6 = 0 @ ShaderNodeTexImage(
+                                input_0 = 0 @ SN.TexCoord() ) ) ) ),
+                input_6 = 0 @ SN.TexImage(
                     projection =  'SPHERE',
                     image = bpy.data.images.load("/home/hlofving/Downloads/starmap_2020_8k.exr"),
-                    input_0 = 0 @ ShaderNodeReference(_target="ICRS_CORRECTION") ) ) ) ) )
+                    input_0 = 0 @ SN.NodeReference(_target="ICRS_CORRECTION") ) ) ) ) )
 
-makenode(bpy.context.scene.world.node_tree, n, loc=Vector( [0, -200] ) )
+n.makenode(bpy.context.scene.world.node_tree, loc=Vector( [0, -200] ) )
 
 bpy.app.driver_namespace['links'] = links
 bpy.app.driver_namespace['nodes'] = nodes
