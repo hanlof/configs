@@ -336,8 +336,6 @@ export LS_COLORS="no=00;38;5;244:rs=0:di=00;38;5;33:ln=01;38;5;37:mh=00:pi=48;5;
 read PARENT_CMD < /proc/$PPID/comm
 if [ "$PARENT_CMD" == "xterm" ]; then
   TERM_EMU_MSG=""
-  # rand_xterm_bg white
-  rand_xterm_geometry
 else
   TERM_EMU_MSG='\[\033[31m\]!${PARENT_CMD}!\[\033[0m\] '
 fi

@@ -54,8 +54,12 @@ XTerm*color12:                 S_base0
 XTerm*color13:                 S_violet
 XTerm*color14:                 S_base1
 XTerm*color15:                 S_base3
-!what characters are selected on double-click:
+! what characters are selected on double-click:
 XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
+
+! plz make Alt-N send \en
+XTerm*metaSendsEscape: true
+
 !custom mouse-wheel bindings (btn4 and btn5) interacts with Vim configuration
 *VT100.Translations: #override \n\
   Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
@@ -64,31 +68,27 @@ XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
   Shift <Btn5Down>: string("0x1b") string("[65~") \n\
   Ctrl <Btn4Down>: larger-vt-font() \n\
   Ctrl <Btn5Down>: smaller-vt-font() \n\
-  Shift <KeyPress> Delete: insert-selection(CLIPBOARD,CUT_BUFFER0) \n\
-  Shift <KeyPress> Insert: insert-selection(PRIMARY,SECONDARY) \n\
-  Shift Ctrl <KeyPress> C: copy-selection(PRIMARY,SECONDARY,CLIPBOARD,CUT_BUFFER0) \n\
+  Shift <KeyPress> Delete: insert-selection(CLIPBOARD, CUT_BUFFER0) \n\
+  Shift <KeyPress> Insert: insert-selection(PRIMARY, SECONDARY) \n\
+  Shift Ctrl <KeyPress> C: copy-selection(PRIMARY, SECONDARY, CLIPBOARD, CUT_BUFFER0) \n\
   Shift Ctrl <KeyPress> L: interpret( STR(setbg(S_base3)) ) \n\
+  <Map>: select-cursor-start() \
+         select-cursor-end(PRIMARY) \
+         copy-selection(PRIMARY) \
+         exec-selectable("/home/hlofving/configs/find-xterm-child-proc.sh", word) \n\
   Shift Ctrl <KeyPress> D: interpret( STR(setbg(S_base02)) )
 
-!  <Enter>: string(" EnterNotify") \n\
-!  <EnterWindow>: string(" EnterNotify") \n\
-!  <FocusIn>: string(" FocusIn") \n\
-!  <FocusOut>: string(" FocusOut") \n\
+!  Shift Ctrl <KeyPress> A: exec-formatted("/tmp/a.sh", SELECT) \n\
 !  <Keymap>: string(" KeymapNotify") \n\
-!  <Expose>: string(" Expose") \n\
 !  <GrExp>: string(" GraphicsExpose") \n\
 !  <NoExp>: string(" NoExpose") \n\
-!  <Visible>: string(" VisibilityNotify") \n\
 !  <Create>: string(" CreateNotify") \n\
 !  <Destroy>: string(" DestroyNotify") \n\
 !  <Unmap>: string(" UnmapNotify") \n\
-!  <Map>: string(" MapNotify") \n\
 !  <MapReq>: string(" MapRequest") \n\
 !  <Reparent>: string(" ReparentNotify") \n\
-!  <Configure>: string(" ConfigureNotify") \n\
 !  <ConfigureReq>: string(" ConfigureRequest") \n\
 !  <Grav>: string(" GravityNotify") \n\
-!  <ResReq>: string(" ResizeRequest") \n\
 !  <Circ>: string(" CirculateNotify") \n\
 !  <CircReq>: string(" CirculateRequest") \n\
 !  <Prop>: string(" PropertyNotify") \n\
@@ -98,5 +98,14 @@ XTerm*charClass: 33:48, 37:48, 42:48, 45-47:48, 63-64:48, 126:48
 !  <Clrmap>: string(" ColormapNotify") \n\
 !  <Message>: string(" ClientMessage") \n\
 !  <Mapping>: string(" MappingNotify") \n\
+
+!  <Configure>: string(" ConfigureNotify") \n\
+!  <Expose>: string(" Expose") \n\
+!  <Enter>: string(" EnterNotify") \n\
+!  <EnterWindow>: string(" EnterWinNotify") \n\
+!  <FocusIn>: string(" FocusIn") \n\
+!  <FocusOut>: string(" FocusOut") \n\
+!  <ResReq>: string(" ResizeRequest") \n\
+!  <Visible>: string(" VisibilityNotify") \n\
 
 !  Shift Ctrl <KeyPress> T: interpret( STR(setbg(S_base02)setfg(S_base00)setcurfg(S_base00)setcurbg(S_base02)) )
