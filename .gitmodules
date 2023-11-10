@@ -23,3 +23,6 @@
 [submodule "dotvim/pack/a/start/vim-fzy"]
 	path = dotvim/pack/active-plugins/start/vim-fzy
 	url = https://github.com/bfrg/vim-fzy
+[submodule "submodules/vim-qml"]
+	path = dotvim/pack/active-plugins/start/vim-qml
+	url = git@github.com:peterhoeg/vim-qml.git

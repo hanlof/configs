@@ -71,13 +71,14 @@ XTerm*metaSendsEscape: true
   Shift <KeyPress> Delete: insert-selection(CLIPBOARD, CUT_BUFFER0) \n\
   Shift <KeyPress> Insert: insert-selection(PRIMARY, SECONDARY) \n\
   Shift Ctrl <KeyPress> C: copy-selection(PRIMARY, SECONDARY, CLIPBOARD, CUT_BUFFER0) \n\
-  Shift Ctrl <KeyPress> L: interpret( STR(setbg(S_base3)) ) \n\
+  Shift Ctrl <KeyPress> L: interpret( STR(setbg(S_base2)) ) \n\
   <Map>: select-cursor-start() \
          select-cursor-end(PRIMARY) \
          copy-selection(PRIMARY) \
-         exec-selectable("/home/hlofving/configs/find-xterm-child-proc.sh", word) \n\
-  Shift Ctrl <KeyPress> D: interpret( STR(setbg(S_base02)) )
+         exec-selectable("/home/hlofving/configs/xterm-event-handler.sh Map", word) \n\
+  Shift Ctrl <KeyPress> D: interpret( STR(setbg(S_base03)) )
 
+!  <Prop>: exec-selectable("/home/hlofving/configs/xterm-event-handler.sh Prop", word) \n\
 !  Shift Ctrl <KeyPress> A: exec-formatted("/tmp/a.sh", SELECT) \n\
 !  <Keymap>: string(" KeymapNotify") \n\
 !  <GrExp>: string(" GraphicsExpose") \n\
@@ -91,7 +92,6 @@ XTerm*metaSendsEscape: true
 !  <Grav>: string(" GravityNotify") \n\
 !  <Circ>: string(" CirculateNotify") \n\
 !  <CircReq>: string(" CirculateRequest") \n\
-!  <Prop>: string(" PropertyNotify") \n\
 !  <SelClr>: string(" SelectionClear") \n\
 !  <SelReq>: string(" SelectionRequest") \n\
 !  <Select>: string(" SelectionNotify") \n\
