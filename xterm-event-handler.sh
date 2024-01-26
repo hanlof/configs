@@ -4,9 +4,9 @@ date >> /tmp/xterm-event-handler-log
 echo $1 >> /tmp/xterm-event-handler-log
 
 read child1 _ < /proc/${PPID}/task/${PPID}/children
-read _ _ _ parentpid _ < /proc/${PPID}/stat
 OUTPUT=/proc/${child1}/fd/0
 
+read _ _ _ parentpid _ < /proc/${PPID}/stat
 read parentcmd _ < /proc/${parentpid}/comm
 echo -n parent: $parentpid $parentcmd >> /tmp/xterm-event-handler-log
 
