@@ -17,6 +17,7 @@
 	stat = 0
 	tool = vimdiff
 [alias]
+	rgrep = grep --recurse-submodules
 	clx = !git --no-pager log --format=ll --date=local --decorate --boundary --graph origin/master origin/clx HEAD ^`git merge-base origin/master origin/clx HEAD --octopus`
 	ll = !git --no-pager log --format=ll --date=local --decorate --boundary --graph --no-notes -n 15
 	lx = !git --no-pager log --format=lx --date=format:'%a %b %e %H:%M' --decorate --boundary --graph --no-notes -n 15
