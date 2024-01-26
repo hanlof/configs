@@ -46,8 +46,8 @@ XTerm*color4:                  S_blue
 XTerm*color5:                  S_magenta
 XTerm*color6:                  S_cyan
 XTerm*color7:                  S_base2
-XTerm*color9:                  S_orange
 XTerm*color8:                  S_base03
+XTerm*color9:                  S_orange
 XTerm*color10:                 S_base01
 XTerm*color11:                 S_base00
 XTerm*color12:                 S_base0
