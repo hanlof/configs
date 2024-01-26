@@ -280,12 +280,12 @@ trap "__debug_command; " DEBUG
 # dummy bindings to work around shortcomings in libreadline
 # TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
-bind -x $'"\201": "run_menu"'
-bind -x $'"\202": "find_git_file"'
-bind -x $'"\203": "insert_git_top"'
-bind -x $'"\204": "insert_from_file ~/bin/paths"'
-bind -x $'"\205": "insert_filename"'
-bind -x $'"\206": "ft"'
+bind -x $'"\201": "run_menu"' # F9
+bind -x $'"\202": "find_git_file"' # F3
+bind -x $'"\203": "insert_git_top"' # F8
+bind -x $'"\204": "insert_from_file ~/bin/paths"' # F7
+bind -x $'"\205": "insert_filename"' # S-F8
+bind -x $'"\206": "ft"' # F4
 bind $'"\307": accept-line'
 
 # real bindings, maps to intermediate bindings above to work around libreadline limitations
