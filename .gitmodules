@@ -3,13 +3,13 @@
 	url = http://git.suckless.org/dmenu
 	ignore = untracked
 [submodule "submodules/vim-fugitive"]
-	path = dotvim/pack/active-plugins/start/vim-fugitive
+	path = submodules/vim-fugitive
 	url = https://github.com/tpope/vim-fugitive
 [submodule "submodules/vim-clang"]
 	path = submodules/vim-clang
 	url = https://github.com/justmao945/vim-clang
 [submodule "submodules/vim-bitbake"]
-	path = dotvim/pack/active-plugins/start/vim-bitbake
+	path = submodules/vim-bitbake
 	url = https://github.com/kergoth/vim-bitbake
 [submodule "submodules/vim-rtags"]
 	path = submodules/vim-rtags
@@ -21,8 +21,8 @@
 	path = submodules/YouCompleteMe
 	url = https://github.com/ycm-core/YouCompleteMe
 [submodule "dotvim/pack/a/start/vim-fzy"]
-	path = dotvim/pack/active-plugins/start/vim-fzy
+	path = submodules/vim-fzy
 	url = https://github.com/bfrg/vim-fzy
 [submodule "submodules/vim-qml"]
-	path = dotvim/pack/active-plugins/start/vim-qml
+	path = submodules/vim-qml
 	url = git@github.com:peterhoeg/vim-qml.git

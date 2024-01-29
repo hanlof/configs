@@ -15,10 +15,14 @@ let g:configsPath = expand("<sfile>:h:h")
 
 " plugins
 exec "set runtimepath+=" . g:configsPath . "/dotvim"
-exec "set runtimepath+=" . g:configsPath . "/submodules/vim-fugitive"
-exec "set runtimepath+=" . g:configsPath . "/submodules/vim-bitbake"
-exec "set runtimepath+=" . g:configsPath . "/submodules/vim-clang"
-exec "set runtimepath+=" . g:configsPath . "/submodules/vim-rtags"
+exec "set packpath+=" . g:configsPath . "/dotvim"
+
+function g:Tag()
+  let gitdircmd = "set tags+=" . FugitiveActualDir() . "/tags"
+  exec gitdircmd
+endfunction
+au BufReadPost * call g:Tag()
+
 
 " we add on gui stuff when/if we enter gui
 au GuiEnter * exec "source " . g:configsPath . "/dotvim/gvimrc"
