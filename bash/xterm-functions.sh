@@ -36,12 +36,9 @@ _get_monitor_info() {
   monitors_string="$(xrandr --current | grep '\<connected\>')"
   declare -Ag _monitor_info
   while read a; do # iterate the found monitors
-    [[ "$a" =~ ([[:digit:]]+)x([[:digit:]]+)\+([[:digit:]]+)\+([[:digit:]]+) ]] # extract geometry info
-    w=${BASH_REMATCH[1]}
-    h=${BASH_REMATCH[2]}
-    xofs=${BASH_REMATCH[3]}
-    yofs=${BASH_REMATCH[4]}
-    if [ $winx -ge $xofs -a $winx -lt $((w+xofs)) -a $winy -ge $yofs -a $winy -lt $((h+yofs)) ]; then
+    [[ "$a" =~ ([[:digit:]]+)x([[:digit:]]+)\+([[:digit:]]+)\+([[:digit:]]+) ]] || continue # extract geometry info
+    read _ w h xofs yofs <<< "${BASH_REMATCH[@]}"
+    if [ "$winx" -ge "$xofs" -a "$winx" -lt "$((w+xofs))" -a "$winy" -ge "$yofs" -a "$winy" -lt "$((h+yofs))" ]; then
       # store values for the monitor that contains the top-left corner of current window
       _monitor_info['x_offset']=$xofs
       _monitor_info['y_offset']=$yofs
