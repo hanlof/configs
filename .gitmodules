@@ -26,3 +26,6 @@
 [submodule "submodules/vim-qml"]
 	path = submodules/vim-qml
 	url = git@github.com:peterhoeg/vim-qml.git
+[submodule "submodules/pmenu"]
+	path = submodules/pmenu
+	url = ssh://git@github.com/sgtpep/pmenu
