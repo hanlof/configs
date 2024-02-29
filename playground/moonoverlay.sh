@@ -43,21 +43,66 @@ MOONCMD="""convert /home/hlofving/configs/playground/fullmoon-template.png -chan
 # fetch sun and make a nice alpha channel and tint it with foreground color
 # best awesomest: https://services.swpc.noaa.gov/images/animations/suvi/primary/171/latest.png
 SUN_RAW_FNAME='sun-raw.png'
-wget https://services.swpc.noaa.gov/images/animations/suvi/primary/171/latest.png -O ${SUN_RAW_FNAME}
-SUNCMD="""convert -crop 1280x1222+0+0 ${SUN_RAW_FNAME} -separate -average -colorspace gray -level 0,80% -alpha off -fill '#${COL_ORANGE}' -tint 100 \
-       \( -clone 0 -colorspace gray -brightness-contrast 30,30 -level 30%,90% -draw 'fill white stroke none circle 640,640 640,250' \) \
+if [ "$1" != "fast" ]; then
+    wget https://services.swpc.noaa.gov/images/animations/suvi/primary/171/latest.png -O ${SUN_RAW_FNAME}
+fi
+SUNCMD="""convert ${SUN_RAW_FNAME} -draw 'fill black rectangle 0,1222,1279,1279' -separate -average -colorspace gray -level 0,80% -alpha off -fill '#${COL_ORANGE}' -tint 100 \
+       \( -clone 0 -colorspace gray -brightness-contrast 30,30 -level 5%,90% -draw 'fill white stroke none circle 640,640 640,250' \) \
        -alpha off -compose copyopacity -composite -brightness-contrast 15,15 png:-"""
+
 
 # blender --python-expr "import bpy; bpy.context.scene['moon_props'] = {'colormap': 'what', 'heightmap': 'rly?', 'camera_fov': 0.6}; exit(0)"
 #DISPLAY=:0.0 blender -b /home/hlofving/playground/mymoon.blend -o /home/hlofving/playground/moon_rendered.png -P /home/hlofving/playground/moon3d/make_scene.py
-DISPLAY=:0.0 blender --python-expr "import bpy; bpy.context.window.scene=bpy.data.scenes.new('Moon Scene'); bpy.context.window.scene['moon_params']={'camfov':0.6}" -P /home/hlofving/configs/playground/make_moon_scene.py -b -o "/home/hlofving/playground/moon_rendered_##" -f 1
+MOONPARAMS="{'camfov': 0.7, 'resx': 640, 'resy': 640, 'sunstr': 7.5, 'skip_drivers': True }"
+if [ "$1" != "fast" ]; then
+    DISPLAY=:0.0 /snap/bin/blender --python-expr "import bpy; bpy.context.window.scene['moon_params']=${MOONPARAMS}" -y -P /home/hlofving/configs/playground/make_moon_scene.py -b -o "/home/hlofving/playground/moon_rendered_##" -f 1
+fi
+
+RESX=1920
+DISC_WIDTH_RATIO=70 # given in percent!
+BASE_Y_OFFSET=-50
+let WANTED_DISC_WIDTH="((RESX / 3) * DISC_WIDTH_RATIO) / 100"
+
+let SPACING="(RESX - ((1920 * DISC_WIDTH_RATIO) / 100)) / 4"
+
+# ---  DIMENSIONS ---
+# sun disc is 780 pixels in the original out of 1280x1280
+# moon disc is between 835 and 953 pixels (with FOV 0.6 deg) out of 1024x1024
+# the chart covers the whole image and size is controllable
+
+SUN_DISC_SIZE=780
+SUN_ORIGINAL_SIZE=1280
+SUN_RESIZE_FACTOR=$(( (WANTED_DISC_WIDTH * 100) / SUN_DISC_SIZE ))
+SUN_RESCALED_SIZE=$(( (SUN_ORIGINAL_SIZE * SUN_RESIZE_FACTOR) / 100 ))
+SUN_X_OFFSET=$(( SPACING - ((SUN_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+SUN_Y_OFFSET=$(( BASE_Y_OFFSET + SPACING - ((SUN_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+
+MOON_DISC_SIZE=500 # (558.75 mean size @ 640x640px FOV 0.6deg)
+MOON_ORIGINAL_SIZE=640
+MOON_RESIZE_FACTOR=$(( (WANTED_DISC_WIDTH * 100) / MOON_DISC_SIZE ))
+MOON_RESCALED_SIZE=$(( (MOON_ORIGINAL_SIZE * MOON_RESIZE_FACTOR) / 100 ))
+MOON_X_OFFSET=$(( (2 * SPACING + WANTED_DISC_WIDTH) - ((MOON_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+MOON_Y_OFFSET=$(( BASE_Y_OFFSET + SPACING - ((MOON_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+
+CHART_RESIZE_FACTOR=$(( (WANTED_DISC_WIDTH * 100) / 640 ))
+CHART_RESCALED_SIZE=$(( (640 * CHART_RESIZE_FACTOR) / 100 ))
+CHART_X_OFFSET=$(( (3 * SPACING + 2 * WANTED_DISC_WIDTH) - ((CHART_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+CHART_Y_OFFSET=$(( BASE_Y_OFFSET + SPACING - ((CHART_RESCALED_SIZE - WANTED_DISC_WIDTH) / 2) ))
+
+printf -v SUN_X_OFFSET %+d ${SUN_X_OFFSET}
+printf -v SUN_Y_OFFSET %+d ${SUN_Y_OFFSET}
+printf -v MOON_X_OFFSET %+d ${MOON_X_OFFSET}
+printf -v MOON_Y_OFFSET %+d ${MOON_Y_OFFSET}
+printf -v CHART_X_OFFSET %+d ${CHART_X_OFFSET}
+printf -v CHART_Y_OFFSET %+d ${CHART_Y_OFFSET}
 
 # compose everything together
+# convert <(eval "$BGCMD") -draw 'fill none stroke #80808080 rectangle 640,0 1280,640' \
 convert <(eval "$BGCMD") \
-    \( -gravity northeast -geometry +77+50   -background none -resize 540 now.svg \) -composite \
+    \( -resize ${SUN_RESCALED_SIZE}x   -geometry ${SUN_X_OFFSET}${SUN_Y_OFFSET}  <(eval "$SUNCMD") -gravity northwest \) -composite \
+    \( -resize ${MOON_RESCALED_SIZE}x  -geometry ${MOON_X_OFFSET}${MOON_Y_OFFSET}  /home/hlofving/playground/moon_rendered_01.png -gravity northwest \) -composite \
+    \( -resize ${CHART_RESCALED_SIZE}x -geometry ${CHART_X_OFFSET}${CHART_Y_OFFSET}   -background none now.svg -gravity northwest \) -composite \
     \( -gravity southeast -geometry +10+160  -background none -density 150 -size 150x150 grid.svg \)  -composite \
-    \( /home/hlofving/playground/moon_rendered_01.png -resize 640x -gravity center    -geometry +0-220   -background none \) -composite \
-    \( -gravity northwest -geometry -90-111   -resize 870 <(eval "$SUNCMD") \) -composite \
     \( -gravity southeast -geometry +10+30              <(eval "$MOONPHASECMD") \) -composite \
     /tmp/desktop-finished.png
 
