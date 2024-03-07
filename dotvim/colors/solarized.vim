@@ -612,10 +612,10 @@ else
     exe "hi! SpecialKey" .s:fmt_none   .s:fg_none .s:bg_none
     exe "hi! NonText"    .s:fmt_bold   .s:fg_base00 .s:bg_none
 endif
-exe "hi! StatusLine"        . s:fmt_none   .  s:fg_cyan     . s:bg_base03 . s:fmt_revbb
-exe "hi! StatusLineNC"      . s:fmt_none   . " ctermfg=24 " . s:bg_base03 . s:fmt_revbb
-exe "hi! StatusLineTerm"    . s:fmt_none   .  s:fg_cyan     . s:bg_base03 . s:fmt_revbb
-exe "hi! StatusLineTermNC"  . s:fmt_none   . " ctermfg=24 " . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLine"        . s:fmt_none   . " ctermfg=7  " . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineNC"      . s:fmt_none   . " ctermfg=10 " . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineTerm"    . s:fmt_none   . " ctermfg=7  " . s:bg_base03 . s:fmt_revbb
+exe "hi! StatusLineTermNC"  . s:fmt_none   . " ctermfg=10 " . s:bg_base03 . s:fmt_revbb
 
 hi! ToolbarButton ctermbg=3 ctermfg=8
 hi! ToolbarLine ctermbg=8
@@ -629,16 +629,20 @@ exe "hi! MoreMsg"        .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! ModeMsg"        .s:fmt_none   .s:fg_blue   .s:bg_none
 exe "hi! LineNr"         .s:fmt_none   .s:fg_base01 .s:bg_base02
 exe "hi! Question"       .s:fmt_bold   .s:fg_cyan   .s:bg_none
+
+hi! Search term=reverse cterm=reverse ctermfg=13
 if ( has("gui_running") || &t_Co > 8 )
     exe "hi! VertSplit"  .s:fmt_none   .s:fg_base00 .s:bg_base00
 else
     exe "hi! VertSplit"  .s:fmt_revbb  .s:fg_base00 .s:bg_base02
 endif
-hi! VertSplit ctermbg=24 ctermfg=24
+hi! VertSplit ctermbg=10 ctermfg=10
 exe "hi! Title"          .s:fmt_bold   .s:fg_orange .s:bg_none
 exe "hi! VisualNOS"      .s:fmt_stnd   .s:fg_none   .s:bg_base02 .s:fmt_revbb
 exe "hi! WarningMsg"     .s:fmt_bold   .s:fg_red    .s:bg_none
-exe "hi! WildMenu"       .s:fmt_none   .s:fg_base2  .s:bg_base02 .s:fmt_revbb
+"exe "hi! WildMenu"       .s:fmt_none   .s:fg_base2  .s:bg_base02 .s:fmt_revbb
+hi WildMenu ctermfg=4
+
 exe "hi! Folded"         .s:fmt_undb   .s:fg_base0  .s:bg_base02  .s:sp_base03
 exe "hi! FoldColumn"     .s:fmt_none   .s:fg_base0  .s:bg_base02
 if      (g:solarized_diffmode=="high")
