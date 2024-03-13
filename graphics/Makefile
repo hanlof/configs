@@ -45,7 +45,9 @@ $(OVERLAY_DIR)/%.bgra: $(RASTER_DIR)/term-base-centered-64x64.png $(RASTER_DIR)/
 # why inkscape? Old imagemagick don't do transparency well! :-/
 .SECONDEXPANSION:
 $(RASTER_DIR)/%.png: $$(call base,$$*).svg $(raster_dir_stamp)
-	inkscape -z -e $@ -w $(call geom,$*) $(call base,$*).svg
+	# inkscape -z -e $@ -w $(call geom,$*) $(call base,$*).svg
+	echo inkscape --export-filename=raster/$*.png $(call base,$*).svg
+	inkscape --export-filename=raster/$*.png --export-width=64 --export-height=64 $(call base,$*).svg
 
 .PHONY:
 print:
