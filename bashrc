@@ -260,7 +260,7 @@ function __prompt_command()
   PS1+="$(__git_color_path)"
   PS1+="$(__prompt_exit_status ${__exit_status})"
 
-  PS1+=' \[\033[36m\]\$\[\033[0m\] '                       # display the $ and reset color
+  PS1+=' \[\033[1;38;5;6m\]\$\[\033[0m\] '                       # display the $ and reset color
   export PS1
 }
 
@@ -308,6 +308,7 @@ alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/repos; cd "
+alias vims="vim -S"
 
 function gstatus()
 {
@@ -339,3 +340,4 @@ if [ "$PARENT_CMD" == "xterm" ]; then
 else
   TERM_EMU_MSG='\[\033[31m\]!${PARENT_CMD}!\[\033[0m\] '
 fi
+
