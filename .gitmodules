@@ -29,3 +29,6 @@
 [submodule "submodules/pmenu"]
 	path = submodules/pmenu
 	url = ssh://git@github.com/sgtpep/pmenu
+[submodule "submodules/vim-quickui"]
+	path = submodules/vim-quickui
+	url = git@github.com:skywind3000/vim-quickui.git
