@@ -233,7 +233,9 @@ function __prompt_command()
 
   # reset window icon to standard bash when prompt is shown
 
-  set_xwindows_icon term-base-centered
+  if [ -z "$TERM_EMU_MSG" ]; then
+    set_xwindows_icon term-base-centered
+  fi
   # Xterm title
   _git_repo=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ $? != 0 ]; then
@@ -245,7 +247,7 @@ function __prompt_command()
 
   PS1=""
   if [ ! -z "$VIRTUAL_ENV_PROMPT" ]; then
-    PS1+="(zvenv) "
+    PS1+='\[\033[32m\]VENV:${VIRTUAL_ENV_PROMPT}'
   fi
   PS1+='\[\033[0m\]'                                     # reset all color
   PS1+='\[\033[33m\]\h '                                  # hostname
@@ -273,7 +275,9 @@ __pre_line_accept_command()
 # use DEBUG trap for changing icon properly when starting stuff in a pipe
 __debug_command()
 {
-  set_xwindows_icon "${BASH_COMMAND%% *}" o
+  if [ -z "$TERM_EMU_MSG" ]; then
+    set_xwindows_icon "${BASH_COMMAND%% *}" o
+  fi
 }
 trap "__debug_command; " DEBUG
 
