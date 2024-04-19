@@ -18,7 +18,7 @@ exec "set runtimepath+=" . g:configsPath . "/dotvim"
 exec "set packpath+=" . g:configsPath . "/dotvim"
 
 function g:Tag()
-  let gitdircmd = "set tags+=" . FugitiveActualDir() . "/tags"
+  let gitdircmd = "set tags+=" . FugitiveGitDir() . "/tags"
   exec gitdircmd
 endfunction
 au BufReadPost * call g:Tag()
@@ -76,7 +76,7 @@ set ignorecase smartcase
 set cinoptions=l1
 
 set mouse=a
-set sessionoptions+=resize,localoptions
+set sessionoptions+=resize,localoptions,globals
 set autowrite
 
 set cscopequickfix=s-,c-,d-,i-,t-,e-

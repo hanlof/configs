@@ -1,7 +1,8 @@
 #!/bin/bash
 
-echo $1 >> /tmp/xterm-event-handler-log
+CONFIGS_PATH=$(dirname "$0")
 date >> /tmp/xterm-event-handler-log
+echo $0 $1 >> /tmp/xterm-event-handler-log
 
 read child1 _ < /proc/${PPID}/task/${PPID}/children
 OUTPUT=/proc/${child1}/fd/0
@@ -16,7 +17,7 @@ test "$parentcmd" = "tabbed" && exit
 case $1 in
     Map)
         exec > ${OUTPUT}
-        source /home/hans/configs/bash/xterm-functions.sh
+        source "${CONFIGS_PATH}"/bash/xterm-functions.sh
         rand_xterm_geometry <> ${OUTPUT}
         ;;
     Prop)
