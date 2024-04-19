@@ -62,6 +62,7 @@ set icon
 
 " statusline / command interface related stuff
 set statusline=%<%f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
+"set statusline=%<[%{winnr()}]\ %f\ %h%m%r%=%n\ %-14.(%l,%c%V%)\ %P
 set laststatus=2 ruler showcmd wildmenu
 
 set backspace=2
