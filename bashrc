@@ -206,7 +206,6 @@ insert_filename ()
 
 insert_from_file ()
 {
-
   fname=$(< ${1} ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then
     echo "The file ${1} was empty"
@@ -231,6 +230,7 @@ function __prompt_command()
 {
   __exit_status="$?"
 
+  declare -g EXTENDED_PROMPT
   # reset window icon to standard bash when prompt is shown
 
   if [ -z "$TERM_EMU_MSG" ]; then
@@ -246,6 +246,15 @@ function __prompt_command()
   set_xterm_title "$ ${xterm_title}"                 # xterm title
 
   PS1=""
+  if [ "$EXTENDED_PROMPT" -eq 1 ]; then
+    s=$(git rev-parse --show-toplevel 2> /dev/null)
+    if [ -z "$s" ]; then
+      PS1+="<no git repo>"
+    else
+      PS1+=$(git branch --format="%(refname:short) %(upstream:track)")
+    fi
+    PS1+='\r\n'
+  fi
   if [ ! -z "$VIRTUAL_ENV_PROMPT" ]; then
     PS1+='\[\033[32m\]VENV:${VIRTUAL_ENV_PROMPT}'
   fi
@@ -281,6 +290,35 @@ __debug_command()
 }
 trap "__debug_command; " DEBUG
 
+
+export EXTENDED_PROMPT=0
+__toggle_extended_prompt()
+{
+	READLINE_LINE_="$READLINE_LINE"
+	READLINE_POINT_="$READLINE_POINT"
+	declare -g EXTENDED_PROMPT
+	echo -ne '\e[2K\e[100D'
+	echo -ne '\e[1A\e[2K\e[100D'
+	if [ "$EXTENDED_PROMPT" -eq 1 ]; then
+		echo -ne '\e[1A\e[2K\e[100D'
+	fi
+	let EXTENDED_PROMPT^=1
+	export EXTENDED_PROMPT
+	true
+	__prompt_command
+}
+
+print_shit()
+{
+	if [ "$EXTENDED_PROMPT" -eq 0 ]; then
+		: # echo -ne '\e[A\e[100D'
+	else
+		: # echo -ne '\e[A\e[100D'
+	fi
+	READLINE_LINE="$READLINE_LINE_"
+	READLINE_POINT="$READLINE_POINT_"
+}
+
 # dummy bindings to work around shortcomings in libreadline
 # TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
@@ -290,7 +328,10 @@ bind -x $'"\203": "insert_git_top"' # F8
 bind -x $'"\204": "insert_from_file ~/bin/paths"' # F7
 bind -x $'"\205": "insert_filename"' # S-F8
 bind -x $'"\206": "ft"' # F4
+bind -x $'"\207": "__toggle_extended_prompt"' # F12
 bind $'"\307": accept-line'
+bind -x $'"\306": print_shit'
+bind $'"\305": kill-whole-line'
 
 # real bindings, maps to intermediate bindings above to work around libreadline limitations
 bind '"\e[20~":'$'"\201"'        # F9
@@ -299,6 +340,7 @@ bind '"\e[19~":'$'"\203"'        # F8
 bind '"\e[18~":'$'"\204"'        # F7
 bind '"\e[19;2~":'$'"\205"'      # S-F8
 bind '"\eOS":'$'"\206"'          # F4
+bind '"\e[24~":'$'"\207\305\307\306"'        # F12
 bind '"\ep": history-search-backward'
 bind '"\en": history-search-forward'
 # Remap enter to run the "pre-command" hook.
