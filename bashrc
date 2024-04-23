@@ -247,11 +247,12 @@ function __prompt_command()
 
   PS1=""
   if [ "$EXTENDED_PROMPT" -eq 1 ]; then
+    PS1+='\D{} '
     s=$(git rev-parse --show-toplevel 2> /dev/null)
     if [ -z "$s" ]; then
       PS1+="<no git repo>"
     else
-      PS1+=$(git branch --format="%(refname:short) %(upstream:track)")
+      PS1+=$(git branch --show-current --format="%(refname:short) %(upstream:track)")
     fi
     PS1+='\r\n'
   fi
