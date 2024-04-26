@@ -1,6 +1,10 @@
 [[ $- == *i* ]] || return
 
-CONFIGS_PATH=~/configs
+if [[ "$0" != "$BASH_SOURCE" ]]; then
+	CONFIGS_PATH=$(dirname "$BASH_SOURCE")
+else
+	CONFIGS_PATH=$(dirname "$0")
+fi
 
 source ${CONFIGS_PATH}/bash/xwindows-icon-functions.sh
 source ${CONFIGS_PATH}/bash/xterm-functions.sh
@@ -247,6 +251,7 @@ function __prompt_command()
 
   PS1=""
   if [ "$EXTENDED_PROMPT" -eq 1 ]; then
+    PS1+='\[\033[0;40m\]'
     PS1+='\D{} '
     s=$(git rev-parse --show-toplevel 2> /dev/null)
     if [ -z "$s" ]; then
@@ -254,13 +259,18 @@ function __prompt_command()
     else
       PS1+=$(git branch --show-current --format="%(refname:short) %(upstream:track)")
     fi
-    PS1+='\r\n'
+    PS1+='\[\033[0m\]\r\n'
   fi
   if [ ! -z "$VIRTUAL_ENV_PROMPT" ]; then
     PS1+='\[\033[32m\]VENV:${VIRTUAL_ENV_PROMPT}'
   fi
   PS1+='\[\033[0m\]'                                     # reset all color
-  PS1+='\[\033[33m\]\h '                                  # hostname
+  if [ ! -z "$DOCKER_REF" ]; then
+    PS1+='\[\033[32m\]DOCK(\h) '                                  # hostname
+  else
+    PS1+='\[\033[33m\]\h '                                  # hostname
+  fi
+
   PS1+=${TERM_EMU_MSG}
 
   PS1+='\[\033[0m\]'                                     # reset color
