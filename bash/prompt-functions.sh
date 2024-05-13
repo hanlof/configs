@@ -12,28 +12,38 @@ function __git_color_path()
 {
   printf -v red  '\[\e[1;31m\]'
   printf -v yellow  '\[\e[1;33m\]'
-  printf -v pink '\[\e[1;35m\]'
+  printf -v purple '\[\e[1;35m\]'
   printf -v rst '\[\e[0m\]'
+  printf -v brown '\[\e[33m\]'
+  printf -v pink '\[\e[35m\]'
   out="$PWD"
-  repo=$(git rev-parse --show-toplevel 2> /dev/null)
+  gittop=$(git rev-parse --show-toplevel 2> /dev/null)
   while [ "$?" == "0" ]; do
-    if [ -d "${repo}/.git/rebase-merge" -o \
-         -d "${repo}/.git/rebase-apply" -o \
-         -f "${repo}/.git/MERGE_HEAD" -o \
-         -f "${repo}/.git/CHERRY_PICK_HEAD" -o \
-         -f "${repo}/.git/REVERT_HEAD" -o \
-         -d "${repo}/.git/sequencer" ]; then
+    if [ -d "${gittop}/.git/rebase-merge" -o \
+         -d "${gittop}/.git/rebase-apply" -o \
+         -f "${gittop}/.git/MERGE_HEAD" -o \
+         -f "${gittop}/.git/CHERRY_PICK_HEAD" -o \
+         -f "${gittop}/.git/REVERT_HEAD" -o \
+         -d "${gittop}/.git/sequencer" ]; then
       col=${yellow}
     else
-      col=${pink}
+      col=${purple}
     fi
-    tail=${out#${repo}}
-    repo_name=${repo##*/}
-    repo_prefix=${repo%$repo_name}
+    tail=${out#${gittop}}
+    repo_name=${gittop##*/}
+    repo_prefix=${gittop%$repo_name}
     out="${repo_prefix}${col}${repo_name}${rst}${tail}"
 
-    repo=$(git -C $repo/.. rev-parse --show-toplevel 2> /dev/null)
+    gittop=$(git -C $gittop/.. rev-parse --show-toplevel 2> /dev/null)
   done
+  reporoot=$(repo --show-toplevel 2> /dev/null)
+  tail=${out#${reporoot}}
+  if [ "$?" == 0 ]; then
+    repo_name=${reporoot##*/}
+    repo_prefix=${reporoot%$repo_name}
+    out="${repo_prefix}${pink}${repo_name}${rst}${tail}"
+  fi
+
   echo $out
 }
 
