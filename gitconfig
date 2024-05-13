@@ -30,6 +30,7 @@
 	co = checkout
 	st = status
 	br = branch
+	sb = show-branch
 	lsf = ls-files
 	ls = ls-files
 
