@@ -12,8 +12,8 @@ source ${CONFIGS_PATH}/bash/prompt-functions.sh
 
 _complete_repos() {
   local cur
-  pushd ~/repos > /dev/null
-  COMPREPLY=( $(compgen -d -- ${2}) )
+  pushd ~/sources > /dev/null
+  COMPREPLY=( $(compgen -G "*${2}*") )
   popd > /dev/null
 }
 
@@ -364,7 +364,7 @@ alias cvim='vim -c "set buftype=nofile|0put *"'
 alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
-alias rcd="cd ~/repos; cd "
+alias rcd="cd ~/sources; cd "
 alias vims="vim -S"
 
 function gstatus()
