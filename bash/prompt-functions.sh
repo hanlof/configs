@@ -16,6 +16,7 @@ function __git_color_path()
   printf -v rst '\[\e[0m\]'
   printf -v brown '\[\e[33m\]'
   printf -v pink '\[\e[35m\]'
+  printf -v white '\[\e[1;34m\]'
   out="$PWD"
   gittop=$(git rev-parse --show-toplevel 2> /dev/null)
   while [ "$?" == "0" ]; do
@@ -41,32 +42,9 @@ function __git_color_path()
   if [ "$?" == 0 ]; then
     repo_name=${reporoot##*/}
     repo_prefix=${reporoot%$repo_name}
-    out="${repo_prefix}${pink}${repo_name}${rst}${tail}"
+    out="${repo_prefix}${white}${repo_name}${rst}${tail}"
   fi
 
-  echo $out
-}
-
-function __repotool_color_path()
-{
-  printf -v red  '\e[1;31m'
-  printf -v yellow  '\e[1;33m'
-  printf -v pink '\e[1;35m'
-  printf -v rst '\e[0m'
-  printf -v brown '\e[33m'
-  out="$PWD"
-  repo=$PWD
-  while [ "$repo" != "" ]; do
-    if [ -e ${repo}/.repo ]; then col="${brown}"; else col=""; fi
-    tail=${out#${repo}}
-    repo_name=${repo##*/}
-    repo_prefix=${repo%$repo_name}
-    out="${repo_prefix}${col}${repo_name}${rst}${tail}"
-
-    echo $out
-
-    repo=${repo%/*}
-  done
   echo $out
 }
 
