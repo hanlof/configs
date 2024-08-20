@@ -301,12 +301,22 @@ __debug_command()
 }
 trap "__debug_command; " DEBUG
 
+restore_readline_state()
+{
+	READLINE_LINE="$READLINE_LINE_"
+	READLINE_POINT="$READLINE_POINT_"
+}
+
+save_readline_state()
+{
+	READLINE_LINE_="$READLINE_LINE"
+	READLINE_POINT_="$READLINE_POINT"
+}
 
 export EXTENDED_PROMPT=0
 __toggle_extended_prompt()
 {
-	READLINE_LINE_="$READLINE_LINE"
-	READLINE_POINT_="$READLINE_POINT"
+	save_readline_state
 	declare -g EXTENDED_PROMPT
 	echo -ne '\e[2K\e[100D'
 	echo -ne '\e[1A\e[2K\e[100D'
@@ -341,7 +351,7 @@ bind -x $'"\205": "insert_filename"' # S-F8
 bind -x $'"\206": "ft"' # F4
 bind -x $'"\207": "__toggle_extended_prompt"' # F12
 bind $'"\307": accept-line'
-bind -x $'"\306": print_shit'
+bind -x $'"\306": restore_readline_state'
 bind $'"\305": kill-whole-line'
 
 # real bindings, maps to intermediate bindings above to work around libreadline limitations
