@@ -365,6 +365,7 @@ alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/sources; cd "
 alias vims="vim -S"
+alias screen="LC_ALL=en_US.UTF-8 screen"
 
 function gstatus()
 {
