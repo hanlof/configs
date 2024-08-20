@@ -329,21 +329,10 @@ __toggle_extended_prompt()
 	__prompt_command
 }
 
-print_shit()
-{
-	if [ "$EXTENDED_PROMPT" -eq 0 ]; then
-		: # echo -ne '\e[A\e[100D'
-	else
-		: # echo -ne '\e[A\e[100D'
-	fi
-	READLINE_LINE="$READLINE_LINE_"
-	READLINE_POINT="$READLINE_POINT_"
-}
-
 # dummy bindings to work around shortcomings in libreadline
 # TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
-bind -x $'"\201": "run_menu"' # F9
+bind -x $'"\301": "run_menu"' # F9
 bind -x $'"\202": "find_git_file"' # F3
 bind -x $'"\203": "insert_git_top"' # F8
 bind -x $'"\204": "insert_from_file ~/bin/paths"' # F7
@@ -355,7 +344,7 @@ bind -x $'"\306": restore_readline_state'
 bind $'"\305": kill-whole-line'
 
 # real bindings, maps to intermediate bindings above to work around libreadline limitations
-bind '"\e[20~":'$'"\201"'        # F9
+bind '"\e[20~":'$'"\301"'        # F9
 bind '"\eOR":'$'"\202"'          # F3
 bind '"\e[19~":'$'"\203"'        # F8
 bind '"\e[18~":'$'"\204"'        # F7
