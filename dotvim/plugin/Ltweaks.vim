@@ -36,7 +36,9 @@ function s:SetFileOptions()
 
   " set these in global variables and then source the autoconfig.vim global script
   " set global utility functions g:PathMatches
-  source ~/.ltweaks.vim
+  if filereadable("~/.ltweaks.vim")
+    source ~/.ltweaks.vim
+  endif
 endfunction
 
 

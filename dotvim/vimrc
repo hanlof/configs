@@ -124,6 +124,7 @@ filetype indent on
 
 " ### Stuff related to whitespace and special characters begin here ###
 
+set encoding=utf8
 let &listchars="tab:‣\ " "set this one using let so it doesn't show up as a space error!
 set list
 
