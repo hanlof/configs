@@ -329,6 +329,10 @@ __toggle_extended_prompt()
 	__prompt_command
 }
 
+bind "set convert-meta off"
+bind "set input-meta on"
+bind "set output-meta on"
+
 # dummy bindings to work around shortcomings in libreadline
 # TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
