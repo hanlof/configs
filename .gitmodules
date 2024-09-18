@@ -32,9 +32,6 @@
 [submodule "submodules/vim-quickui"]
 	path = submodules/vim-quickui
 	url = git@github.com:skywind3000/vim-quickui.git
-[submodule "vim-scroll-barnacle"]
-	path = vim-scroll-barnacle
-	url = https://github.com/sslivkoff/vim-scroll-barnacle
 [submodule "submodules/vim-scroll-barnacle"]
 	path = submodules/vim-scroll-barnacle
 	url = https://github.com/sslivkoff/vim-scroll-barnacle
