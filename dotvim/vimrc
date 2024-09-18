@@ -9,6 +9,7 @@
 
 " this old friend goes first in every dotvimrc, for sentimental reasons <3
 set nocp
+set display+=lastline
 
 " some handy paths
 let g:configsPath = expand("<sfile>:h:h")
@@ -33,6 +34,7 @@ if has("packages")
   packadd termdebug
   packadd cfilter
 endif
+set encoding=utf-8
 
 " Local extras (from configs repo)
 runtime emacs-keymappings-for-command-editing.vim
