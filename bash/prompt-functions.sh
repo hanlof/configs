@@ -16,7 +16,7 @@ function __git_color_path()
   printf -v rst '\[\e[0m\]'
   printf -v brown '\[\e[33m\]'
   printf -v pink '\[\e[35m\]'
-  printf -v white '\[\e[1;34m\]'
+  printf -v white '\[\e[1;36m\]'
   out="$PWD"
   gittop=$(git rev-parse --show-toplevel 2> /dev/null)
   while [ "$?" == "0" ]; do

@@ -17,6 +17,12 @@ _complete_repos() {
   popd > /dev/null
 }
 
+_complete_htdock() {
+  local cur
+  cd ~/sources/haleytek-dhu
+  COMPREPLY=( $(compgen -W "di qnx aosp aosp-intel safety nonhos polyspace gradle device-testing cts emulator yocto" "$2"))
+}
+
 find_dmenu()
 {
   # system-wide installed? if found we return immediately
@@ -37,6 +43,15 @@ check_cwd_in_gitrepo()
 {
   s=$(git rev-parse --show-toplevel 2> /dev/null)
   if [ -z "$s" ]; then
+    echo "$*"
+    return 1
+  fi
+}
+
+check_cwd_in_reporepo()
+{
+  s=$(repo --show-toplevel 2> /dev/null)
+  if [ "$?" -ne 0 ]; then
     echo "$*"
     return 1
   fi
@@ -101,8 +116,19 @@ ft()
 
 find_git_file()
 {
-  find_dmenu
+  check_cwd_in_gitrepo || {
+    check_cwd_in_reporepo "Enter git repo or repo repo" || return 1
+    find_dmenu
+    dirname=$(repo list -p | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
+    if [ -z "$dirname" ]; then return; fi
+
+    history -s cd ${dirname}
+    fc -s
+    return
+  }
+
   check_cwd_in_gitrepo "Enter git repo first." || return 1
+  find_dmenu
   gittop=$(git rev-parse --show-toplevel 2> /dev/null)
   fname=$(git ls-files "${gittop}" | ${DMENU_PATH} -w $WINDOWID -i -l 50 -p ">" 2> /dev/null)
   if [ -z "$fname" ]; then return; fi
@@ -137,6 +163,8 @@ run-prompt()
   fi
 }
 
+# TODO: redo this so it modifies READLINE_LINE and READLINE_POINT instead of playing with eval
+#       and then add accept-line to the key binding so this stuff shows shows properly on the screen
 run_menu ()
 {
   printf "\e[?1049h" >&2
@@ -257,7 +285,13 @@ function __prompt_command()
     if [ -z "$s" ]; then
       PS1+="<no git repo>"
     else
-      PS1+=$(git branch --show-current --format="%(refname:short) %(upstream:track)")
+      branch=$(git branch --show-current)
+      if [ -z "$branch" ]; then
+        branch="D:$(git rev-parse --short HEAD)"
+      else
+        branch=$(git branch --list "${branch}" --format="%(refname:short) %(upstream:track)")
+      fi
+      PS1+="$branch"
     fi
     PS1+='\[\033[0m\]\r\n'
   fi
@@ -368,6 +402,7 @@ alias ls="ls --color"
 alias ll="ls -l --color"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/sources; cd "
+alias dock="cd ~/sources/haleytek-dhu; ./tools/haleytek/docker-images/run.py --target "
 alias vims="vim -S"
 alias screen="LC_ALL=en_US.UTF-8 screen"
 
@@ -380,6 +415,8 @@ function gstatus()
 alias gstat=gstatus
 
 complete -F _complete_repos rcd
+complete -F _complete_htdock dock
+
 
 find_dmenu
 
