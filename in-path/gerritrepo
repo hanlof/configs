@@ -1,0 +1,51 @@
+#!/bin/bash
+
+source ~/.gerritrepo
+#example .gerritrepo:
+EX="""
+SSH_CMD='ssh hans@some-gerrit-host.net -p 29418 gerrit query --current-patch-set'
+REPO_LIST='~/sources/some-repotool-repo ~/sources/another-repotool-repo'
+"""
+
+commit_present()
+{
+  git -C "${1}" cat-file commit "${2}" > /dev/null 2> /dev/null
+}
+
+G=( "$(${SSH_CMD} "$1")" )
+P=( $(echo "$G" | grep project:) )
+R=( $(echo "$G" | grep revision:) )
+proj=${P[1]}
+rev=${R[1]}
+
+ALL_ALTS=()
+for P in $REPO_LIST; do
+  P="${P/#\~/$HOME}"
+  _IFS="$IFS"; IFS=$'\n'
+  STUFF=( $(cd "$P"; repo list | grep "$proj") )
+  IFS="$_IFS"
+  STUFF=( "${STUFF[@]%% :*}" )
+  STUFF=( "${STUFF[@]/#/${P}\/}" )
+  ALL_ALTS+=( "${STUFF[@]}" )
+done
+
+if [ "$?" -ne "0" ]; then
+  echo ERR: \'repo list\' does not include \"${proj}\"
+fi
+S=( $P )
+#echo aalts ${#ALL_ALTS[*]} "${ALL_ALTS[@]}"
+
+for a in "${ALL_ALTS[@]}"; do
+  echo -n $a
+  if commit_present $a $rev; then
+    present_rev=$(git -C $a rev-parse HEAD)
+    if [ "$present_rev" = "$rev" ]; then
+      echo -ne '\e[1;37m [checked out]\e[0m'
+    fi
+  fi
+  echo ""
+done
+
+# cd sources; echo */.repo
+# => outputs all .repo directories under current dir
+
