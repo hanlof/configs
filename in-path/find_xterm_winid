@@ -1,0 +1,15 @@
+#!/bin/bash
+
+sha1sum_output=( $(dd if=/dev/urandom bs=1024 count=1 status=none | sha1sum) )
+random_token="find_window_${sha1sum_output[0]}"
+# push xterm title to stack
+echo -ne '\e[22t'
+# set generated random unique title
+echo -ne "\033]0;${random_token}\a"
+# find window with that title
+xwininfo_output="$(xwininfo -name ${random_token} -children)"
+# pop xterm title from stack
+echo -ne '\e[23t'
+
+echo Windowid is in here somewhere
+echo "$xwininfo_output"
