@@ -20,7 +20,7 @@ _complete_repos() {
 _complete_htdock() {
   local cur
   cd ~/sources/haleytek-dhu
-  COMPREPLY=( $(compgen -W "di qnx aosp aosp-intel safety nonhos polyspace gradle device-testing cts emulator yocto" "$2"))
+  COMPREPLY=( $(compgen -W "di qnx aosp aosp-intel safety nonhlos polyspace gradle device-testing cts emulator yocto" "$2"))
 }
 
 find_dmenu()
@@ -299,7 +299,8 @@ function __prompt_command()
     PS1+='\[\033[32m\]VENV:${VIRTUAL_ENV_PROMPT}'
   fi
   PS1+='\[\033[0m\]'                                     # reset all color
-  if [ ! -z "$DOCKER_REF" ]; then
+  NPS=(/proc/[123456789]*)
+  if [ "${#NPS[*]}" -lt 20 ]; then
     PS1+='\[\033[32m\]DOCK(\h) '                                  # hostname
   else
     PS1+='\[\033[33m\]\h '                                  # hostname
@@ -399,8 +400,8 @@ bind $'"\C-j": accept-line'
 function xvim() { xterm -e vim "$@" & }
 alias tvim='vim -c "set buftype=nofile"'
 alias cvim='vim -c "set buftype=nofile|0put *"'
-alias ls="ls --color"
-alias ll="ls -l --color"
+alias ls="ls --color=auto"
+alias ll="ls -l --color=auto"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/sources; cd "
 alias dock="cd ~/sources/haleytek-dhu; ./tools/haleytek/docker-images/run.py --target "
