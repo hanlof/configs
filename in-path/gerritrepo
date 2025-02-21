@@ -21,6 +21,7 @@ rev=${R[1]}
 ALL_ALTS=()
 for P in $REPO_LIST; do
   P="${P/#\~/$HOME}"
+  >/dev/null 2>/dev/null cd "$P" && repo list >/dev/null 2>/dev/null || continue
   _IFS="$IFS"; IFS=$'\n'
   STUFF=( $(cd "$P"; repo list | grep "$proj") )
   IFS="$_IFS"
@@ -39,6 +40,7 @@ for a in "${ALL_ALTS[@]}"; do
   echo -n $a
   if commit_present $a $rev; then
     present_rev=$(git -C $a rev-parse HEAD)
+    echo -ne '\e[1;37m [commit present at '$(git -C "$a" branch --contains $rev --format "%(refname:lstrip=-1)")']\e[0m'
     if [ "$present_rev" = "$rev" ]; then
       echo -ne '\e[1;37m [checked out]\e[0m'
     fi

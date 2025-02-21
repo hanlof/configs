@@ -1,0 +1,16 @@
+#!/bin/bash
+
+dockid=( $(docker ps --filter NAME="$1" -q) )
+if [ ${#dockid[@]} -lt 1 ]; then
+	echo no matching docker containers
+	exit 1
+fi
+
+if [ ${#dockid[@]} -gt 1 ]; then
+	docker ps --filter NAME="$1" --format "table {{.ID}}\t{{.Names}}\t{{.Status}}" | grep -P --color "\s.*\K$1"
+	echo too many docker containers
+	exit 1
+fi
+echo -n "Launching bash for container "
+docker ps --filter ID="$dockid" --format "{{.ID}}\t{{.Names}}\t{{.Image}}" | tail -1
+docker exec -ti $dockid bash
