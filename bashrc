@@ -12,6 +12,7 @@ source ${CONFIGS_PATH}/bash/prompt-functions.sh
 
 _complete_repos() {
   local cur
+  test -d ~/sources || return
   pushd ~/sources > /dev/null
   COMPREPLY=( $(compgen -G "*${2}*") )
   popd > /dev/null
@@ -20,7 +21,7 @@ _complete_repos() {
 _complete_htdock() {
   local cur
   cd ~/sources/haleytek-dhu
-  COMPREPLY=( $(compgen -W "di qnx aosp aosp-intel safety nonhos polyspace gradle device-testing cts emulator yocto" "$2"))
+  COMPREPLY=( $(compgen -W "di qnx aosp aosp-intel safety nonhlos polyspace gradle device-testing cts emulator yocto" "$2"))
 }
 
 find_dmenu()
@@ -299,7 +300,8 @@ function __prompt_command()
     PS1+='\[\033[32m\]VENV:${VIRTUAL_ENV_PROMPT}'
   fi
   PS1+='\[\033[0m\]'                                     # reset all color
-  if [ ! -z "$DOCKER_REF" ]; then
+  NPS=(/proc/[123456789]*)
+  if [ "${#NPS[*]}" -lt 20 ]; then
     PS1+='\[\033[32m\]DOCK(\h) '                                  # hostname
   else
     PS1+='\[\033[33m\]\h '                                  # hostname
@@ -399,8 +401,8 @@ bind $'"\C-j": accept-line'
 function xvim() { xterm -e vim "$@" & }
 alias tvim='vim -c "set buftype=nofile"'
 alias cvim='vim -c "set buftype=nofile|0put *"'
-alias ls="ls --color"
-alias ll="ls -l --color"
+alias ls="ls --color=auto"
+alias ll="ls -l --color=auto"
 alias gitk-a='git for-each-ref --format="^%(refname:short)" -- refs/notes/ | xargs gitk --all'
 alias rcd="cd ~/sources; cd "
 alias dock="cd ~/sources/haleytek-dhu; ./tools/haleytek/docker-images/run.py --target "
@@ -413,6 +415,34 @@ function gstatus()
   check_cwd_in_gitrepo "Enter git repo first." || return 1
   vim -c "call FugitiveDetect('.') | tab 1G | 1tabclose"
 }
+
+function newgpa()
+{
+    return
+    mkdir ~/sources/haleytek-gpa
+    cd ~/sources/haleytek-gpa
+    repo init -u ssh://source-secure.haleytek.net:29418/haleytek/manifest -m ht_vcc/ht-qc8255-android14-vcc-init.xml --reference ~/sources/haleytek-mirror
+    repo sync -c -d -j24  --force-sync
+}
+
+function newdhu12()
+{
+    return
+    mkdir ~/sources/haleytek-dhu-12
+    cd ~/sources/haleytek-dhu-12
+    repo init -u ssh://source-secure.haleytek.net/haleytek/manifest -m ht-volvocars.xml --reference ~/sources/haleytek-mirror
+    repo sync -c -d
+}
+
+function newdhu14()
+{
+    return
+    mkdir ~/sources/haleytek-dhu-14
+    cd ~/sources/haleytek-dhu-14
+    repo init -u ssh://source-secure.haleytek.net/haleytek/manifest -m ht_vcc/ht-qc8155-android14-vcc-init.xml --reference ~/sources/haleytek-mirror
+    repo sync -c -d
+}
+
 alias gstat=gstatus
 
 complete -F _complete_repos rcd
