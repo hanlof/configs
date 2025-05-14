@@ -278,6 +278,8 @@ function __prompt_command()
   set_xterm_title "$ ${xterm_title}"                 # xterm title
 
   PS1=""
+  # Sanitise terminal just in case any app left in in a bad state
+  PS1+='\[\[\033[?1000l\033[?9l\033[>4;m\]'
   if [ "$EXTENDED_PROMPT" -eq 1 ]; then
     PS1+='\[\033[0;40m\]'
     PS1+='\D{} '
@@ -317,7 +319,8 @@ function __prompt_command()
   PS1+="$(__git_color_path)"
   PS1+="$(__prompt_exit_status ${__exit_status})"
 
-  PS1+=' \[\033[1;38;5;6m\]\$\[\033[0m\] '                       # display the $ and reset color
+  PS1+=' \[\033[1;38;5;6m\]\$\[\033[0m\] '               # display the $ and reset color
+  PS1+='\[\033[2 q\]'                                    # set the cursor to blinking block
   export PS1
 }
 
