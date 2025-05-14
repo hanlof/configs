@@ -381,30 +381,24 @@ bind $'"\327": accept-line'
 bind -x $'"\326": restore_readline_state'
 bind $'"\325": kill-whole-line'
 
-# take a terminfo capability name (arg1) and bind it to something (arg2)
-magic_bind()
-{
-	term_code=$(tput "$1")
-	bind \""$term_code"\":"$2"
-}
 
-MAGIC_BIND_NUM=193 # 0xc1 0o301
+MAGIC_BIND_NUM=135 # 0x87 0o207
 
 get_next_mapping_char()
 {
+	declare -n OUTPUT_VAR=$1
 	hexcode=$(printf %x $MAGIC_BIND_NUM)
-	char=$(printf \\x"$hexcode")
-	__MAGIC_BIND_CHAR="$char"
+	OUTPUT_VAR=$(printf \\x"$hexcode")
 	let MAGIC_BIND_NUM+=1
 }
 
+# take a terminfo capability name (arg1) and bind it to something (arg2)
 magic_bind_x()
 {
 	term_code=$(tput "$1")
-	get_next_mapping_char
-	char=$__MAGIC_BIND_CHAR
-	bind \""$term_code"\":\""$char"\"
-	bind -x \""$char"\":"$2"
+	get_next_mapping_char __char
+	bind \""$term_code"\":\""$__char"\"
+	bind -x \""$__char"\":"$2"
 }
 
 magic_bind_x kf3  '"find_git_file"'
