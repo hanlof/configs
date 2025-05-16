@@ -372,16 +372,6 @@ bind "set input-meta on"
 bind "set output-meta on"
 bind 'set enable-bracketed-paste off'
 
-# dummy bindings to work around shortcomings in libreadline
-# TODO Maybe have a look at the numbers some time :)
-bind -x $'"\200": "__pre_line_accept_command"'
-bind -x $'"\207": "__toggle_extended_prompt"' # F12
-bind -x $'"\210": "mouse-reporting.sh"' # C-S-RMB
-bind $'"\327": accept-line'
-bind -x $'"\326": restore_readline_state'
-bind $'"\325": kill-whole-line'
-
-
 MAGIC_BIND_NUM=135 # 0x87 0o207
 
 get_next_mapping_char()
@@ -392,29 +382,52 @@ get_next_mapping_char()
 	let MAGIC_BIND_NUM+=1
 }
 
-# take a terminfo capability name (arg1) and bind it to something (arg2)
+# take a key sequence (arg1) and bind it to something (arg2) via intermediate single-character sequence
 magic_bind_x()
 {
-	term_code=$(tput "$1")
+	term_code="$1"
 	get_next_mapping_char __char
-	bind \""$term_code"\":\""$__char"\"
+	if [ "$term_code" != "" ]; then
+		bind \""$term_code"\":\""$__char"\"
+	fi
+	if [ "$#" -gt 2 ]; then
+		declare -n varref=$3
+		varref="$__char"
+	fi
 	bind -x \""$__char"\":"$2"
 }
 
-magic_bind_x kf3  '"find_git_file"'
-magic_bind_x kf4  '"ft"'
-magic_bind_x kf7  '"insert_from_file ~/bin/paths"'
-magic_bind_x kf8  '"insert_git_top"'
-magic_bind_x kf9  '"run_menu"'
-magic_bind_x kf20 '"insert_filename"' # kf20 = S-F8
+magic_bind()
+{
+	term_code="$1"
+	get_next_mapping_char __char
+	if [ "$term_code" != "" ]; then
+		bind \""$term_code"\":\""$__char"\"
+	fi
+	if [ "$#" -gt 2 ]; then
+		declare -n varref=$3
+		varref="$__char"
+	fi
+	bind \""$__char"\":"$2"
+}
 
-# real bindings, maps to intermediate bindings above to work around libreadline limitations
-bind '"\e[24~":'$'"\207\325\327\326"'        # F12 / toggle multiline prompt, kill-line, accept-line, restore_readline_state
-bind '"\e[68~":'$'"\210"'        # ctrl-shift-RMB (bound in Xresources)
+magic_bind_x $(tput kf3)  "find_git_file"
+magic_bind_x $(tput kf4)  "ft"
+magic_bind_x $(tput kf7)  "insert_from_file ~/bin/paths"
+magic_bind_x $(tput kf8)  "insert_git_top"
+magic_bind_x $(tput kf9)  "run_menu"
+magic_bind_x $(tput kf20) "insert_filename" # kf20 = S-F8
+magic_bind_x "" "__pre_line_accept_command" __pre_line_accept_char
+magic_bind_x "" "__toggle_extended_prompt" __toggle_extended_prompt_char
+magic_bind_x "" "restore_readline_state" __restore_readline_state_char
+magic_bind_x "\e[68~" "mouse-reporting.sh"        # ctrl-shift-RMB (bound in Xresources)
+magic_bind "" "kill-whole-line" __kill_line_char
+magic_bind "" "accept-line" __accept_line_char
+bind "\"$(tput kf12)\": \"${__toggle_extended_prompt_char}${__kill_line_char}${__accept_line_char}$__restore_readline_state_char\""
 bind '"\ep": history-search-backward'
 bind '"\en": history-search-forward'
 # Remap enter to run the "pre-command" hook.
-bind $'"\C-m": "\200\327"'
+bind $'"\C-m": "'"${__pre_line_accept_char}${__accept_line_char}"'"'
 # C-j is backup "accept-line" just in case...
 bind $'"\C-j": accept-line'
 
