@@ -279,6 +279,8 @@ function __prompt_command()
   set_xterm_title "$ ${xterm_title}"                 # xterm title
 
   PS1=""
+  # Sanitise terminal just in case any app left in in a bad state
+  PS1+='\[\[\033[?1000l\033[?9l\033[>4;m\]'
   if [ "$EXTENDED_PROMPT" -eq 1 ]; then
     PS1+='\[\033[0;40m\]'
     PS1+='\D{} '
@@ -318,7 +320,8 @@ function __prompt_command()
   PS1+="$(__git_color_path)"
   PS1+="$(__prompt_exit_status ${__exit_status})"
 
-  PS1+=' \[\033[1;38;5;6m\]\$\[\033[0m\] '                       # display the $ and reset color
+  PS1+=' \[\033[1;38;5;6m\]\$\[\033[0m\] '               # display the $ and reset color
+  PS1+='\[\033[2 q\]'                                    # set the cursor to blinking block
   export PS1
 }
 
@@ -373,29 +376,53 @@ bind 'set enable-bracketed-paste off'
 # dummy bindings to work around shortcomings in libreadline
 # TODO Maybe have a look at the numbers some time :)
 bind -x $'"\200": "__pre_line_accept_command"'
-bind -x $'"\301": "run_menu"' # F9
-bind -x $'"\202": "find_git_file"' # F3
-bind -x $'"\203": "insert_git_top"' # F8
-bind -x $'"\204": "insert_from_file ~/bin/paths"' # F7
-bind -x $'"\205": "insert_filename"' # S-F8
-bind -x $'"\206": "ft"' # F4
 bind -x $'"\207": "__toggle_extended_prompt"' # F12
-bind $'"\307": accept-line'
-bind -x $'"\306": restore_readline_state'
-bind $'"\305": kill-whole-line'
+bind -x $'"\210": "mouse-reporting.sh"' # C-S-RMB
+bind $'"\327": accept-line'
+bind -x $'"\326": restore_readline_state'
+bind $'"\325": kill-whole-line'
+
+# take a terminfo capability name (arg1) and bind it to something (arg2)
+magic_bind()
+{
+	term_code=$(tput "$1")
+	bind \""$term_code"\":"$2"
+}
+
+MAGIC_BIND_NUM=193 # 0xc1 0o301
+
+get_next_mapping_char()
+{
+	hexcode=$(printf %x $MAGIC_BIND_NUM)
+	char=$(printf \\x"$hexcode")
+	__MAGIC_BIND_CHAR="$char"
+	let MAGIC_BIND_NUM+=1
+}
+
+magic_bind_x()
+{
+	term_code=$(tput "$1")
+	get_next_mapping_char
+	char=$__MAGIC_BIND_CHAR
+	bind \""$term_code"\":\""$char"\"
+	bind -x \""$char"\":"$2"
+}
+
+magic_bind_x kf3  '"find_git_file"'
+magic_bind_x kf4  '"ft"'
+magic_bind_x kf7  '"insert_from_file ~/bin/paths"'
+magic_bind_x kf8  '"insert_git_top"'
+magic_bind_x kf9  '"run_menu"'
+magic_bind_x kf20 '"insert_filename"' # kf20 = S-F8
 
 # real bindings, maps to intermediate bindings above to work around libreadline limitations
-bind '"\e[20~":'$'"\301"'        # F9
-bind '"\eOR":'$'"\202"'          # F3
-bind '"\e[19~":'$'"\203"'        # F8
-bind '"\e[18~":'$'"\204"'        # F7
-bind '"\e[19;2~":'$'"\205"'      # S-F8
-bind '"\eOS":'$'"\206"'          # F4
-bind '"\e[24~":'$'"\207\305\307\306"'        # F12
+bind '"\e[24~":'$'"\207\325\327\326"'        # F12 / toggle multiline prompt, kill-line, accept-line, restore_readline_state
+bind '"\e[68~":'$'"\210"'        # ctrl-shift-RMB (bound in Xresources)
 bind '"\ep": history-search-backward'
 bind '"\en": history-search-forward'
 # Remap enter to run the "pre-command" hook.
-bind $'"\C-m": "\200\307"'
+bind $'"\C-m": "\200\327"'
+# C-j is backup "accept-line" just in case...
 bind $'"\C-j": accept-line'
 
 function xvim() { xterm -e vim "$@" & }
@@ -475,5 +502,7 @@ else
 fi
 
 # never again be terrorized by locale BS
-export -n LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
-unset LANG LANGUAGE LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
+export -n LANG LANGUAGE LC_NUMERIC LC_CTYPE LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
+unset LANG LANGUAGE LC_NUMERIC LC_CTYPE LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
+# but apparently CTYPE is useful or readline will be confused about multibyte characters
+export LC_ALL=C.utf8
