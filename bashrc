@@ -389,7 +389,7 @@ magic_bind()
 	bind \""$term_code"\":"$2"
 }
 
-MAGIC_BIND_NUM=193 # 0xc1 0o301
+MAGIC_BIND_NUM=198 # 0x306
 
 get_next_mapping_char()
 {
