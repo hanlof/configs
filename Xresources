@@ -1,6 +1,6 @@
-#include "xres.def"
+#include </home/hans/configs/xres.def>
 XTerm*termName: xterm-256color
-XTerm*faceName: Monospace
+XTerm*faceName: JetBrains Mono Medium
 XTerm*faceSize: 10
 XTerm*saveLines: 200000
 XTerm*scrollKey: true
@@ -10,21 +10,17 @@ XTerm*fontDoublesize: true
 XTerm*allowWindowOps: true
 XTerm*allowFontOps: true
 XTerm*internalBorder: 0
-#include "solarized-xr"
+#include </home/hans/configs/solarized-xr>
 
 XTerm*cursorBlink: 1
-XTerm*font1: Monospace
-XTerm*faceSize1: 2
-XTerm*font2: Monospace
-XTerm*faceSize2: 6
-XTerm*font3: Monospace
-XTerm*faceSize3: 8
-XTerm*font4: Monospace
-XTerm*faceSize4: 12
-XTerm*font5: Monospace
-XTerm*faceSize5: 14
-XTerm*font6: Monospace
-XTerm*faceSize6: 18
+
+XTerm*faceSize1: 6
+XTerm*faceSize2: 8
+XTerm*faceSize3: 12
+XTerm*faceSize4: 14
+XTerm*faceSize5: 16
+XTerm*faceSize6: 20
+XTerm*faceSize7: 24
 
 xterm*activeIcon: true
 
@@ -64,6 +60,7 @@ XTerm*metaSendsEscape: true
 *VT100.Translations: #override \n\
   Ctrl Shift <Btn4Down>: string("0x1b") string("[66~") \n\
   Ctrl Shift <Btn5Down>: string("0x1b") string("[67~") \n\
+  Ctrl Shift <Btn3Down>: string("0x1b") string("[68~") \n\
   Shift <Btn4Down>: string("0x1b") string("[64~") \n\
   Shift <Btn5Down>: string("0x1b") string("[65~") \n\
   Ctrl <Btn4Down>: larger-vt-font() \n\
@@ -75,7 +72,7 @@ XTerm*metaSendsEscape: true
   <Map>: select-cursor-start() \
          select-cursor-end(PRIMARY) \
          copy-selection(PRIMARY) \
-         exec-selectable("/home/hlofving/configs/xterm-event-handler.sh Map", word) \n\
+         exec-selectable("/home/hans/configs/xterm-event-handler.sh Map", word) \n\
   Shift Ctrl <KeyPress> D: interpret( STR(setbg(S_base03)) )
 
 !  <Prop>: exec-selectable("/home/hlofving/configs/xterm-event-handler.sh Prop", word) \n\
