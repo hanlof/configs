@@ -6,9 +6,10 @@ echo -ne "\e[?1000h"
 COMMANDS="""\
 ls -l
 echo hej
-DDDDDDD
-xxxxxxxxxxxxxxxxxxxx
-EEEE
+git ll
+date
+uname -a
+git rev-parse --show-toplevel
 CCC\
 """
 
@@ -48,9 +49,14 @@ while true; do
 		case "$_KEY" in
 			q) break ;;
 		esac
+		continue
 	fi
 
         read -s -t 0.01 -n 1 _KEY
+	if [ "$?" != 0 ]; then
+		# only escape pressed. no more input to read
+		exit
+	fi
         if [ "$_KEY" != $'[' ]; then continue; fi
 
         read -s -n 1 _KEY
@@ -67,8 +73,14 @@ while true; do
 		printf -v Y %d \'${WHAT:1:1}\'
 	else
 		PRESS=0
+		printf -v W %d \'${WHAT:0:1}\'
 		printf -v X %d \'${WHAT:1:1}\'
 		printf -v Y %d \'${WHAT:2:1}\'
+		if [ $W = 34 ]; then
+			exit
+		fi
+		# middle: W = 33, right: W = 34, release: W = 35
+		# wheel up: W = 96, wheel down: W = 97
 	fi
 	let X-=33
 	let Y-=33
