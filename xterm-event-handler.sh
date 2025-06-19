@@ -18,7 +18,8 @@ case $1 in
     Map)
         exec > ${OUTPUT}
         source "${CONFIGS_PATH}"/bash/xterm-functions.sh
-        rand_xterm_geometry <> ${OUTPUT}
+	# XXX does not play nice with awesome, skip for now
+        # rand_xterm_geometry <> ${OUTPUT}
         ;;
     Prop)
         echo prop >> /tmp/xterm-event-handler-timestamp
