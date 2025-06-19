@@ -10,7 +10,7 @@ set -e
 # DONE: install gitconfig include using git config mechanism
 
 # TODO: consider global (system-wide) git options (hooks) that may interfere with this local git repo and/or other repos
-# TODO: sudo apt-get install vim vim-gtk3 git gitk build-essential gcc make incscape. what else??
+# TODO: sudo apt-get install vim vim-gtk3 git gitk build-essential gcc make incscape ipython3 dmenu fonts-jetbrains-mono. what else?? 
 # TODO: build universal-ctags (in background process?!)
 # TODO: do some SED magic for paths and install template files. gonna need some interactivity if files exists
 # TODO: set up ~/.vimrc to properly include $CONFIGS_PATH/dotvim/vimrc
