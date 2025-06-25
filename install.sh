@@ -20,6 +20,27 @@ set -e
 # TODO: consider what dependencies we have in install.sh. git?! apt-get ?! LOLz. vim... make...
 # TODO: MAKEFLAGS -j <n> for builds in here
 
+# PACKAGES
+# -- YouCompleteMe
+# sudo apt install libclang-dev
+# sudo apt install go
+# sudo apt install golang-go
+# sudo apt install npm
+# sudo apt install openjdk-17-jre
+# sudo apt install ipython3
+#
+# -- random
+# sudo apt-get install inkscape
+# sudo apt-get install xubuntu-desktop xterm
+# sudo apt-get install xterm vim
+# sudo apt-get install libx11-dev
+# sudo apt-get install dmenu
+# sudo apt-get install cmake
+# sudo apt-get install libpython3.10-dev
+# sudo apt-get install python3-pip pqiv
+# /snap/blender/4300/4.0/python/bin/python3.10 -m pip install astropy
+# /snap/blender/4301/4.0/python/bin/python3.10 -m pip install lunarsky
+
 CONFIGS_PATH=$(dirname $0)
 CONFIGS_PATH_ABS=$(readlink -m ${CONFIGS_PATH})
 
