@@ -11,24 +11,23 @@
 [submodule "submodules/vim-bitbake"]
 	path = submodules/vim-bitbake
 	url = https://github.com/kergoth/vim-bitbake
+	branch = origin/master
 [submodule "submodules/vim-rtags"]
 	path = submodules/vim-rtags
 	url = https://github.com/shaneharper/vim-rtags/
+	branch = origin/master
 [submodule "submodules/universal-ctags"]
 	path = submodules/universal-ctags
 	url = https://github.com/universal-ctags/ctags
+	branch = origin/master
 [submodule "submodules/YouCompleteMe"]
 	path = submodules/YouCompleteMe
 	url = https://github.com/ycm-core/YouCompleteMe
-[submodule "dotvim/pack/a/start/vim-fzy"]
-	path = submodules/vim-fzy
-	url = https://github.com/bfrg/vim-fzy
+	branch = remotes/origin/legacy-vim-8.2
 [submodule "submodules/vim-qml"]
 	path = submodules/vim-qml
 	url = git@github.com:peterhoeg/vim-qml.git
-[submodule "submodules/pmenu"]
-	path = submodules/pmenu
-	url = ssh://git@github.com/sgtpep/pmenu
+	branch = origin/master
 [submodule "submodules/vim-quickui"]
 	path = submodules/vim-quickui
 	url = git@github.com:skywind3000/vim-quickui.git
