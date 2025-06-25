@@ -513,4 +513,11 @@ fi
 export -n LANG LANGUAGE LC_NUMERIC LC_CTYPE LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
 unset LANG LANGUAGE LC_NUMERIC LC_CTYPE LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
 # but apparently CTYPE is useful or readline will be confused about multibyte characters
-export LC_ALL=C.utf8
+locales=$(locale -a)
+while read l # find the apropriate utf8 locale in available locales
+    do if [[ $l =~ (C.UTF-8|C.utf8) ]]; then
+        export LC_ALL=$l
+        break
+    fi
+done <<< "$locales"
+
